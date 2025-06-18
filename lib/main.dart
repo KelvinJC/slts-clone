@@ -1,36 +1,60 @@
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/screens/login_screen.dart';
 import 'injection.dart';
 import 'features/sync/presentation/providers/sync_service.dart';
 
-/// This is called when a background fetch event fires.
+/// Headless entry point for background_fetch.
+///
+/// We need our own ProviderContainer so we can read
+/// Riverpod providers outside of the widget tree.
 void _onBackgroundFetch(String taskId) async {
-  // Create a fresh ProviderContainer so we can read our sync use‑case
-  final container = ProviderContainer(overrides: AppModule.overrides);
+  final container = ProviderContainer(
+    // only needed if you have test/dev overrides
+    overrides: AppModule.overrides,
+  );
+
   try {
-    // Call your sync use‑case to upload cached violations
+    // Trigger your sync use‑case
     await container.read(syncOfflineDataProvider)();
   } catch (e) {
-    // Handle/log errors as you see fit
     print('[BackgroundFetch] sync error: $e');
+  } finally {
+    BackgroundFetch.finish(taskId);
+    container.dispose(); // clean up
   }
-  // IMPORTANT: signal completion of your task to OS
-  BackgroundFetch.finish(taskId);
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LocalStorage.instance.init();
-  runApp(ProviderScope(overrides: AppModule.overrides, child: const MyApp()));
 
-  // Configure Background Fetch
+  // 1) Load env variables
+  await dotenv.load(fileName: ".env");
+
+  // 2) Initialize secure storage / Hive etc.
+  await LocalStorage.instance.init();
+
+  // 3) Register headless handler before runApp
+  BackgroundFetch.registerHeadlessTask(_onBackgroundFetch);
+
+  // 4) Start your app
+  runApp(
+    ProviderScope(
+      // no overrides needed if injection.dart uses real providers
+      overrides: AppModule.overrides,
+      child: const MyApp(),
+    ),
+  );
+
+  // 5) Configure the periodic fetch
   BackgroundFetch.configure(
         BackgroundFetchConfig(
-          minimumFetchInterval: 15, // minutes
-          stopOnTerminate: false, // keep running after app terminate
+          minimumFetchInterval: 15,
+          stopOnTerminate: false,
           enableHeadless: true,
           requiresBatteryNotLow: false,
           requiresCharging: false,
@@ -39,8 +63,7 @@ void main() async {
           requiredNetworkType: NetworkType.ANY,
         ),
         _onBackgroundFetch,
-        // Optional timeout callback
-        (String taskId) async {
+        (String taskId) {
           print("[BackgroundFetch] TIMEOUT task: $taskId");
           BackgroundFetch.finish(taskId);
         },
@@ -51,9 +74,6 @@ void main() async {
       .catchError((e) {
         print('[BackgroundFetch] configure ERROR: $e');
       });
-
-  // Register headless task (Android)
-  BackgroundFetch.registerHeadlessTask(_onBackgroundFetch);
 }
 
 class MyApp extends ConsumerWidget {

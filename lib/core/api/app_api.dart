@@ -11,7 +11,7 @@ part 'app_api.g.dart';
 abstract class AppApi {
   factory AppApi(Dio dio, {String baseUrl}) = _AppApi;
 
-  @POST('/auth/login')
+  @POST('/login')
   Future<UserModel> login(@Body() LoginRequest body);
 
   @POST('/violations')
