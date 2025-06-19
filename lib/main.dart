@@ -4,9 +4,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
-import 'package:slts_enforcer_app/features/auth/presentation/screens/login_screen.dart';
 import 'injection.dart';
+import 'ui/routes.dart';
 import 'features/sync/presentation/providers/sync_service.dart';
+import 'ui/themes/app_colors.dart';
+import 'ui/themes/app_text_theme.dart';
 
 /// Headless entry point for background_fetch.
 ///
@@ -83,8 +85,12 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'SLTS Enforcer',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const LoginScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.light(primary: AppColors.primary),
+        textTheme: AppTextTheme.light,
+      ),
+      routes: appRoutes,
+      initialRoute: '/',
     );
   }
 }
