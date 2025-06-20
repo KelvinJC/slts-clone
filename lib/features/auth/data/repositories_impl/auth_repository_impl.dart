@@ -18,12 +18,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<User> login(String email, String password) async {
-    // 1) Connectivity guard
-    await ensureConnected();
-
-    final req = LoginRequest(email: email, password: password);
-
     try {
+      // 1) Connectivity guard
+      await ensureConnected();
+
+      final req = LoginRequest(email: email, password: password);
+
       // 2) Retry the entire flow
       return await retry<User>(() async {
         final model = await api.login(req); // onError → failure
