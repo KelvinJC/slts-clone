@@ -2,6 +2,8 @@ import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/ui/themes/app_theme.dart';
+import 'features/theme/presentation/providers/theme_notifier.dart';
 
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'injection.dart';
@@ -83,12 +85,13 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeNotifierProvider);
+
     return MaterialApp(
       title: 'SLTS Enforcer',
-      theme: ThemeData(
-        colorScheme: ColorScheme.light(primary: AppColors.primary),
-        textTheme: AppTextTheme.light,
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode, // ← honor user/system choice
       routes: appRoutes,
       initialRoute: '/',
     );
