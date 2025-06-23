@@ -15,12 +15,11 @@ class AppColors {
   static const onBackgroundSurface = Color(0xFF66758B);
   static const onBackgroundSurface2 = Color(0xFFC4CAD4);
   static const onBackgroundSurface3 = Color(0xFFE0E9FF);
-  static const homeGradient = [
-    Color(0xFFF3F5FA),
-    Color(0xFFD8DFEF),
-    Color(0xFFDBF0F0),
-  ];
   static const buttonGradient = [Color(0xFF002C98), Color(0xFF16D0C5)];
+  static final homeGradient = [
+    primary.withOpacity(0.1),
+    secondary.withOpacity(0.1),
+  ];
 
   static final primary30 = primary.withOpacity(0.3);
 }

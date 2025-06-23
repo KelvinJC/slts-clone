@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 
 import '../action_card.dart';
 
@@ -14,56 +17,52 @@ class HomeTab extends StatelessWidget {
     final hp = context.hp;
     final avatarSize = wp(14);
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.homeGradient,
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: wp(4)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: hp(3)),
-              // … reuse your _buildTopBar from earlier or inline …
-              _buildTopBar(context, wp, hp, avatarSize, wp(0.5)),
-              SizedBox(height: hp(4)),
-              _buildSearchField(context, wp, hp),
-              SizedBox(height: hp(3.5)),
-              Row(
-                children: [
-                  Expanded(
-                    child: ActionCard(
-                      asset: AppAssets.patrol,
-                      label: 'Patrol Mode',
-                      onTap: () => {
-                        // Navigator.pushNamed(context, '/patrol');
-                      },
+    return Stack(
+      children: [
+        BlurryGradientBackground(colors: AppColors.homeGradient),
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: wp(4)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: hp(3)),
+                // … reuse your _buildTopBar from earlier or inline …
+                _buildTopBar(context, wp, hp, avatarSize, wp(0.5)),
+                SizedBox(height: hp(4)),
+                _buildSearchField(context, wp, hp),
+                SizedBox(height: hp(3.5)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ActionCard(
+                        asset: AppAssets.patrol,
+                        label: 'Patrol Mode',
+                        onTap: () => {
+                          // Navigator.pushNamed(context, '/patrol');
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(width: wp(5)),
-                  Expanded(
-                    child: ActionCard(
-                      asset: AppAssets.violation,
-                      label: 'Violation Report',
-                      onTap: () => {
-                        // Navigator.pushNamed(context, '/createViolation');
-                      },
+                    SizedBox(width: wp(5)),
+                    Expanded(
+                      child: ActionCard(
+                        asset: AppAssets.violation,
+                        label: 'Violation Report',
+                        onTap: () => {
+                          // Navigator.pushNamed(context, '/createViolation');
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: hp(1)),
-              _buildRecentHeader(context, wp, hp),
-              Expanded(child: _buildEmptyState(context, hp)),
-            ],
+                  ],
+                ),
+                SizedBox(height: hp(1)),
+                _buildRecentHeader(context, wp, hp),
+                Expanded(child: _buildEmptyState(context, hp)),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
