@@ -1,0 +1,11 @@
+/// Define your brand assets here
+class AppAssets {
+  static const avatar = 'assets/icons/avatar_placeholder.png';
+  static const notification = 'assets/icons/bell.png';
+  static const camera = 'assets/icons/camera.png';
+  static const home = 'assets/icons/home.png';
+  static const patrol = 'assets/icons/patrol_mode.png';
+  static const profile = 'assets/icons/profile.png';
+  static const violation = 'assets/icons/violation_report.png';
+  static const search = 'assets/icons/search.png';
+}

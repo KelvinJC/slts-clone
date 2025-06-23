@@ -9,8 +9,8 @@ import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'injection.dart';
 import 'ui/routes.dart';
 import 'features/sync/presentation/providers/sync_service.dart';
-import 'ui/themes/app_colors.dart';
-import 'ui/themes/app_text_theme.dart';
+// import 'ui/themes/app_colors.dart';
+// import 'ui/themes/app_text_theme.dart';
 
 /// Headless entry point for background_fetch.
 ///
