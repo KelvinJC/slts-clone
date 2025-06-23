@@ -91,7 +91,7 @@ class MyApp extends ConsumerWidget {
       title: 'SLTS Enforcer',
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: themeMode, // ← honor user/system choice
+      themeMode: themeMode,
       routes: appRoutes,
       initialRoute: '/',
     );
