@@ -21,7 +21,7 @@ class HomeTab extends StatelessWidget {
       children: [
         BlurryGradientBackground(colors: AppColors.homeGradient),
         SafeArea(
-          child: Padding(
+          child: Container(
             padding: EdgeInsets.symmetric(horizontal: wp(4)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,9 +226,10 @@ class HomeTab extends StatelessWidget {
           bottom: 15,
           child: Container(
             padding: EdgeInsets.all(ctx.wp(1)),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.surface,
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.homeGradient[1]),
             ),
             child: ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(

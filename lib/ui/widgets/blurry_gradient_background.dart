@@ -14,7 +14,9 @@ class BlurryGradientBackground extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: colors,
+          // ignore: deprecated_member_use
+          colors: [...colors, colors[1].withOpacity(0.5)],
+          stops: const [0.0, 0.9, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -42,7 +44,7 @@ class BlurryGradientBackground extends StatelessWidget {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: colors[1],
+                color: colors[1].withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -61,24 +63,3 @@ class BlurryGradientBackground extends StatelessWidget {
     );
   }
 }
-
-// Example usage in ProfileTab:
-
-// import 'blurry_background.dart';
-//
-// class ProfileTab extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [
-//         const BlurryGradientBackground(
-//           colors: AppColors.homeGradient,
-//           // optionally customize alignment and sizes:
-//           // topBlobAlignment: Alignment(1.0, -1.0),
-//           // bottomBlobAlignment: Alignment(-1.0, 1.0),
-//         ),
-//         Center(child: Text('Profile Screen')),
-//       ],
-//     );
-//   }
-// }

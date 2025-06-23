@@ -27,7 +27,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final wp = context.wp;
 
     return Scaffold(
-      extendBody: true,
+      // extendBody: true,
       backgroundColor: AppColors.surface,
 
       // swap out the body
@@ -69,18 +69,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: () => {
           // Navigator.pushNamed(ctx, '/createViolation')
         },
-        child: Icon(Icons.add, size: wp(8), color: Colors.white),
+        child: Icon(Icons.add, size: wp(8), color: AppColors.surface),
       ),
     );
   }
 
   Widget _buildBottomBar(BuildContext ctx, double Function(double) wp) {
     return BottomAppBar(
-      color: Theme.of(ctx).colorScheme.surface,
+      color: AppColors.surface,
       elevation: 0,
-      shape: const CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(inverted: true),
       notchMargin: wp(3),
-      child: Padding(
+      child: Container(
         padding: EdgeInsets.symmetric(horizontal: wp(5)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
