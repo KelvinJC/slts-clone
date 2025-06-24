@@ -60,7 +60,7 @@ class NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: wp(asset == null ? 30 : 10),
+        width: wp(asset == null ? 30 : 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [icon, SizedBox(height: 4), text],

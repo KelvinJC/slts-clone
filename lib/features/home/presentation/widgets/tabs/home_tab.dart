@@ -5,6 +5,8 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
+import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
+import 'package:slts_enforcer_app/ui/widgets/responsive_table.dart';
 
 import '../action_card.dart';
 
@@ -57,7 +59,7 @@ class HomeTab extends StatelessWidget {
                 ),
                 SizedBox(height: hp(1)),
                 _buildRecentHeader(context, wp, hp),
-                Expanded(child: _buildEmptyState(context, hp)),
+                Expanded(child: _buildEmptyState(context, hp, wp)),
               ],
             ),
           ),
@@ -99,7 +101,7 @@ class HomeTab extends StatelessWidget {
                 Text(
                   'Welcome back!',
                   style: Theme.of(ctx).textTheme.titleMedium!.copyWith(
-                    color: AppColors.onBackgroundSurface2,
+                    color: AppColors.onBackgroundSurface,
                     fontSize: 15,
                   ),
                 ),
@@ -199,28 +201,121 @@ class HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext ctx, double Function(double) hp) {
+  Widget _buildEmptyState(
+    BuildContext ctx,
+    double Function(double) hp,
+    double Function(double) wp,
+  ) {
+    bool hasData = true;
+    // Sample data
+    final headers = [
+      const Text('PCN Number'),
+      const Text('Plate Number'),
+      const Text('Offence'),
+      const Text('Amount'),
+      const Text('Name'),
+      const Text('Age'),
+      const Text('Role'),
+      const Text('Status'),
+    ];
+    final rows = [
+      [
+        const Text('PCN-002456'),
+        const Text('ABC-12Z246'),
+        const Text('Speeding'),
+        const Text('₦5,000'),
+        const Text('Alice'),
+        const Text('28'),
+        const Text('Admin'),
+        const Text('Active'),
+      ],
+      [
+        const Text('PCN-002456'),
+        const Text('ABC-12Z246'),
+        const Text('Speeding'),
+        const Text('₦5,000'),
+        const Text('Bob'),
+        const Text('34'),
+        const Text('Director'),
+        const Text('Pending'),
+      ],
+      [
+        const Text('PCN-002456'),
+        const Text('ABC-12Z246'),
+        const Text('Speeding'),
+        const Text('₦5,000'),
+        const Text('Charlie'),
+        const Text('22'),
+        const Text('Nurse'),
+        const Text('Active'),
+      ],
+      [
+        const Text('PCN-002456'),
+        const Text('ABC-12Z246'),
+        const Text('Speeding'),
+        const Text('₦5,000'),
+        const Text('Diana'),
+        const Text('30'),
+        const Text('Biller'),
+        const Text('Inactive'),
+      ],
+      [
+        const Text('PCN-002456'),
+        const Text('ABC-12Z246'),
+        const Text('Speeding'),
+        const Text('₦5,000'),
+        const Text('Diana'),
+        const Text('30'),
+        const Text('Biller'),
+        const Text('Inactive'),
+      ],
+    ];
     return Stack(
       children: [
-        Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'No Media capture yet',
-                style: Theme.of(
-                  ctx,
-                ).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
+        hasData
+            ? HtmlTable(
+                headers: headers,
+                rows: rows,
+                columnWidths: [
+                  FixedColumnWidth(wp(30)),
+                  FixedColumnWidth(wp(30)),
+                  FixedColumnWidth(wp(30)),
+                  FixedColumnWidth(wp(30)),
+                  IntrinsicColumnWidth(),
+                  FixedColumnWidth(80),
+                  FixedColumnWidth(wp(30)),
+                  FixedColumnWidth(wp(30)),
+                ],
+                borderRadius: BorderRadius.circular(12),
+                outerBorderColor: AppColors.onBackgroundSurface2,
+                innerBorderColor: AppColors.onBackgroundSurface2,
+                // cellWidth: 100,
+                rowHeight: hp(3.5),
+                cellPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
+                ),
+                maxVisibleRows: 3,
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'No Media capture yet',
+                      style: Theme.of(ctx).textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: hp(1)),
+                    Text(
+                      'Once there is capture, we would\nupdate it here...',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(ctx).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: hp(1)),
-              Text(
-                'Once there is capture, we would\nupdate it here...',
-                textAlign: TextAlign.center,
-                style: Theme.of(ctx).textTheme.titleMedium,
-              ),
-            ],
-          ),
-        ),
         Positioned(
           right: 0,
           bottom: 15,

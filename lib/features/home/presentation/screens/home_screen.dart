@@ -46,8 +46,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildGradientFAB(BuildContext ctx, double Function(double) wp) {
     return Container(
-      width: wp(16),
-      height: wp(16),
+      width: wp(15),
+      height: wp(15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: AppColors.buttonGradient,
