@@ -10,6 +10,7 @@ class AppColors {
   static const background = Color(0xFFF5F5F5);
   static const surface = Colors.white;
   static const error = Color(0xFFB00020);
+  static const notification = Color(0xFFDC2626);
   static const onPrimary = Colors.white;
   static const onSecondary = Colors.white;
   static const onBackground = Colors.black;

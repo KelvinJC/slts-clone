@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 import 'package:slts_enforcer_app/ui/widgets/responsive_table.dart';
@@ -32,7 +33,12 @@ class HomeTab extends StatelessWidget {
                 // … reuse your _buildTopBar from earlier or inline …
                 _buildTopBar(context, wp, hp, avatarSize, wp(0.5)),
                 SizedBox(height: hp(4)),
-                _buildSearchField(context, wp, hp),
+                AppTextField(
+                  hintText: 'Run plate number...',
+                  readOnly: true,
+                  showSearchIcon: true,
+                  onTap: () => Navigator.pushNamed(context, '/search'),
+                ),
                 SizedBox(height: hp(3.5)),
                 Row(
                   children: [
@@ -75,6 +81,7 @@ class HomeTab extends StatelessWidget {
     double avatarSize,
     double border,
   ) {
+    int notiSum = 1;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -122,55 +129,40 @@ class HomeTab extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
+            icon: Stack(
+              children: [
+                ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
+                Visibility(
+                  visible: true,
+                  child: Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      width: wp(notiSum > 9 ? 4.5 : 3.5),
+                      height: wp(4.2),
+                      decoration: const BoxDecoration(
+                        color: AppColors.notification,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          notiSum > 9 ? '9+' : notiSum.toString(),
+                          style: Theme.of(ctx).textTheme.labelSmall!.copyWith(
+                            fontSize: wp(notiSum > 9 ? 2.5 : 2.2),
+                            color: AppColors.surface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             onPressed: () {},
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildSearchField(
-    BuildContext ctx,
-    double Function(double) wp,
-    double Function(double) hp,
-  ) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Run plate number...',
-        hintStyle: TextStyle(color: AppColors.onBackgroundSurface2),
-        prefixIcon: Padding(
-          padding: EdgeInsets.symmetric(vertical: wp(3.3)),
-          child: ImageIcon(
-            AssetImage(AppAssets.search),
-            size: wp(1),
-            color: AppColors.onBackgroundSurface2,
-          ),
-        ),
-        // Icon(
-        //   Icons.search,
-        //   size: wp(6),
-        //   color: AppColors.onBackgroundSurface2,
-        // ),
-        contentPadding: EdgeInsets.symmetric(vertical: hp(1.5)),
-        filled: true,
-        fillColor: Theme.of(ctx).colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(
-            color: AppColors.onBackgroundSurface2,
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
-        ),
-      ),
     );
   }
 
@@ -189,7 +181,7 @@ class HomeTab extends StatelessWidget {
           ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
         ),
         TextButton(
-          onPressed: () => Navigator.pushNamed(ctx, '/history'),
+          onPressed: () => Navigator.pushNamed(ctx, '/recentCaptures'),
           child: Text(
             'View all',
             style: Theme.of(ctx).textTheme.bodySmall!.copyWith(

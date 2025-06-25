@@ -8,4 +8,5 @@ class AppAssets {
   static const profile = 'assets/icons/profile.png';
   static const violation = 'assets/icons/violation_report.png';
   static const search = 'assets/icons/search.png';
+  static const platePlaceholder = 'assets/images/plate_placeholder.png';
 }

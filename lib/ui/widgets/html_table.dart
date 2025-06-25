@@ -29,7 +29,7 @@ class HtmlTable extends StatelessWidget {
   final int? maxVisibleRows;
 
   const HtmlTable({
-    Key? key,
+    super.key,
     required this.headers,
     required this.rows,
     this.borderRadius,
@@ -42,8 +42,7 @@ class HtmlTable extends StatelessWidget {
     this.cellPadding = const EdgeInsets.all(8.0),
     this.cellWidth,
     this.maxVisibleRows,
-  }) : assert(columnWidths == null || columnWidths.length == headers.length),
-       super(key: key);
+  }) : assert(columnWidths == null || columnWidths.length == headers.length);
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +54,16 @@ class HtmlTable extends StatelessWidget {
             )
           : const {},
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      border: TableBorder(
-        horizontalInside: BorderSide(
-          width: innerBorderWidth,
-          color: innerBorderColor,
-        ),
-        verticalInside: BorderSide(
-          width: innerBorderWidth,
-          color: innerBorderColor,
-        ),
-      ),
+      // border: TableBorder(
+      //   horizontalInside: BorderSide(
+      //     width: innerBorderWidth,
+      //     color: innerBorderColor,
+      //   ),
+      //   verticalInside: BorderSide(
+      //     width: innerBorderWidth,
+      //     color: innerBorderColor,
+      //   ),
+      // ),
       children: [
         // Header row
         TableRow(
@@ -91,7 +90,15 @@ class HtmlTable extends StatelessWidget {
                 child: contentCell,
               );
             }
-            return Padding(padding: cellPadding, child: contentCell);
+            return Column(
+              children: [
+                Container(
+                  padding: EdgeInsetsGeometry.symmetric(vertical: 12),
+                  child: contentCell,
+                ),
+                Container(height: innerBorderWidth, color: innerBorderColor),
+              ],
+            );
           }).toList(),
         ),
         // for (final row in rows)
@@ -139,11 +146,15 @@ class HtmlTable extends StatelessWidget {
     //   tableContainer = SizedBox(height: totalHeight, child: tableContainer);
     // }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return Material(
+      elevation: 1,
+      borderRadius: borderRadius ?? BorderRadius.zero,
       child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Align(alignment: Alignment.topLeft, child: tableContainer),
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Align(alignment: Alignment.topLeft, child: tableContainer),
+        ),
       ),
     );
   }
