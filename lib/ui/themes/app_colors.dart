@@ -11,6 +11,9 @@ class AppColors {
   static const surface = Colors.white;
   static const error = Color(0xFFB00020);
   static const notification = Color(0xFFDC2626);
+  static const success = Color(0xFF0B835B);
+  static const danger = Color(0xFF8E1717);
+  static const warning = Color(0xFFFFC107);
   static const onPrimary = Colors.white;
   static const onSecondary = Colors.white;
   static const onBackground = Colors.black;

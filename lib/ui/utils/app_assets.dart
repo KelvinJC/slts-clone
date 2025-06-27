@@ -9,4 +9,7 @@ class AppAssets {
   static const violation = 'assets/icons/violation_report.png';
   static const search = 'assets/icons/search.png';
   static const platePlaceholder = 'assets/images/plate_placeholder.png';
+  static const settings = 'assets/icons/settings.png';
+  static const patrolModePlaceholder =
+      'assets/images/patrol_mode_placeholder.png';
 }

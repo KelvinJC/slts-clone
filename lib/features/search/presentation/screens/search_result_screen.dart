@@ -35,7 +35,7 @@ class SearchResultScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: hp(48),
+                        height: hp(42),
                         width: double.infinity,
                         child: Stack(
                           children: [

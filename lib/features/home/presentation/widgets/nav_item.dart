@@ -22,8 +22,8 @@ class NavItem extends StatelessWidget {
     final color = selected ? null : AppColors.onBackgroundSurface2;
 
     Widget icon = asset == null
-        ? Icon(null, size: wp(7), color: color)
-        : ImageIcon(AssetImage(asset!), size: wp(7), color: color);
+        ? Icon(null, size: wp(5.5), color: color)
+        : ImageIcon(AssetImage(asset!), size: wp(5.5), color: color);
 
     if (selected) {
       icon = ShaderMask(
@@ -37,12 +37,17 @@ class NavItem extends StatelessWidget {
       );
     }
 
-    Widget text = Text(
-      label,
-      style: TextStyle(
-        fontSize: wp(3.2),
-        color: color,
-        fontWeight: FontWeight.bold,
+    Widget text = Container(
+      padding: EdgeInsets.only(left: label == 'Quick Capture' ? wp(2) : 0),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          height: 1,
+          fontSize: wp(3.2),
+          color: color,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
     if (selected) {
@@ -60,10 +65,11 @@ class NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: wp(asset == null ? 30 : 12),
+        // width: wp(asset == null ? 30 : 12),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [icon, SizedBox(height: 4), text],
+          // mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [icon, text],
         ),
       ),
     );

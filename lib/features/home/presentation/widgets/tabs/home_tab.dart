@@ -46,16 +46,14 @@ class HomeTab extends StatelessWidget {
                       child: ActionCard(
                         asset: AppAssets.patrol,
                         label: 'Patrol Mode',
-                        onTap: () => {
-                          // Navigator.pushNamed(context, '/patrol');
-                        },
+                        onTap: () => Navigator.pushNamed(context, '/patrol'),
                       ),
                     ),
                     SizedBox(width: wp(5)),
                     Expanded(
                       child: ActionCard(
                         asset: AppAssets.violation,
-                        label: 'Violation Report',
+                        label: 'Create Violation',
                         onTap: () => {
                           // Navigator.pushNamed(context, '/createViolation');
                         },
@@ -308,30 +306,30 @@ class HomeTab extends StatelessWidget {
                   ],
                 ),
               ),
-        Positioned(
-          right: 0,
-          bottom: 15,
-          child: Container(
-            padding: EdgeInsets.all(ctx.wp(1)),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.homeGradient[1]),
-            ),
-            child: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: AppColors.buttonGradient,
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-              blendMode: BlendMode.srcIn,
-              child: IconButton(
-                icon: ImageIcon(AssetImage(AppAssets.camera), size: ctx.wp(8)),
-                onPressed: () {},
-              ),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   right: 0,
+        //   bottom: 15,
+        //   child: Container(
+        //     padding: EdgeInsets.all(ctx.wp(1)),
+        //     decoration: BoxDecoration(
+        //       color: AppColors.surface,
+        //       shape: BoxShape.circle,
+        //       border: Border.all(color: AppColors.homeGradient[1]),
+        //     ),
+        //     child: ShaderMask(
+        //       shaderCallback: (bounds) => const LinearGradient(
+        //         colors: AppColors.buttonGradient,
+        //         begin: Alignment.centerLeft,
+        //         end: Alignment.centerRight,
+        //       ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+        //       blendMode: BlendMode.srcIn,
+        //       child: IconButton(
+        //         icon: ImageIcon(AssetImage(AppAssets.camera), size: ctx.wp(8)),
+        //         onPressed: () {},
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
