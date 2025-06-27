@@ -12,4 +12,5 @@ class AppAssets {
   static const settings = 'assets/icons/settings.png';
   static const patrolModePlaceholder =
       'assets/images/patrol_mode_placeholder.png';
+  static const appLogo = 'assets/images/splash-logo.png';
 }
