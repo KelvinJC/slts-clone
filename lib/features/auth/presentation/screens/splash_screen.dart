@@ -43,7 +43,7 @@ class SplashScreen extends ConsumerWidget {
                 Container(
                   width: wp(100),
                   height: hp(100),
-                  color: AppColors.primary, // bluish overlay
+                  color: AppColors.blueOverlay, // bluish overlay
                 ),
               ],
             ),
