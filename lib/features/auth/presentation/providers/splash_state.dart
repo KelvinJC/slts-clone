@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum SplashStage { street, appLogo, done }
 
 final splashStageProvider =
-  StateNotifierProvider<SplashStageNotifier, SplashStage>(
-        (ref) => SplashStageNotifier(),
-  );
+    StateNotifierProvider<SplashStageNotifier, SplashStage>(
+      (ref) => SplashStageNotifier(),
+    );
 
 class SplashStageNotifier extends StateNotifier<SplashStage> {
   SplashStageNotifier() : super(SplashStage.street) {
