@@ -28,4 +28,5 @@ class AppColors {
   ];
 
   static final primary30 = primary.withOpacity(0.3);
+  static const blueOverlay = Color(0xCF002C98);
 }
