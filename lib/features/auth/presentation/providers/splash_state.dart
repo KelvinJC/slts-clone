@@ -14,10 +14,10 @@ class SplashStageNotifier extends StateNotifier<SplashStage> {
   }
 
   void _startSequence() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 3));
     state = SplashStage.appLogo;
 
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(milliseconds: 5400));
     state = SplashStage.done;
   }
 }
