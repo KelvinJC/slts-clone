@@ -9,19 +9,41 @@ part of 'create_violation_request.dart';
 CreateViolationRequest _$CreateViolationRequestFromJson(
         Map<String, dynamic> json) =>
     CreateViolationRequest(
-      id: json['id'] as String,
-      plateNumber: json['plate'] as String,
-      offenceType: json['offence'] as String,
-      timestamp: json['timestamp'] as String,
-      photoPath: json['photoPath'] as String?,
+      offence: json['offence'] as String,
+      eventType: json['eventType'] as String,
+      date: json['date'] as String,
+      zone: json['zone'] as String,
+      command: json['command'] as String,
+      firstName: json['firstName'] as String,
+      surname: json['surname'] as String,
+      phone: json['phone'] as String,
+      plate: json['plate'] as String,
+      plateType: json['plateType'] as String,
+      plateColor: json['plateColor'] as String,
+      brand: json['brand'] as String,
+      vehicleType: json['vehicleType'] as String,
+      vehicleColor: json['vehicleColor'] as String,
+      mediaPaths: (json['mediaPaths'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$CreateViolationRequestToJson(
         CreateViolationRequest instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'plate': instance.plateNumber,
-      'offence': instance.offenceType,
-      'timestamp': instance.timestamp,
-      'photoPath': instance.photoPath,
+      'offence': instance.offence,
+      'eventType': instance.eventType,
+      'date': instance.date,
+      'zone': instance.zone,
+      'command': instance.command,
+      'firstName': instance.firstName,
+      'surname': instance.surname,
+      'phone': instance.phone,
+      'plate': instance.plate,
+      'plateType': instance.plateType,
+      'plateColor': instance.plateColor,
+      'brand': instance.brand,
+      'vehicleType': instance.vehicleType,
+      'vehicleColor': instance.vehicleColor,
+      'mediaPaths': instance.mediaPaths,
     };

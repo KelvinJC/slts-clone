@@ -54,9 +54,8 @@ class HomeTab extends StatelessWidget {
                       child: ActionCard(
                         asset: AppAssets.violation,
                         label: 'Create Violation',
-                        onTap: () => {
-                          // Navigator.pushNamed(context, '/createViolation');
-                        },
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/createViolation'),
                       ),
                     ),
                   ],

@@ -1,10 +1,13 @@
-import '../repositories/sync_repository.dart';
+import '../../domain/repositories/sync_repository.dart';
 
+/// A use‑case that, when invoked, will attempt to upload all
+/// cached violations to the server.
 class SyncOfflineData {
   final SyncRepository _repo;
+
   SyncOfflineData(this._repo);
 
-  Future<void> call() async {
-    await _repo.syncViolations();
-  }
+  /// Executes the sync. Throws if something catastrophic happens,
+  /// otherwise will have pruned any successfully‐sent items from local storage.
+  Future<void> call() => _repo.syncPendingViolations();
 }

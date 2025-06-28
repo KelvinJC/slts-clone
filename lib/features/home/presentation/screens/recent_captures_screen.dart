@@ -162,6 +162,7 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
           BlurryGradientBackground(colors: AppColors.homeGradient),
 
           SafeArea(
+            top: false,
             child: Column(
               children: [
                 // 1) Overlay header with back + title + search icon
@@ -169,17 +170,17 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
+                      // ignore: deprecated_member_use
                     ).colorScheme.surface.withOpacity(0.5),
                   ),
-                  padding: EdgeInsets.only(bottom: hp(2)),
+                  padding: EdgeInsets.only(bottom: hp(1)),
                   child: Column(
                     children: [
                       OverlayHeader(
                         title: 'Recent Capture',
                         onBack: () => Navigator.of(context).pop(),
-                        topPadding: 2,
-                        height: 6,
-                        isSearchVisible: true,
+                        opacity: 0,
+                        showSearchIcon: true,
                       ),
 
                       SizedBox(height: hp(2)),

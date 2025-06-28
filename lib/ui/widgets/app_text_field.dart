@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:slts_enforcer_app/ui/utils/responsive.dart';
-import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 
 typedef OnTextChanged = void Function(String);
 typedef OnSubmitted = void Function(String);
 
+/// A custom reusable text field used across the app, supporting both
+/// controller-based and `initialValue`-based form inputs.
 class AppTextField extends StatelessWidget {
-  /// Controller for the text input.
+  /// Optional controller for managing text externally.
   final TextEditingController? controller;
 
-  /// Placeholder text.
+  /// Optional initial value when using without a controller.
+  final String? initialValue;
+
+  /// Called when the text changes.
+  final ValueChanged<String>? onChanged;
+
+  /// Placeholder shown inside the field.
   final String hintText;
 
   /// Called when the user taps the field (before focus).
@@ -28,39 +36,52 @@ class AppTextField extends StatelessWidget {
   /// Custom prefix widget (overrides search icon).
   final Widget? prefix;
 
-  /// Whether to obscure text (for passwords).
+  /// Whether the text field is obscured (e.g. for passwords).
   final bool obscureText;
+
+  /// Whether the field is enabled.
+  final bool enabled;
+
+  /// Max lines allowed.
+  final int maxLines;
 
   /// Keyboard type.
   final TextInputType keyboardType;
 
-  /// Input formatter or validator can be added later.
-
   const AppTextField({
-    super.key,
+    Key? key,
     this.controller,
-    this.hintText = 'Enter text...',
+    this.initialValue,
+    required this.hintText,
+    this.onChanged,
+    this.obscureText = false,
+    this.enabled = true,
+    this.maxLines = 1,
+    this.keyboardType = TextInputType.text,
     this.onTap,
     this.onSubmitted,
     this.readOnly = false,
     this.showSearchIcon = false,
     this.prefix,
-    this.obscureText = false,
-    this.keyboardType = TextInputType.text,
-  });
+  }) : assert(
+         controller == null || initialValue == null,
+         'Cannot provide both a controller and initialValue.',
+       ),
+       super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
 
-    return TextField(
+    return TextFormField(
       controller: controller,
-      readOnly: readOnly,
+      initialValue: controller == null ? initialValue : null,
+      onChanged: onChanged,
       obscureText: obscureText,
+      enabled: enabled,
+      maxLines: maxLines,
       keyboardType: keyboardType,
-      onTap: onTap,
-      onSubmitted: onSubmitted,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColors.onBackgroundSurface2),
@@ -98,6 +119,7 @@ class AppTextField extends StatelessWidget {
           borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
         ),
       ),
+      style: TextStyle(color: AppColors.onBackground, fontSize: wp(3.8)),
     );
   }
 }

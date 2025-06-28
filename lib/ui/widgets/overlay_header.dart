@@ -1,9 +1,16 @@
+// lib/ui/widgets/overlay_header.dart
+
 import 'package:flutter/material.dart';
-import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
-/// A semi‐transparent overlay header with a circular back button and title.
+/// A flexible, semi‑transparent header bar with:
+///  • a circular back button
+///  • a title
+///  • optionally, a search icon on the right
+///
+/// All sizing & padding is responsive via [SizeConfig] extensions.
 class OverlayHeader extends StatelessWidget {
   /// The text to show as the title.
   final String title;
@@ -11,100 +18,117 @@ class OverlayHeader extends StatelessWidget {
   /// Called when the back button is tapped.
   final VoidCallback onBack;
 
-  /// Optional top padding (default = 2% of height).
+  /// If true, shows a search icon on the right.
+  final bool showSearchIcon;
+
+  /// Called when the search icon is tapped.
+  final VoidCallback? onSearchTap;
+
+  /// The background color of the bar (default white).
+  final Color backgroundColor;
+
+  /// The background color of the back button icon (default white).
+  final Color backIconBackgroundColor;
+
+  /// The opacity of [backgroundColor] (0.0–1.0).
+  final double opacity;
+
+  /// Top padding as % of screen height (default 2%).
   final double topPadding;
 
-  /// Height of the header bar (default = 6% of height).
+  /// Total height as % of screen height (default 12%).
   final double height;
 
-  /// Horizontal inset before the back button (default = 4% of width).
+  /// Horizontal inset before back & after search as % of screen width.
   final double horizontalInset;
 
-  /// Whether to show the search bar (default = false).
-  final bool isSearchVisible;
-
   const OverlayHeader({
-    super.key,
+    Key? key,
     required this.title,
     required this.onBack,
-    this.topPadding = 2,
-    this.height = 6,
+    this.showSearchIcon = false,
+    this.onSearchTap,
+    this.backgroundColor = Colors.white,
+    this.backIconBackgroundColor = Colors.white,
+    this.opacity = 0.5,
+    this.topPadding = 6,
+    this.height = 12.5,
     this.horizontalInset = 4,
-    this.isSearchVisible = false,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
 
-    return Padding(
-      padding: EdgeInsets.only(top: hp(topPadding)),
-      child: Container(
-        height: hp(height),
-        width: double.infinity,
-        alignment: Alignment.centerLeft,
-        child: Row(
-          children: [
-            SizedBox(width: wp(horizontalInset)),
+    return Container(
+      height: hp(height),
+      padding: EdgeInsets.only(
+        left: wp(horizontalInset),
+        right: wp(horizontalInset),
+        top: hp(topPadding),
+      ),
+      width: double.infinity,
+      alignment: Alignment.topLeft,
+      // ignore: deprecated_member_use
+      color: backgroundColor.withOpacity(opacity),
+      child: Row(
+        children: [
+          // Back button
+          Container(
+            height: wp(11),
+            width: wp(11),
+            decoration: BoxDecoration(
+              color: backIconBackgroundColor,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.chevron_left,
+                size: wp(7),
+                color: AppColors.onBackground,
+              ),
+              onPressed: onBack,
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            ),
+          ),
+
+          SizedBox(width: wp(3)),
+
+          // Title
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              fontSize: wp(4.2),
+              fontWeight: FontWeight.bold,
+              color: AppColors.onSurface,
+            ),
+          ),
+
+          // Optional search icon
+          if (showSearchIcon) ...[
+            Spacer(),
             Container(
               height: wp(11),
               width: wp(11),
               decoration: BoxDecoration(
+                color: backgroundColor,
                 shape: BoxShape.circle,
-                color: AppColors.surface,
               ),
               child: IconButton(
-                icon: Icon(
-                  Icons.chevron_left,
+                icon: ImageIcon(
+                  const AssetImage(AppAssets.search),
+                  size: wp(4.5),
                   color: AppColors.onBackground,
-                  size: wp(7),
                 ),
-                onPressed: onBack,
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed:
+                    onSearchTap ??
+                    () => Navigator.pushNamed(context, '/search'),
+                tooltip: MaterialLocalizations.of(context).searchFieldLabel,
               ),
             ),
-            SizedBox(width: wp(3)),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontSize: wp(4.5),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Visibility(
-              visible: isSearchVisible,
-              child: Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      height: wp(11),
-                      width: wp(11),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.surface,
-                      ),
-                      child: IconButton(
-                        icon: ImageIcon(
-                          const AssetImage(AppAssets.search),
-                          size: wp(4.5),
-                          color: AppColors.onBackground,
-                        ),
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/search'),
-                        tooltip: MaterialLocalizations.of(
-                          context,
-                        ).searchFieldLabel,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: wp(horizontalInset)),
           ],
-        ),
+        ],
       ),
     );
   }
