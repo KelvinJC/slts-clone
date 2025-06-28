@@ -16,47 +16,55 @@ class SplashScreen extends ConsumerWidget {
     final wp = context.wp;
     final hp = context.hp;
 
-    // Navigate to login when splash is done
     if (stage == SplashStage.done) {
-      Future.microtask(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // prevent navigating multiple times
+        if (ModalRoute.of(context)?.isCurrent != true) return;
+
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (_, __, ___) => const LoginScreen(),
+            transitionsBuilder: (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
         );
       });
     }
 
+    // Keep showing logo or image when stage == done
+    final splashContent = switch (stage) {
+      SplashStage.street => SizedBox(
+        width: wp(100),
+        height: hp(100),
+        child: Stack(
+          children: [
+            Image.asset(
+              AppAssets.trafficScene,
+              width: wp(100),
+              height: hp(100),
+              fit: BoxFit.cover,
+            ),
+            Container(
+              width: wp(100),
+              height: hp(100),
+              color: AppColors.blueOverlay,
+            ),
+          ],
+        ),
+      ),
+      SplashStage.appLogo || SplashStage.done => Image.asset(
+        AppAssets.logoAnimation,
+        width: wp(40),
+        height: wp(40),
+        fit: BoxFit.contain,
+      )
+    };
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: switch (stage) {
-          SplashStage.street => SizedBox(
-            width: wp(100),
-            height: hp(100),
-            child: Stack(
-              children: [
-                Image.asset(
-                  AppAssets.trafficScene,
-                  width: wp(100),
-                  height: hp(100),
-                  fit: BoxFit.cover,
-                ),
-                Container(
-                  width: wp(100),
-                  height: hp(100),
-                  color: AppColors.blueOverlay, // bluish overlay
-                ),
-              ],
-            ),
-          ),
-          SplashStage.appLogo => ImageIcon(
-            AssetImage(AppAssets.appLogo),
-            size: wp(40),
-            color: AppColors.primary,
-          ),
-          SplashStage.done =>
-            const SizedBox.shrink(), // placeholder while navigating
-        },
-      ),
+      body: Center(child: splashContent),
     );
   }
 }
+
