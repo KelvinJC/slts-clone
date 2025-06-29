@@ -34,4 +34,7 @@ class AppColors {
 
   static final primary30 = primary.withOpacity(0.3); // 30% opacity primary – overlay or pressed state
   static const blueOverlay = Color(0xCF002C98); // Semi-transparent deep blue – image overlay or splash mask
+  static const grayOverlay = Color(0x33252A32); // Semi-transparent gray – screen mask
+
+
 }
