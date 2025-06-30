@@ -41,7 +41,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
                     ),
                     SizedBox(height: wp(3)),
                     Text(
-                      'Forgot password!',
+                      'Forgot password',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w900,
                         fontSize: 23
@@ -84,7 +84,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: wp(5)),
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: wp(4)),
+                        padding: EdgeInsets.symmetric(vertical: wp(3)),
 
                         decoration: BoxDecoration(
                           // color: Colors.grey[400],
@@ -107,14 +107,43 @@ class ForgotPasswordScreen extends ConsumerWidget {
                       ),
                     ),
                     SizedBox(height: hp(4)),
-                    Text(
-                        'Didn\'t receive any link? Resend link',
-                        style: Theme.of(context).textTheme.labelLarge
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                            'Didn\'t receive any link?',
+                            style: Theme.of(context).textTheme.labelLarge
+                        ),
+                        SizedBox(width: wp(2)),
+                        Text(
+                            'Resend link',
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: AppColors.primary
+                            )
+                        )
+                      ],
                     ),
-                    SizedBox(height: hp(2)),
-                    Text(
-                        'Remember password? Login',
-                        style: Theme.of(context).textTheme.labelLarge
+                    SizedBox(height: hp(3)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                            'Remember password?',
+                            style: Theme.of(context).textTheme.labelLarge
+                        ),
+                        SizedBox(width: wp(2)),
+                        GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                              'Login',
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: AppColors.primary
+                              )
+                          ),
+                        )
+                      ],
                     ),
                   ],
                 ),
