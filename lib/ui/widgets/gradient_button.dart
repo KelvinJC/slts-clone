@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
 class GradientButton extends StatelessWidget {
-  final String text;
+  final Widget child;
   final VoidCallback onPressed;
 
   const GradientButton({
     super.key,
-    required this.text,
+    required this.child,
     required this.onPressed,
   });
 
@@ -26,16 +26,7 @@ class GradientButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Center(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 20  ,
-            ),
-          ),
-        ),
+        child: Center(child: child),
       ),
     );
   }
