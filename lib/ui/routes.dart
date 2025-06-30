@@ -21,5 +21,6 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/search': (_) => const SearchScreen(),
   '/recentCaptures': (_) => const RecentCapturesScreen(),
   '/patrol': (_) => const PatrolModeScreen(),
+  '/createViolation': (_) => const CreateViolationScreen(),
   // TODO: Add '/register', '/home', etc.
 };

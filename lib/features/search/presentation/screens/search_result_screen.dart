@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
-import 'package:slts_enforcer_app/ui/widgets/overlay_app_bar.dart';
+import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 
 class SearchResultScreen extends ConsumerWidget {
   /// The image to display (asset path or network URL).
@@ -28,6 +28,7 @@ class SearchResultScreen extends ConsumerWidget {
         children: [
           BlurryGradientBackground(colors: AppColors.homeGradient),
           SafeArea(
+            top: false,
             child: Stack(
               children: [
                 SingleChildScrollView(
@@ -35,7 +36,7 @@ class SearchResultScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: hp(42),
+                        height: hp(45),
                         width: double.infinity,
                         child: Stack(
                           children: [
@@ -132,11 +133,9 @@ class SearchResultScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                OverlayAppBar(
+                OverlayHeader(
                   title: 'Recent Capture',
                   onBack: () => Navigator.of(context).pop(),
-                  opacity: 0.5,
-                  // backgroundColor defaults to white
                 ),
               ],
             ),

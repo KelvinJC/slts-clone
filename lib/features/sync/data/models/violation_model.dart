@@ -1,34 +1,89 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 
 part 'violation_model.g.dart';
 
-@HiveType(typeId: 0)
-class ViolationModel extends HiveObject {
+@HiveType(typeId: 0) // assign a unique typeId per model
+class ViolationModel extends Equatable {
   @HiveField(0)
-  final String id; // UUID
-  @HiveField(1)
-  final String plateNumber;
-  @HiveField(2)
-  final String offenceType;
-  @HiveField(3)
-  final DateTime timestamp;
-  @HiveField(4)
-  final String? photoPath; // local file URI
-  // add other fields as needed
+  final String offence;
 
-  ViolationModel({
-    required this.id,
-    required this.plateNumber,
-    required this.offenceType,
-    required this.timestamp,
-    this.photoPath,
+  @HiveField(1)
+  final String eventType;
+
+  @HiveField(2)
+  final String date;
+
+  @HiveField(3)
+  final String zone;
+
+  @HiveField(4)
+  final String command;
+
+  @HiveField(5)
+  final String firstName;
+
+  @HiveField(6)
+  final String surname;
+
+  @HiveField(7)
+  final String phone;
+
+  @HiveField(8)
+  final String plate;
+
+  @HiveField(9)
+  final String plateType;
+
+  @HiveField(10)
+  final String plateColor;
+
+  @HiveField(11)
+  final String brand;
+
+  @HiveField(12)
+  final String vehicleType;
+
+  @HiveField(13)
+  final String vehicleColor;
+
+  @HiveField(14)
+  final List<String> mediaPaths;
+
+  const ViolationModel({
+    required this.offence,
+    required this.eventType,
+    required this.date,
+    required this.zone,
+    required this.command,
+    required this.firstName,
+    required this.surname,
+    required this.phone,
+    required this.plate,
+    required this.plateType,
+    required this.plateColor,
+    required this.brand,
+    required this.vehicleType,
+    required this.vehicleColor,
+    this.mediaPaths = const [],
   });
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'plate': plateNumber,
-    'offence': offenceType,
-    'timestamp': timestamp.toIso8601String(),
-    // photo upload will be handled separately
-  };
+  @override
+  List<Object?> get props => [
+    offence,
+    eventType,
+    date,
+    zone,
+    command,
+    firstName,
+    surname,
+    phone,
+    plate,
+    plateType,
+    plateColor,
+    brand,
+    vehicleType,
+    vehicleColor,
+    mediaPaths,
+  ];
 }

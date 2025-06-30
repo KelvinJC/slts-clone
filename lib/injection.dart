@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:slts_enforcer_app/core/api/network_exceptions.dart';
+import 'package:slts_enforcer_app/features/sync/data/repositories_impl/sync_repository_impl.dart';
+import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
+import 'package:slts_enforcer_app/features/violation/data/repositories/violation_repository_impl.dart';
+import 'package:slts_enforcer_app/features/violation/domain/repositories/violation_repository.dart';
 import 'core/api/app_api.dart';
 import 'core/local_storage/local_storage.dart';
 import 'features/auth/data/repositories_impl/auth_repository_impl.dart';
@@ -57,6 +61,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     storage: ref.watch(localStorageProvider),
   );
 });
+
+/// 5) ViolationRepository wired with the API
+final violationRepositoryProvider = Provider<ViolationRepository>(
+  (ref) => ViolationRepositoryImpl(ref.read(apiProvider)),
+);
+
+/// 6) SyncRepository wired with the API & storage
+final syncRepositoryProvider = Provider<SyncRepository>(
+  (ref) =>
+      SyncRepositoryImpl(ref.read(apiProvider), ref.read(localStorageProvider)),
+);
 
 class AppModule {
   // static List<Override> get overrides => [

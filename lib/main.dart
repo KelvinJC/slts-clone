@@ -24,7 +24,8 @@ void _onBackgroundFetch(String taskId) async {
 
   try {
     // Trigger your sync use‑case
-    await container.read(syncOfflineDataProvider)();
+    // await container.read(syncOfflineDataProvider)();
+    await container.read(syncRepositoryProvider).syncPendingViolations();
   } catch (e) {
     print('[BackgroundFetch] sync error: $e');
   } finally {
