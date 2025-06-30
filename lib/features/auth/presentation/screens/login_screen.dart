@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/widgets/email_field_widget.dart';
+import 'package:slts_enforcer_app/ui/utils/responsive.dart';
+import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
+import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
+import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import '../providers/login_form_notifier.dart';
 // import '../providers/auth_notifier.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -7,10 +14,184 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loginState = ref.watch(loginFormProvider);
+    final hp = context.hp;
+    final wp = context.wp;
+
     return Scaffold(
-      // TODO: Build your login form using ui/widgets
-      appBar: AppBar(title: Text('Login')),
-      body: Center(child: Text('Login Form Here')),
+      body: Stack(
+        children: [
+          BlurryGradientBackground(colors: AppColors.homeGradient),
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: hp(5)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: wp(10),
+                      backgroundColor: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                          wp(3),
+                        ),
+                        child: Image.asset(
+                          AppAssets.appLogo,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: wp(3)),
+                    Text(
+                      'Welcome back!',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 23,
+                      ),
+                    ),
+                    SizedBox(height: hp(1)),
+                    Text(
+                      'Please sign in to continue',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: AppColors.onBackgroundSurface,
+                        fontSize: 13,
+                      ),
+                    ),
+                    SizedBox(height: hp(3)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                      child: const EmailField(),
+                    ),
+                    SizedBox(height: hp(2)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                      child: TextFormField(
+                        onChanged: (String val) {
+                          if (val.trim() != '') {
+                            ref
+                                .read(loginFormProvider.notifier)
+                                .setFieldToFilled('password');
+                          } else {
+                            ref
+                                .read(loginFormProvider.notifier)
+                                .setFieldToUnfilled('password');
+                          }
+                        },
+                        obscureText: !loginState.isPasswordVisible,
+                        decoration: InputDecoration(
+                          hintText: 'Password',
+                          hintStyle: TextStyle(
+                            color: AppColors.onBackgroundSurface2,
+                          ),
+                          // prefixIcon: Icon(Icons.key),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              ref
+                                  .read(loginFormProvider.notifier)
+                                  .togglePasswordVisibility();
+                            },
+                            child: Icon(
+                              color: Colors.grey,
+                              loginState.isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(wp(2)),
+                            borderSide: BorderSide(
+                              color: AppColors.onBackgroundSurface2,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(wp(2)),
+                            borderSide: BorderSide(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: hp(4)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                      child: loginState.stage == LoginFormStage.formFilled
+                          ? _buildGradientLoginButton(context, ref, loginState)
+                          : _buildBlankLoginButton(context, wp),
+                    ),
+                    SizedBox(height: hp(4)),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.pushNamed(context, '/forgotPassword');
+                      },
+                      child: Text(
+                        'Forgot password?',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ),
+                    SizedBox(height: hp(3)),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.pushNamed(context, '/biometrics');
+                      },
+                      child: Text(
+                        'Log in with Biometrics',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradientLoginButton(BuildContext ctx, WidgetRef ref, LoginFormState loginState) {
+
+    return GradientButton(
+      child: loginState.stage == LoginFormStage.formFilled && loginState.isLoginClicked
+          ? CircularProgressIndicator(color: AppColors.onPrimary)
+          : Text(
+            'Login',
+            style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
+              color: AppColors.onPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 20  ,
+            )
+        ),
+      onPressed: () {
+        ref.read(loginFormProvider.notifier).markLoginClicked();
+      },
+    );
+  }
+
+  Widget _buildBlankLoginButton(BuildContext ctx, double Function(double) wp) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: wp(3)),
+      decoration: BoxDecoration(
+        // color: Colors.grey[400],
+        borderRadius: BorderRadius.circular(wp(2)),
+        border: Border.all(color: AppColors.onBackgroundSurface2, width: wp(0.4)),
+      ),
+      child: Center(
+        child: Text(
+          'Login',
+          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
+            color: AppColors.onBackgroundSurface2,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+      ),
     );
   }
 }
