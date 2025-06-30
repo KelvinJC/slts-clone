@@ -36,6 +36,9 @@ class AppTextField extends StatelessWidget {
   /// Custom prefix widget (overrides search icon).
   final Widget? prefix;
 
+  /// Optional suffix widget (e.g. for clear button).
+  final Widget? suffix;
+
   /// Whether the text field is obscured (e.g. for passwords).
   final bool obscureText;
 
@@ -47,6 +50,12 @@ class AppTextField extends StatelessWidget {
 
   /// Keyboard type.
   final TextInputType keyboardType;
+
+  /// Color for the enabled border.
+  final Color? enabledBorderColor;
+
+  /// Whether to validate the border color based on the text.
+  final bool validateBorder;
 
   const AppTextField({
     Key? key,
@@ -63,6 +72,9 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.showSearchIcon = false,
     this.prefix,
+    this.suffix,
+    this.enabledBorderColor,
+    this.validateBorder = false,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both a controller and initialValue.',
@@ -84,7 +96,13 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: AppColors.onBackgroundSurface2),
+        hintStyle: TextStyle(
+          color:
+              keyboardType == TextInputType.datetime &&
+                  !hintText.toLowerCase().contains('select')
+              ? AppColors.onBackground
+              : AppColors.onBackgroundSurface2,
+        ),
         prefixIcon: prefix != null
             ? Padding(
                 padding: EdgeInsets.symmetric(vertical: hp(1.5)),
@@ -100,7 +118,16 @@ class AppTextField extends StatelessWidget {
                       ),
                     )
                   : null),
-        contentPadding: EdgeInsets.symmetric(vertical: hp(1.5)),
+        suffixIcon: suffix != null
+            ? Padding(
+                padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                child: suffix,
+              )
+            : null,
+        contentPadding: EdgeInsets.symmetric(
+          vertical: hp(1.2),
+          horizontal: wp(3),
+        ),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surface,
         border: OutlineInputBorder(
@@ -110,14 +137,29 @@ class AppTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
           borderSide: BorderSide(
-            color: AppColors.onBackgroundSurface2,
-            width: 1,
+            color: !validateBorder
+                ? AppColors.onBackgroundSurface2
+                : ((controller?.text ?? initialValue) == '' && enabled
+                      ? AppColors.error
+                      : enabledBorderColor ?? AppColors.primary),
+            width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+          borderSide: BorderSide(
+            color: !validateBorder
+                ? AppColors.onBackgroundSurface2
+                : ((controller?.text ?? initialValue)!.isEmpty && enabled
+                      ? AppColors.error
+                      : enabledBorderColor ?? AppColors.primary),
+            width: 1.5,
+          ),
         ),
+        // focusedBorder: OutlineInputBorder(
+        //   borderRadius: BorderRadius.circular(wp(2)),
+        //   borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+        // ),
       ),
       style: TextStyle(color: AppColors.onBackground, fontSize: wp(3.8)),
     );
