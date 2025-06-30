@@ -115,8 +115,7 @@ class FingerprintLoginScreen extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: wp(5)),
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: wp(4)),
-
+                        padding: EdgeInsets.symmetric(vertical: wp(3)),
                         decoration: BoxDecoration(
                           // color: Colors.grey[400],
                           borderRadius: BorderRadius.circular(wp(2)),
