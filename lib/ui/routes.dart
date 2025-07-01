@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/create_violation_screen.dart';
 import '../features/auth/presentation/screens/fingerprint_login_screen.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -16,7 +17,8 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/login': (_) => const LoginScreen(),
   '/biometrics': (_) => const FingerprintLoginScreen(),
   '/forgotPassword': (_) => const ForgotPasswordScreen(),
-  '/passwordResetNotification': (_) => const PasswordResetLinkNotificationScreen(),
+  '/passwordResetNotification': (_) =>
+      const PasswordResetLinkNotificationScreen(),
   '/home': (_) => const HomeScreen(),
   '/search': (_) => const SearchScreen(),
   '/recentCaptures': (_) => const RecentCapturesScreen(),
