@@ -16,4 +16,5 @@ class AppAssets {
   static const trafficScene = 'assets/images/traffic-scene.jpg';
   static const logoAnimation = 'assets/images/app-logo-animation.gif';
   static const passwordReset = 'assets/images/password-reset-img.png';
+  static const arrowDown = 'assets/icons/arrow_down.png';
 }

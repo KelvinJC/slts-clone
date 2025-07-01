@@ -94,7 +94,7 @@ class MyApp extends ConsumerWidget {
       darkTheme: darkTheme,
       themeMode: themeMode,
       routes: appRoutes,
-      initialRoute: '/',
+      initialRoute: '/home',
       debugShowCheckedModeBanner: false,
     );
   }

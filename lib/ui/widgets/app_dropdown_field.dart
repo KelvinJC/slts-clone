@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 
 typedef OnDropdownChanged<T> = void Function(T? value);
@@ -78,10 +79,13 @@ class AppDropdownField<T> extends StatelessWidget {
         ),
       ),
       style: TextStyle(color: AppColors.onBackground, fontSize: wp(3.8)),
-      icon: Icon(
-        Icons.arrow_drop_down,
-        color: AppColors.onBackgroundSurface2,
-        size: wp(6),
+      icon: Padding(
+        padding: EdgeInsets.only(right: wp(1.2)),
+        child: ImageIcon(
+          AssetImage(AppAssets.arrowDown),
+          color: AppColors.onBackgroundSurface2,
+          size: wp(3.5),
+        ),
       ),
     );
   }

@@ -145,6 +145,12 @@ class ViolationNotifier extends StateNotifier<AsyncValue<ViolationFormState>> {
     }
   }
 
+  // Update state with new media paths
+  Future<void> updateMediaPaths(List<String> paths) async {
+    final form = state.value!;
+    state = AsyncValue.data(form.copyWith(mediaPaths: paths));
+  }
+
   /// Submit the full violation.
   Future<void> submit() async {
     state = AsyncValue.loading();
