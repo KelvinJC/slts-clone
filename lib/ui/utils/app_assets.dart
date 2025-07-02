@@ -17,4 +17,5 @@ class AppAssets {
   static const logoAnimation = 'assets/images/app-logo-animation.gif';
   static const passwordReset = 'assets/images/password-reset-img.png';
   static const arrowDown = 'assets/icons/arrow_down.png';
+  static const imagePlaceholder = "assets/icons/image-placeholder.png";
 }

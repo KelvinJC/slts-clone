@@ -23,6 +23,9 @@ class AppDropdownField<T> extends StatelessWidget {
   /// Whether the field is enabled.
   final bool enabled;
 
+  /// Whether the field is for preview mode.
+  final bool isPreviewMode;
+
   /// Color for the enabled border.
   final Color? enabledBorderColor;
 
@@ -36,6 +39,7 @@ class AppDropdownField<T> extends StatelessWidget {
     required this.onChanged,
     required this.hintText,
     this.enabled = true,
+    this.isPreviewMode = false,
     this.enabledBorderColor,
     this.validateBorder = false,
   }) : super(key: key);
@@ -47,46 +51,76 @@ class AppDropdownField<T> extends StatelessWidget {
 
     // Determine border color
     final borderColor = !validateBorder
-        ? AppColors.onBackgroundSurface2
+        ? (isPreviewMode
+              ? AppColors.onBackground
+              : AppColors.onBackgroundSurface2)
         : ((value == null && enabled)
               ? AppColors.error
               : enabledBorderColor ?? AppColors.primary);
+    final previewBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.zero,
+      borderSide: BorderSide.none,
+      // gapPadding: 0,
+    );
 
-    return DropdownButtonFormField<T>(
+    Widget dropdown = DropdownButtonFormField<T>(
       value: value,
       items: items,
-      onChanged: enabled ? onChanged : null,
+      onChanged: enabled && !isPreviewMode ? onChanged : (v) => {},
       decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: AppColors.onBackgroundSurface2),
-        contentPadding: EdgeInsets.symmetric(
-          vertical: hp(1.2),
-          horizontal: wp(3),
+        hintText: isPreviewMode ? '' : hintText,
+        // focusColor: isPreviewMode ? AppColors.onBackground : null,
+        hintStyle: TextStyle(
+          color: isPreviewMode
+              ? AppColors.onBackground
+              : AppColors.onBackgroundSurface2,
         ),
+        // labelStyle: TextStyle(
+        //   color: isPreviewMode ? AppColors.onBackground : null,
+        // ),
+        contentPadding: isPreviewMode
+            ? EdgeInsets.zero
+            : EdgeInsets.symmetric(vertical: hp(1.2), horizontal: wp(3)),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
+        fillColor: isPreviewMode
+            ? Colors.transparent
+            : Theme.of(context).colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(color: borderColor, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(color: borderColor, width: 1.5),
-        ),
+        enabledBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(color: borderColor, width: 1.5),
+              ),
+        focusedBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(color: borderColor, width: 1.5),
+              ),
+        disabledBorder: previewBorder,
       ),
       style: TextStyle(color: AppColors.onBackground, fontSize: wp(3.8)),
-      icon: Padding(
-        padding: EdgeInsets.only(right: wp(1.2)),
-        child: ImageIcon(
-          AssetImage(AppAssets.arrowDown),
-          color: AppColors.onBackgroundSurface2,
-          size: wp(3.5),
-        ),
-      ),
+      icon: isPreviewMode
+          ? SizedBox.shrink()
+          : Padding(
+              padding: EdgeInsets.only(right: wp(1.2)),
+              child: ImageIcon(
+                AssetImage(AppAssets.arrowDown),
+                color: AppColors.onBackgroundSurface2,
+                size: wp(3.5),
+              ),
+            ),
     );
+
+    if (isPreviewMode) {
+      // Block taps (so no menu), but keep your 'enabled' look
+      return AbsorbPointer(child: dropdown);
+    }
+
+    return dropdown;
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/sync/data/models/violation_model.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_dropdown_field.dart';
 // import 'package:slts_enforcer_app/ui/widgets/app_radio_dropdown.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
@@ -41,17 +42,88 @@ class _State extends ConsumerState<CreateViolationScreen> {
       validateVehicleVehicleTypeBorder = false,
       validateVehicleColorBorder = false;
 
+  bool isOffenderDetailsValid() {
+    final form = ref.read(violationNotifierProvider).value!;
+    return form.offence.isNotEmpty &&
+        form.eventType.isNotEmpty &&
+        form.date.isNotEmpty &&
+        form.zone.isNotEmpty &&
+        form.command.isNotEmpty &&
+        form.firstName.isNotEmpty &&
+        form.surname.isNotEmpty &&
+        form.phone.isNotEmpty;
+  }
+
+  bool isVehicleDetailsValid() {
+    final form = ref.read(violationNotifierProvider).value!;
+    return form.plate.isNotEmpty &&
+        form.plateType.isNotEmpty &&
+        form.plateColor.isNotEmpty &&
+        form.brand.isNotEmpty &&
+        form.vehicleType.isNotEmpty &&
+        form.vehicleColor.isNotEmpty;
+  }
+
   void _next() => setState(() {
+    if (_step == ViolationStep.offender) {
+      if (!isOffenderDetailsValid()) {
+        validateOffenderOffenceBorder = true;
+        validateOffenderEventTypeBorder = true;
+        validateOffenderViolationDateBorder = true;
+        validateOffenderZoneBorder = true;
+        validateOffenderCommandBorder = true;
+        validateOffenderFirstNameBorder = true;
+        validateOffenderSurnameBorder = true;
+        validateOffenderPhoneBorder = true;
+        return; // Prevent moving to next step if validation fails
+      }
+    }
+
+    if (_step == ViolationStep.vehicle) {
+      if (!isVehicleDetailsValid()) {
+        validateVehiclePlateBorder = true;
+        validateVehicleTypeBorder = true;
+        validateVehiclePlateColorBorder = true;
+        validateVehicleBrandBorder = true;
+        validateVehicleVehicleTypeBorder = true;
+        validateVehicleColorBorder = true;
+        return; // Prevent moving to next step if validation fails
+      }
+    }
+
+    if (_step == ViolationStep.media) {
+      if (ref.read(violationNotifierProvider).value!.mediaPaths.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Please capture media')));
+        return; // Prevent moving to next step if no media is captured
+      }
+    }
+
     _step = ViolationStep
         .values[(_step.index + 1).clamp(0, ViolationStep.values.length - 1)];
   });
 
-  void _back() => setState(() {
-    _step = ViolationStep
-        .values[(_step.index - 1).clamp(0, ViolationStep.values.length - 1)];
+  void _back({ViolationStep? step}) => setState(() {
+    _step =
+        step ??
+        ViolationStep.values[(_step.index - 1).clamp(
+          0,
+          ViolationStep.values.length - 1,
+        )];
   });
 
   Future<void> _save() async {
+    final form = ref.read(violationNotifierProvider).value!;
+    if (!isOffenderDetailsValid() ||
+        !isVehicleDetailsValid() ||
+        form.mediaPaths.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please complete all steps')),
+      );
+      return;
+    }
+
     final notifier = ref.read(violationNotifierProvider.notifier);
     try {
       // Attempt online submit
@@ -228,7 +300,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
     );
   }
 
-  Widget _offenderStep(WidgetRef ref, ViolationFormState form) {
+  Widget _offenderStep(
+    WidgetRef ref,
+    ViolationFormState form, {
+    bool isPreviewMode = false,
+  }) {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
     // dropdown options
@@ -237,305 +313,346 @@ class _State extends ConsumerState<CreateViolationScreen> {
     const zoneOptions = ['Lagos', 'Abuja', 'Kano'];
     const commandOptions = ['Command HQ', 'Sector 1', 'Sector 2'];
 
-    return ListView(
-      padding: EdgeInsets.only(bottom: context.hp(2)),
-      children: [
-        // header
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
-          child: Text(
-            'Offender Details',
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-          ),
+    //array of widgets
+    var childrenArray = <Widget>[
+      // header
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Offender Details',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Visibility(
+              visible: isPreviewMode,
+              child: GestureDetector(
+                onTap: () => _back(step: ViolationStep.offender),
+                child: Text(
+                  'Edit',
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    // fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        Text(
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: Text(
           'Information captured about the person committing the offense.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
+      ),
 
-        // — Offence dropdown
+      // — Offence dropdown
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Offence *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      // AppRadioDropdown<String>(
+      //   value: form.offence.isEmpty ? null : form.offence,
+      //   options: offenceOptions,
+      //   itemLabel: (o) => o,
+      //   hintText: 'Overspeeding',
+      //   showError: validateOffenderOffenceBorder,
+      //   onChanged: (v) {
+      //     if (!validateOffenderOffenceBorder) {
+      //       validateOffenderOffenceBorder = true;
+      //     }
+      //     notifier.updateField('offence', v!);
+      //   },
+      // ),
+      // SizedBox(height: context.hp(1)),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.offence.isEmpty ? null : form.offence,
+        items: offenceOptions
+            .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+            .toList(),
+        hintText: 'Choose an offence',
+        validateBorder: validateOffenderOffenceBorder,
+        onChanged: (v) {
+          if (!validateOffenderOffenceBorder) {
+            validateOffenderOffenceBorder = true;
+          }
+          notifier.updateField('offence', v!);
+        },
+      ),
+      if (validateOffenderOffenceBorder && form.offence.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Offence *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select an offence',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        // AppRadioDropdown<String>(
-        //   value: form.offence.isEmpty ? null : form.offence,
-        //   options: offenceOptions,
-        //   itemLabel: (o) => o,
-        //   hintText: 'Overspeeding',
-        //   showError: validateOffenderOffenceBorder,
-        //   onChanged: (v) {
-        //     if (!validateOffenderOffenceBorder) {
-        //       validateOffenderOffenceBorder = true;
-        //     }
-        //     notifier.updateField('offence', v!);
-        //   },
-        // ),
-        // SizedBox(height: context.hp(1)),
-        AppDropdownField<String>(
-          value: form.offence.isEmpty ? null : form.offence,
-          items: offenceOptions
-              .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-              .toList(),
-          hintText: 'Choose an offence',
-          validateBorder: validateOffenderOffenceBorder,
-          onChanged: (v) {
-            if (!validateOffenderOffenceBorder) {
-              validateOffenderOffenceBorder = true;
-            }
-            notifier.updateField('offence', v!);
-          },
-        ),
-        if (validateOffenderOffenceBorder && form.offence.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select an offence',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Event type dropdown
+      // — Event type dropdown
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Event Type *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.eventType.isEmpty ? null : form.eventType,
+        items: eventTypeOptions
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
+        hintText: 'Choose event type',
+        validateBorder: validateOffenderEventTypeBorder,
+
+        onChanged: (v) {
+          if (!validateOffenderEventTypeBorder) {
+            validateOffenderEventTypeBorder = true;
+          }
+          notifier.updateField('eventType', v!);
+        },
+      ),
+      if (validateOffenderEventTypeBorder && form.eventType.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Event Type *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select an event type',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.eventType.isEmpty ? null : form.eventType,
-          items: eventTypeOptions
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
-          hintText: 'Choose event type',
-          validateBorder: validateOffenderEventTypeBorder,
 
-          onChanged: (v) {
-            if (!validateOffenderEventTypeBorder) {
-              validateOffenderEventTypeBorder = true;
-            }
-            notifier.updateField('eventType', v!);
-          },
+      // — Violation date picker
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Violation Date *',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        if (validateOffenderEventTypeBorder && form.eventType.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select an event type',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      ),
+      GestureDetector(
+        onTap: () async {
+          if (isPreviewMode) return; // Disable in preview mode
+          final picked = await showDatePicker(
+            context: context,
+            initialDate: form.date.isNotEmpty
+                ? DateTime.parse(form.date)
+                : DateTime.now(),
+            firstDate: DateTime(2000),
+            lastDate: DateTime.now(),
+          );
+          if (picked != null) {
+            if (!validateOffenderViolationDateBorder) {
+              validateOffenderViolationDateBorder = true;
+            }
+            notifier.updateField('date', picked.toIso8601String());
+          }
+        },
+        child: AbsorbPointer(
+          child: AppTextField(
+            isPreviewMode: isPreviewMode,
+            hintText: form.date.isEmpty
+                ? 'Select date'
+                : form.date.split('T').first,
+            initialValue: form.date.isEmpty ? '' : form.date.split('T').first,
+            validateBorder: validateOffenderViolationDateBorder,
+            readOnly: true,
+            keyboardType: TextInputType.datetime,
+            suffix: Icon(
+              Icons.calendar_today,
+              color: AppColors.onBackgroundSurface2,
+              size: context.wp(4),
             ),
           ),
-
-        // — Violation date picker
+        ),
+      ),
+      if (validateOffenderViolationDateBorder && form.date.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Violation Date *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please choose a date',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        GestureDetector(
-          onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: form.date.isNotEmpty
-                  ? DateTime.parse(form.date)
-                  : DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now(),
-            );
-            if (picked != null) {
-              if (!validateOffenderViolationDateBorder) {
-                validateOffenderViolationDateBorder = true;
-              }
-              notifier.updateField('date', picked.toIso8601String());
-            }
-          },
-          child: AbsorbPointer(
-            child: AppTextField(
-              hintText: form.date.isEmpty
-                  ? 'Select date'
-                  : form.date.split('T').first,
-              initialValue: form.date.isEmpty ? '' : form.date.split('T').first,
-              validateBorder: validateOffenderViolationDateBorder,
-              readOnly: true,
-              keyboardType: TextInputType.datetime,
-              suffix: Icon(
-                Icons.calendar_today,
-                color: AppColors.onBackgroundSurface2,
-                size: context.wp(4),
-              ),
-            ),
-          ),
-        ),
-        if (validateOffenderViolationDateBorder && form.date.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please choose a date',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Zone dropdown
+      // — Zone dropdown
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Zone *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.zone.isEmpty ? null : form.zone,
+        items: zoneOptions
+            .map((z) => DropdownMenuItem(value: z, child: Text(z)))
+            .toList(),
+        hintText: 'Choose zone',
+        validateBorder: validateOffenderZoneBorder,
+
+        onChanged: (v) {
+          if (!validateOffenderZoneBorder) {
+            validateOffenderZoneBorder = true;
+          }
+          notifier.updateField('zone', v!);
+        },
+      ),
+      if (validateOffenderZoneBorder && form.zone.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Zone *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a zone',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.zone.isEmpty ? null : form.zone,
-          items: zoneOptions
-              .map((z) => DropdownMenuItem(value: z, child: Text(z)))
-              .toList(),
-          hintText: 'Choose zone',
-          validateBorder: validateOffenderZoneBorder,
 
-          onChanged: (v) {
-            if (!validateOffenderZoneBorder) {
-              validateOffenderZoneBorder = true;
-            }
-            notifier.updateField('zone', v!);
-          },
+      // — Command dropdown
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Command *',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        if (validateOffenderZoneBorder && form.zone.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a zone',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.command.isEmpty ? null : form.command,
+        items: commandOptions
+            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+            .toList(),
+        hintText: 'Choose command',
+        validateBorder: validateOffenderCommandBorder,
 
-        // — Command dropdown
+        onChanged: (v) {
+          if (!validateOffenderCommandBorder) {
+            validateOffenderCommandBorder = true;
+          }
+          notifier.updateField('command', v!);
+        },
+      ),
+      if (validateOffenderCommandBorder && form.command.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Command *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a command',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.command.isEmpty ? null : form.command,
-          items: commandOptions
-              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-              .toList(),
-          hintText: 'Choose command',
-          validateBorder: validateOffenderCommandBorder,
 
-          onChanged: (v) {
-            if (!validateOffenderCommandBorder) {
-              validateOffenderCommandBorder = true;
-            }
-            notifier.updateField('command', v!);
-          },
+      // — First name
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Offender First Name *',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        if (validateOffenderCommandBorder && form.command.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a command',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
-
-        // — First name
+      ),
+      AppTextField(
+        isPreviewMode: isPreviewMode,
+        hintText: 'Olukunle',
+        initialValue: form.firstName,
+        validateBorder: validateOffenderFirstNameBorder,
+        onChanged: (v) {
+          if (!validateOffenderFirstNameBorder) {
+            validateOffenderFirstNameBorder = true;
+          }
+          notifier.updateField('firstName', v);
+        },
+      ),
+      if (validateOffenderFirstNameBorder && form.firstName.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Offender First Name *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please enter first name',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppTextField(
-          hintText: 'Olukunle',
-          initialValue: form.firstName,
-          validateBorder: validateOffenderFirstNameBorder,
-          onChanged: (v) {
-            if (!validateOffenderFirstNameBorder) {
-              validateOffenderFirstNameBorder = true;
-            }
-            notifier.updateField('firstName', v);
-          },
-        ),
-        if (validateOffenderFirstNameBorder && form.firstName.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please enter first name',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Surname
+      // — Surname
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Offender Surname *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppTextField(
+        isPreviewMode: isPreviewMode,
+        hintText: 'Oyewumi',
+        initialValue: form.surname,
+        validateBorder: validateOffenderSurnameBorder,
+        onChanged: (v) {
+          if (!validateOffenderSurnameBorder) {
+            validateOffenderSurnameBorder = true;
+          }
+          notifier.updateField('surname', v);
+        },
+      ),
+      if (validateOffenderSurnameBorder && form.surname.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Offender Surname *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please enter surname',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppTextField(
-          hintText: 'Oyewumi',
-          initialValue: form.surname,
-          validateBorder: validateOffenderSurnameBorder,
-          onChanged: (v) {
-            if (!validateOffenderSurnameBorder) {
-              validateOffenderSurnameBorder = true;
-            }
-            notifier.updateField('surname', v);
-          },
-        ),
-        if (validateOffenderSurnameBorder && form.surname.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please enter surname',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Phone
+      // — Phone
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Phone Number *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppTextField(
+        isPreviewMode: isPreviewMode,
+        hintText: '+234 81...',
+        initialValue: form.phone,
+        keyboardType: TextInputType.phone,
+        validateBorder: validateOffenderPhoneBorder,
+        onChanged: (v) {
+          if (!validateOffenderPhoneBorder) {
+            validateOffenderPhoneBorder = true;
+          }
+          notifier.updateField('phone', v);
+        },
+      ),
+      if (validateOffenderPhoneBorder && form.phone.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Phone Number *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please enter phone number',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppTextField(
-          hintText: '+234 81...',
-          initialValue: form.phone,
-          keyboardType: TextInputType.phone,
-          validateBorder: validateOffenderPhoneBorder,
-          onChanged: (v) {
-            if (!validateOffenderPhoneBorder) {
-              validateOffenderPhoneBorder = true;
-            }
-            notifier.updateField('phone', v);
-          },
-        ),
-        if (validateOffenderPhoneBorder && form.phone.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please enter phone number',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
-      ],
-    );
+    ];
+    return !isPreviewMode
+        ? ListView(
+            padding: EdgeInsets.only(bottom: context.hp(2)),
+            children: childrenArray,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: childrenArray,
+          );
   }
 
-  Widget _vehicleStep(WidgetRef ref, ViolationFormState form) {
+  Widget _vehicleStep(
+    WidgetRef ref,
+    ViolationFormState form, {
+    bool isPreviewMode = false,
+  }) {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
     // Example option lists
@@ -545,230 +662,285 @@ class _State extends ConsumerState<CreateViolationScreen> {
     const vehicleTypeOptions = ['Sedan', 'SUV', 'Truck'];
     const vehicleColorOptions = ['Black', 'Red', 'Silver'];
 
-    return ListView(
-      padding: EdgeInsets.only(bottom: context.hp(2)),
-      children: [
-        // header
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
-          child: Text(
-            'Vehicle Info',
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-          ),
+    //array of widgets
+    var childrenArray = <Widget>[
+      // header
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Vehicle Info',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Visibility(
+              visible: isPreviewMode,
+              child: GestureDetector(
+                onTap: () => _back(step: ViolationStep.vehicle),
+                child: Text(
+                  'Edit',
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    // fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        Text(
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: Text(
           'Details about the vehicle involved',
           style: Theme.of(context).textTheme.bodySmall,
         ),
+      ),
 
-        // — Plate Number (text)
+      // — Plate Number (text)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Enter Plate Number *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppTextField(
+        isPreviewMode: isPreviewMode,
+        hintText: 'KSF-622AE',
+        initialValue: form.plate,
+        validateBorder: validateVehiclePlateBorder,
+        onChanged: (v) {
+          if (!validateVehiclePlateBorder) validateVehiclePlateBorder = true;
+          notifier.updateField('plate', v);
+        },
+      ),
+      if (validateVehiclePlateBorder && form.plate.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Enter Plate Number *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please enter a plate number',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppTextField(
-          hintText: 'KSF-622AE',
-          initialValue: form.plate,
-          validateBorder: validateVehiclePlateBorder,
-          onChanged: (v) {
-            if (!validateVehiclePlateBorder) validateVehiclePlateBorder = true;
-            notifier.updateField('plate', v);
-          },
-        ),
-        if (validateVehiclePlateBorder && form.plate.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please enter a plate number',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Plate Type (dropdown)
+      // — Plate Type (dropdown)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Plate Type *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.plateType.isEmpty ? null : form.plateType,
+        items: plateTypeOptions
+            .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+            .toList(),
+        hintText: 'Choose plate type',
+        validateBorder: validateVehicleTypeBorder,
+        onChanged: (v) {
+          if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
+          notifier.updateField('plateType', v!);
+        },
+      ),
+      if (validateVehicleTypeBorder && form.plateType.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Plate Type *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a plate type',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.plateType.isEmpty ? null : form.plateType,
-          items: plateTypeOptions
-              .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-              .toList(),
-          hintText: 'Choose plate type',
-          validateBorder: validateVehicleTypeBorder,
-          onChanged: (v) {
-            if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
-            notifier.updateField('plateType', v!);
-          },
-        ),
-        if (validateVehicleTypeBorder && form.plateType.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a plate type',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Plate Color (dropdown)
+      // — Plate Color (dropdown)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Plate Color *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.plateColor.isEmpty ? null : form.plateColor,
+        items: plateColorOptions
+            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+            .toList(),
+        hintText: 'Choose plate color',
+        validateBorder: validateVehiclePlateColorBorder,
+        onChanged: (v) {
+          if (!validateVehiclePlateColorBorder) {
+            validateVehiclePlateColorBorder = true;
+          }
+          notifier.updateField('plateColor', v!);
+        },
+      ),
+      if (validateVehiclePlateColorBorder && form.plateColor.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Plate Color *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a plate color',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.plateColor.isEmpty ? null : form.plateColor,
-          items: plateColorOptions
-              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-              .toList(),
-          hintText: 'Choose plate color',
-          validateBorder: validateVehiclePlateColorBorder,
-          onChanged: (v) {
-            if (!validateVehiclePlateColorBorder) {
-              validateVehiclePlateColorBorder = true;
-            }
-            notifier.updateField('plateColor', v!);
-          },
-        ),
-        if (validateVehiclePlateColorBorder && form.plateColor.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a plate color',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Vehicle Brand (dropdown)
+      // — Vehicle Brand (dropdown)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Vehicle Brand *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.brand.isEmpty ? null : form.brand,
+        items: brandOptions
+            .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+            .toList(),
+        hintText: 'Choose brand',
+        validateBorder: validateVehicleBrandBorder,
+        onChanged: (v) {
+          if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
+          notifier.updateField('brand', v!);
+        },
+      ),
+      if (validateVehicleBrandBorder && form.brand.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Vehicle Brand *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a vehicle brand',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.brand.isEmpty ? null : form.brand,
-          items: brandOptions
-              .map((b) => DropdownMenuItem(value: b, child: Text(b)))
-              .toList(),
-          hintText: 'Choose brand',
-          validateBorder: validateVehicleBrandBorder,
-          onChanged: (v) {
-            if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
-            notifier.updateField('brand', v!);
-          },
-        ),
-        if (validateVehicleBrandBorder && form.brand.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a vehicle brand',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Vehicle Type (dropdown)
+      // — Vehicle Type (dropdown)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Vehicle Type *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.vehicleType.isEmpty ? null : form.vehicleType,
+        items: vehicleTypeOptions
+            .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+            .toList(),
+        hintText: 'Choose vehicle type',
+        validateBorder: validateVehicleVehicleTypeBorder,
+        onChanged: (v) {
+          if (!validateVehicleVehicleTypeBorder) {
+            validateVehicleVehicleTypeBorder = true;
+          }
+          notifier.updateField('vehicleType', v!);
+        },
+      ),
+      if (validateVehicleVehicleTypeBorder && form.vehicleType.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Vehicle Type *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a vehicle type',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.vehicleType.isEmpty ? null : form.vehicleType,
-          items: vehicleTypeOptions
-              .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-              .toList(),
-          hintText: 'Choose vehicle type',
-          validateBorder: validateVehicleTypeBorder,
-          onChanged: (v) {
-            if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
-            notifier.updateField('vehicleType', v!);
-          },
-        ),
-        if (validateVehicleTypeBorder && form.vehicleType.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a vehicle type',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
 
-        // — Vehicle Color (dropdown)
+      // — Vehicle Color (dropdown)
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: Text(
+          'Select Vehicle Color *',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      ),
+      AppDropdownField<String>(
+        isPreviewMode: isPreviewMode,
+        value: form.vehicleColor.isEmpty ? null : form.vehicleColor,
+        items: vehicleColorOptions
+            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+            .toList(),
+        hintText: 'Choose vehicle color',
+        validateBorder: validateVehicleColorBorder,
+        onChanged: (v) {
+          if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
+          notifier.updateField('vehicleColor', v!);
+        },
+      ),
+      if (validateVehicleColorBorder && form.vehicleColor.isEmpty)
         Padding(
-          padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+          padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Select Vehicle Color *',
-            style: Theme.of(context).textTheme.titleSmall,
+            'Please select a vehicle color',
+            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
-        AppDropdownField<String>(
-          value: form.vehicleColor.isEmpty ? null : form.vehicleColor,
-          items: vehicleColorOptions
-              .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-              .toList(),
-          hintText: 'Choose vehicle color',
-          validateBorder: validateVehicleColorBorder,
-          onChanged: (v) {
-            if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
-            notifier.updateField('vehicleColor', v!);
-          },
-        ),
-        if (validateVehicleColorBorder && form.vehicleColor.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: context.hp(0.5)),
-            child: Text(
-              'Please select a vehicle color',
-              style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-            ),
-          ),
-      ],
-    );
+    ];
+    return !isPreviewMode
+        ? ListView(
+            padding: EdgeInsets.only(bottom: context.hp(2)),
+            children: childrenArray,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: childrenArray,
+          );
   }
 
-  Widget _mediaStep(WidgetRef ref, ViolationFormState form) {
+  Widget _mediaStep(
+    WidgetRef ref,
+    ViolationFormState form, {
+    isPreviewMode = false,
+  }) {
     final notifier = ref.read(violationNotifierProvider.notifier);
     // final media = form.mediaPaths;
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: context.hp(2)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    //array of widgets
+    var childrenArray = <Widget>[
+      // header
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // header
-            Padding(
-              padding: EdgeInsets.only(
-                top: context.hp(1),
-                bottom: context.hp(1),
-              ),
-              child: Text(
-                'Media Capture',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
             Text(
-              'Evidence collection features',
-              style: Theme.of(context).textTheme.bodySmall,
+              'Media Capture',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: context.hp(2)),
+            Visibility(
+              visible: isPreviewMode,
+              child: GestureDetector(
+                onTap: () => _back(step: ViolationStep.media),
+                child: Text(
+                  'Edit',
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    // fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: Text(
+          'Evidence collection features',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+      SizedBox(height: context.hp(2)),
 
-            Container(
+      isPreviewMode
+          ? const SizedBox()
+          : Container(
               height: context.hp(18),
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -797,192 +969,280 @@ class _State extends ConsumerState<CreateViolationScreen> {
               ),
             ),
 
-            // selected media previews
-            // if (form.mediaPaths.isNotEmpty) ...[
-            //   SizedBox(height: context.hp(2)),
-            //   Column(
-            //     children: form.mediaPaths.map((path) {
-            //       final fileName = path.split('/').last;
-            //       return Padding(
-            //         padding: EdgeInsets.only(bottom: context.hp(1)),
-            //         child: Material(
-            //           elevation: 1,
-            //           borderRadius: BorderRadius.circular(context.wp(2)),
-            //           child: Container(
-            //             padding: EdgeInsets.all(context.wp(3)),
-            //             decoration: BoxDecoration(
-            //               color: AppColors.surface,
-            //               borderRadius: BorderRadius.circular(context.wp(2)),
-            //             ),
-            //             child: Row(
-            //               children: [
-            //                 // thumbnail
-            //                 ClipRRect(
-            //                   borderRadius: BorderRadius.circular(8),
-            //                   child: Image.file(
-            //                     File(path),
-            //                     width: context.wp(12),
-            //                     height: context.wp(12),
-            //                     fit: BoxFit.cover,
-            //                   ),
-            //                 ),
-            //                 SizedBox(width: context.wp(3)),
-            //                 // filename
-            //                 Expanded(
-            //                   child: Text(
-            //                     fileName,
-            //                     style: Theme.of(context).textTheme.bodyMedium,
-            //                   ),
-            //                 ),
-            //                 // remove button
-            //                 IconButton(
-            //                   icon: Icon(Icons.close, color: AppColors.error),
-            //                   onPressed: () {
-            //                     // remove this path
-            //                     final updated = List<String>.from(
-            //                       form.mediaPaths,
-            //                     )..remove(path);
-            //                     // ref
-            //                     //     .read(violationNotifierProvider.notifier)
-            //                     //     .state = form.copyWith(
-            //                     //   mediaPaths: updated,
-            //                     // );
-            //                     notifier.updateMediaPaths(updated);
-            //                   },
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     }).toList(),
-            //   ),
-            // ],// selected media previews
-            if (form.mediaPaths.isNotEmpty) ...[
-              SizedBox(height: context.hp(2)),
-              Column(
-                children: form.mediaPaths.map((item) {
-                  final double percent = 1.0;
-                  final fileName = item.split('/').last;
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: context.hp(1)),
-                    child: Material(
-                      elevation: 1,
-                      borderRadius: BorderRadius.circular(context.wp(2)),
-                      child: Container(
-                        padding: EdgeInsets.all(context.wp(3)),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(context.wp(2)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // row: icon, name, size & status, check icon
-                            Row(
+      // selected media previews
+      // if (form.mediaPaths.isNotEmpty) ...[
+      //   SizedBox(height: context.hp(2)),
+      //   Column(
+      //     children: form.mediaPaths.map((path) {
+      //       final fileName = path.split('/').last;
+      //       return Padding(
+      //         padding: EdgeInsets.only(bottom: context.hp(1)),
+      //         child: Material(
+      //           elevation: 1,
+      //           borderRadius: BorderRadius.circular(context.wp(2)),
+      //           child: Container(
+      //             padding: EdgeInsets.all(context.wp(3)),
+      //             decoration: BoxDecoration(
+      //               color: AppColors.surface,
+      //               borderRadius: BorderRadius.circular(context.wp(2)),
+      //             ),
+      //             child: Row(
+      //               children: [
+      //                 // thumbnail
+      //                 ClipRRect(
+      //                   borderRadius: BorderRadius.circular(8),
+      //                   child: Image.file(
+      //                     File(path),
+      //                     width: context.wp(12),
+      //                     height: context.wp(12),
+      //                     fit: BoxFit.cover,
+      //                   ),
+      //                 ),
+      //                 SizedBox(width: context.wp(3)),
+      //                 // filename
+      //                 Expanded(
+      //                   child: Text(
+      //                     fileName,
+      //                     style: Theme.of(context).textTheme.bodyMedium,
+      //                   ),
+      //                 ),
+      //                 // remove button
+      //                 IconButton(
+      //                   icon: Icon(Icons.close, color: AppColors.error),
+      //                   onPressed: () {
+      //                     // remove this path
+      //                     final updated = List<String>.from(
+      //                       form.mediaPaths,
+      //                     )..remove(path);
+      //                     // ref
+      //                     //     .read(violationNotifierProvider.notifier)
+      //                     //     .state = form.copyWith(
+      //                     //   mediaPaths: updated,
+      //                     // );
+      //                     notifier.updateMediaPaths(updated);
+      //                   },
+      //                 ),
+      //               ],
+      //             ),
+      //           ),
+      //         ),
+      //       );
+      //     }).toList(),
+      //   ),
+      // ],// selected media previews
+      if (form.mediaPaths.isNotEmpty && !isPreviewMode) ...[
+        SizedBox(height: context.hp(2)),
+        Column(
+          children: form.mediaPaths.map((item) {
+            final double percent = 1.0;
+            final fileName = item.split('/').last;
+            return Padding(
+              padding: EdgeInsets.only(bottom: context.hp(1)),
+              child: Material(
+                elevation: 1,
+                borderRadius: BorderRadius.circular(context.wp(2)),
+                child: Container(
+                  padding: EdgeInsets.all(context.wp(3)),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(context.wp(2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // row: icon, name, size & status, check icon
+                      Row(
+                        children: [
+                          // file icon
+                          Container(
+                            width: context.wp(10),
+                            height: context.wp(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.onBackgroundSurface2.withOpacity(
+                                0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.asset(
+                              AppAssets.imagePlaceholder,
+                              fit: BoxFit.contain,
+                            ),
+                            // ImageIcon(
+                            //   AssetImage(AppAssets.imagePlaceholder),
+                            //   size: context.wp(5),
+                            //   color: AppColors.surface,
+                            // ),
+                            // Icon(
+                            //   Icons.image, // or choose by extension
+                            //   size: context.wp(6),
+                            //   color: AppColors.onBackgroundSurface2,
+                            // ),
+                          ),
+                          SizedBox(width: context.wp(3)),
+                          // file info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // file icon
-                                Container(
-                                  width: context.wp(10),
-                                  height: context.wp(10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.onBackgroundSurface2
-                                        .withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    Icons.image, // or choose by extension
-                                    size: context.wp(6),
-                                    color: AppColors.onBackgroundSurface2,
-                                  ),
+                                Text(
+                                  fileName.substring(fileName.length - 15),
+                                  style: Theme.of(context).textTheme.bodyMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(width: context.wp(3)),
-                                // file info
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        fileName,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                      SizedBox(height: context.hp(0.5)),
-                                      Text(
-                                        // '${(item.uploadedBytes / 1024).toStringAsFixed(0)}KB of '
-                                        // '${(item.totalBytes / 1024).toStringAsFixed(0)}KB • '
-                                        // '${item.isCompleted ? 'Completed' : 'Uploading'}',
+                                SizedBox(height: context.hp(0.5)),
+                                Row(
+                                  children: [
+                                    Text(
+                                      // '${(item.uploadedBytes / 1024).toStringAsFixed(0)}KB of '
+                                      // '${(item.totalBytes / 1024).toStringAsFixed(0)}KB • '
+                                      // '${item.isCompleted ? 'Completed' : 'Uploading'}',
 
-                                        //static representation
-                                        '1.2MB of 10.0MB • '
-                                        'Uploading',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(
-                                              color: AppColors
-                                                  .onBackgroundSurface2,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
+                                      //static representation
+                                      '1.2MB of 10.0MB • ',
+                                      // 'Uploading'
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!
+                                          .copyWith(
+                                            fontSize: context.wp(3.5),
+                                            color:
+                                                AppColors.onBackgroundSurface2,
+                                          ),
+                                    ),
+                                    Text(
+                                      'Uploading...' ?? 'Completed',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!
+                                          .copyWith(
+                                            fontSize: context.wp(3.5),
+                                            color:
+                                                AppColors.primary ??
+                                                AppColors.onBackgroundSurface2,
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                                // status icon
-                                // if (item.isCompleted)
-                                Icon(Icons.check_circle, color: Colors.green),
                               ],
                             ),
-                            SizedBox(height: context.hp(1)),
-                            // progress bar
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: percent,
-                                // value: 1.0, // static representation
-                                minHeight: context.hp(1),
-                                backgroundColor: AppColors.onBackgroundSurface2
-                                    .withOpacity(0.2),
-                                valueColor: AlwaysStoppedAnimation(
-                                  AppColors.primary,
+                          ),
+                          // status icon
+                          // if (item.isCompleted)
+                          // Icon(Icons.check_circle, color: Colors.green),
+                          IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  // remove this path
+                                  final updated = List<String>.from(
+                                    form.mediaPaths,
+                                  )..remove(item);
+                                  notifier.updateMediaPaths(updated);
+                                },
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: AppColors.onBackgroundSurface,
+                                ),
+                              ) ??
+                              Icon(Icons.check_circle, color: Colors.green),
+                        ],
+                      ),
+                      SizedBox(height: context.hp(1)),
+                      // progress bar
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: percent,
+                                  // value: 1.0, // static representation
+                                  minHeight: context.hp(1),
+                                  backgroundColor: AppColors
+                                      .onBackgroundSurface2
+                                      .withOpacity(0.2),
+                                  valueColor: AlwaysStoppedAnimation(
+                                    AppColors.primary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: context.wp(10),
+                            child: Text(
+                              '100%',
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(
+                                    fontSize: context.wp(3),
+                                    color: AppColors.onBackgroundSurface2,
+                                  ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  );
-                }).toList(),
+                    ],
+                  ),
+                ),
               ),
-            ],
+            );
+          }).toList(),
+        ),
+      ],
 
-            SizedBox(height: context.hp(2)),
-            // Expanded(
-            //   child: Center(
-            //     child: media.isEmpty
-            //         ? OutlinedButton.icon(
-            //             icon: const Icon(Icons.upload),
-            //             label: const Text('Upload Media'),
-            //             onPressed: () => notifier.addMedia(),
-            //           )
-            //         : Wrap(
-            //             spacing: 8,
-            //             runSpacing: 8,
-            //             children: media
-            //                 .map((path) => Image.file(File(path), width: 80))
-            //                 .toList(),
-            //           ),
-            //   ),
-            // ),
-            TextButton.icon(
+      SizedBox(height: context.hp(2)),
+      // Expanded(
+      //   child: Center(
+      //     child: media.isEmpty
+      //         ? OutlinedButton.icon(
+      //             icon: const Icon(Icons.upload),
+      //             label: const Text('Upload Media'),
+      //             onPressed: () => notifier.addMedia(),
+      //           )
+      //         : Wrap(
+      //             spacing: 8,
+      //             runSpacing: 8,
+      //             children: media
+      //                 .map((path) => Image.file(File(path), width: 80))
+      //                 .toList(),
+      //           ),
+      //   ),
+      // ),
+      isPreviewMode
+          ? (form.mediaPaths.isEmpty
+                ? const Text('None')
+                : Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: form.mediaPaths.map((p) {
+                      return SizedBox(
+                        width: context.wp(27),
+                        height: context.wp(27),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: Image.file(File(p), fit: BoxFit.cover),
+                        ),
+                      );
+                    }).toList(),
+                  ))
+          : TextButton.icon(
               onPressed: () => notifier.addMedia(),
               icon: const Icon(Icons.add),
               label: const Text('Add more media'),
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
             ),
-          ],
+    ];
+
+    return SingleChildScrollView(
+      physics: isPreviewMode
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: context.hp(2)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: childrenArray,
         ),
       ),
     );
@@ -992,34 +1252,35 @@ class _State extends ConsumerState<CreateViolationScreen> {
     return ListView(
       padding: EdgeInsets.only(bottom: context.hp(2)),
       children: [
-        const Text(
-          'Offender Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text('Offence: ${form.offence}'),
-        // ... all offender details ...
-        const SizedBox(height: 16),
-        const Text(
-          'Vehicle Info',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text('Plate: ${form.plate}'),
-        // ... all vehicle details ...
-        const SizedBox(height: 16),
-        const Text('Media', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        if (form.mediaPaths.isEmpty)
-          const Text('None')
-        else
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: form.mediaPaths
-                .map((p) => Image.file(File(p), width: 80))
-                .toList(),
+        Container(
+          padding: EdgeInsets.all(context.wp(3)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(context.wp(2)),
+            color: AppColors.surface,
           ),
+          child: _offenderStep(ref, form, isPreviewMode: true),
+        ),
+        const SizedBox(height: 15),
+
+        Container(
+          padding: EdgeInsets.all(context.wp(3)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(context.wp(2)),
+            color: AppColors.surface,
+          ),
+          child: _vehicleStep(ref, form, isPreviewMode: true),
+        ),
+        const SizedBox(height: 15),
+
+        Container(
+          padding: EdgeInsets.all(context.wp(3)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(context.wp(2)),
+            color: AppColors.surface,
+          ),
+          child: _mediaStep(ref, form, isPreviewMode: true),
+        ),
+        const SizedBox(height: 10),
       ],
     );
   }
