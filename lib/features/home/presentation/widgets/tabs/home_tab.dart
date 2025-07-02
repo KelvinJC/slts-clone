@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
-import 'package:slts_enforcer_app/ui/widgets/responsive_table.dart';
 
 import '../action_card.dart';
 
@@ -198,87 +198,88 @@ class HomeTab extends StatelessWidget {
     bool hasData = true;
     // Sample data
     final headers = [
-      const Text('PCN Number'),
-      const Text('Plate Number'),
-      const Text('Offence'),
-      const Text('Amount'),
-      const Text('Name'),
-      const Text('Age'),
-      const Text('Role'),
-      const Text('Status'),
+      Text('PCN Number'),
+      Text('Plate Number'),
+      Text('Offence'),
+      Text('Zone'),
+      Text('Date'),
+      Text('First Name'),
+      Text('Surname'),
     ];
-    final rows = [
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Alice'),
-        const Text('28'),
-        const Text('Admin'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Bob'),
-        const Text('34'),
-        const Text('Director'),
-        const Text('Pending'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Charlie'),
-        const Text('22'),
-        const Text('Nurse'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
+    final List<Violation> violations = [
+      Violation(
+        pcnNumber: 'PCN-002452',
+        plateNumber: 'ABC-1234XL',
+        offence: 'Speeding',
+        zone: 'Zone A',
+        date: DateTime.now(),
+        firstName: 'John',
+        surname: 'Doe',
+      ),
+      Violation(
+        pcnNumber: 'PCN-006752',
+        plateNumber: 'ABC-9034XJ',
+        offence: 'Illegal Parking',
+        zone: 'Zone B',
+        date: DateTime.now().subtract(Duration(days: 1)),
+        firstName: 'Jane',
+        surname: 'Smith',
+      ),
+      Violation(
+        pcnNumber: 'PCN-006752',
+        plateNumber: 'ABC-9034XJ',
+        offence: 'Illegal Parking',
+        zone: 'Zone B',
+        date: DateTime.now().subtract(Duration(days: 1)),
+        firstName: 'Jane',
+        surname: 'Smith',
+      ),
+      Violation(
+        pcnNumber: 'PCN-006752',
+        plateNumber: 'ABC-9034XJ',
+        offence: 'Illegal Parking',
+        zone: 'Zone B',
+        date: DateTime.now().subtract(Duration(days: 1)),
+        firstName: 'Jane',
+        surname: 'Smith',
+      ),
+      Violation(
+        pcnNumber: 'PCN-006752',
+        plateNumber: 'ABC-9034XJ',
+        offence: 'Illegal Parking',
+        zone: 'Zone B',
+        date: DateTime.now().subtract(Duration(days: 1)),
+        firstName: 'Jane',
+        surname: 'Smith',
+      ),
+      // …more sample data…
     ];
     return Stack(
       children: [
         hasData
-            ? HtmlTable(
+            ? HtmlTable<Violation>(
                 headers: headers,
-                rows: rows,
-                columnWidths: [
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  IntrinsicColumnWidth(),
-                  FixedColumnWidth(80),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                ],
+                rowData: violations,
+                rowBuilder: (list) => list.map((v) {
+                  return [
+                    Text(v.pcnNumber),
+                    Text(v.plateNumber),
+                    Text(v.offence),
+                    Text(v.zone),
+                    Text(v.date.toLocal().toString().split(' ')[0]),
+                    Text(v.firstName),
+                    Text(v.surname),
+                  ];
+                }).toList(),
+                onRowTap: (v, index) {},
+                // Example styling props:
+                columnWidths: List.generate(
+                  headers.length,
+                  (_) => IntrinsicColumnWidth(),
+                ),
                 borderRadius: BorderRadius.circular(12),
                 outerBorderColor: AppColors.onBackgroundSurface2,
                 innerBorderColor: AppColors.onBackgroundSurface2,
-                // cellWidth: 100,
                 rowHeight: hp(3.5),
                 cellPadding: const EdgeInsets.symmetric(
                   vertical: 10,
