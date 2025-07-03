@@ -18,4 +18,11 @@ class AppAssets {
   static const passwordReset = 'assets/images/password-reset-img.png';
   static const arrowDown = 'assets/icons/arrow_down.png';
   static const imagePlaceholder = "assets/icons/image-placeholder.png";
+  static const lock = 'assets/icons/hugeicons_lock-password.png';
+  static const help = 'assets/icons/carbon_help.png';
+  static const shield = 'assets/icons/privacy-policy.png';
+  static const logout = 'assets/icons/solar_logout-outline.png';
+  static const mail = 'assets/icons/mage_email.png';
+  static const phone = 'assets/icons/phone.png';
+  static const globe = 'assets/icons/stash_globe-timezone-light.png';
 }

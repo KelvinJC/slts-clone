@@ -84,18 +84,21 @@ class HomeTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              width: avatarSize,
-              height: avatarSize,
-              padding: EdgeInsets.all(border),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: CircleAvatar(
-                backgroundColor: AppColors.homeGradient[0],
-                radius: (avatarSize - 2 * border) / 2,
-                backgroundImage: const AssetImage(AppAssets.avatar),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(ctx, '/profile'),
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                padding: EdgeInsets.all(border),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  backgroundColor: AppColors.homeGradient[0],
+                  radius: (avatarSize - 2 * border) / 2,
+                  backgroundImage: const AssetImage(AppAssets.avatar),
+                ),
               ),
             ),
             SizedBox(width: wp(3)),
@@ -120,45 +123,45 @@ class HomeTab extends StatelessWidget {
             ),
           ],
         ),
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: Stack(
-              children: [
-                ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
-                Visibility(
-                  visible: true,
-                  child: Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      width: wp(notiSum > 9 ? 4.5 : 3.5),
-                      height: wp(4.2),
-                      decoration: const BoxDecoration(
-                        color: AppColors.notification,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          notiSum > 9 ? '9+' : notiSum.toString(),
-                          style: Theme.of(ctx).textTheme.labelSmall!.copyWith(
-                            fontSize: wp(notiSum > 9 ? 2.5 : 2.2),
-                            color: AppColors.surface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            onPressed: () {},
-          ),
-        ),
+        // Container(
+        //   decoration: const BoxDecoration(
+        //     color: AppColors.surface,
+        //     shape: BoxShape.circle,
+        //   ),
+        //   child: IconButton(
+        //     icon: Stack(
+        //       children: [
+        //         ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
+        //         Visibility(
+        //           visible: true,
+        //           child: Positioned(
+        //             top: 0,
+        //             right: 0,
+        //             child: Container(
+        //               width: wp(notiSum > 9 ? 4.5 : 3.5),
+        //               height: wp(4.2),
+        //               decoration: const BoxDecoration(
+        //                 color: AppColors.notification,
+        //                 shape: BoxShape.circle,
+        //               ),
+        //               child: Center(
+        //                 child: Text(
+        //                   notiSum > 9 ? '9+' : notiSum.toString(),
+        //                   style: Theme.of(ctx).textTheme.labelSmall!.copyWith(
+        //                     fontSize: wp(notiSum > 9 ? 2.5 : 2.2),
+        //                     color: AppColors.surface,
+        //                     fontWeight: FontWeight.bold,
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //     onPressed: () {},
+        //   ),
+        // ),
       ],
     );
   }
@@ -273,10 +276,19 @@ class HomeTab extends StatelessWidget {
                 }).toList(),
                 onRowTap: (v, index) {},
                 // Example styling props:
-                columnWidths: List.generate(
-                  headers.length,
-                  (_) => IntrinsicColumnWidth(),
-                ),
+                columnWidths: [
+                  FixedColumnWidth(wp(27)),
+                  FixedColumnWidth(wp(27)),
+                  FixedColumnWidth(wp(30)),
+                  FixedColumnWidth(wp(18)),
+                  FixedColumnWidth(wp(26)),
+                  FixedColumnWidth(wp(25)),
+                  FixedColumnWidth(wp(25)),
+                ],
+                // columnWidths: List.generate(
+                //   headers.length,
+                //   (_) => IntrinsicColumnWidth(),
+                // ),
                 borderRadius: BorderRadius.circular(12),
                 outerBorderColor: AppColors.onBackgroundSurface2,
                 innerBorderColor: AppColors.onBackgroundSurface2,
