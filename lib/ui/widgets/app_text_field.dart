@@ -100,6 +100,8 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       initialValue: controller == null ? initialValue : null,
       onChanged: onChanged,
+      onTap: onTap,
+      onFieldSubmitted: onSubmitted,
       obscureText: obscureText,
       enabled: enabled || isPreviewMode,
       readOnly: readOnly || isPreviewMode,

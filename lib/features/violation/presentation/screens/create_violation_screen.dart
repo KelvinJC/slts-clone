@@ -223,7 +223,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
                                 : _back,
                             child: Container(
                               height: hp(5.5),
-                              padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                              // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
                                 borderRadius: BorderRadius.circular(wp(2)),
