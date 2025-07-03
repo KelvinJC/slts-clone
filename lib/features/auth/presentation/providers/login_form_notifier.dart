@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../widgets/email_field_interfaces.dart';
+
 enum LoginFormStage {
   none,
   emailFilled,
@@ -9,19 +11,21 @@ enum LoginFormStage {
 
 bool isPasswordVisible = false;
 
-class LoginFormState {
+class LoginFormState implements EmailFormState {
   final LoginFormStage stage;
   final bool isLoginClicked;
   final bool isPasswordVisible;
+  @override
   final bool emailValid;
-  final bool emailTouched;
+  @override
+  final bool emailFieldTouched;
 
   const LoginFormState({
     this.stage = LoginFormStage.none,
     this.isLoginClicked = false,
     this.isPasswordVisible = false,
     this.emailValid = false,
-    this.emailTouched = false,
+    this.emailFieldTouched = false,
   });
 
   LoginFormState copyWith({
@@ -29,14 +33,14 @@ class LoginFormState {
     bool? isLoginClicked,
     bool? isPasswordVisible,
     bool? emailValid,
-    bool? emailTouched,
+    bool? emailFieldTouched,
   }) {
     return LoginFormState(
       stage: stage ?? this.stage,
       isLoginClicked: isLoginClicked ?? this.isLoginClicked,
       isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
       emailValid: emailValid ?? this.emailValid,
-      emailTouched: emailTouched ?? this.emailTouched,
+      emailFieldTouched: emailFieldTouched ?? this.emailFieldTouched,
     );
   }
 }
@@ -46,15 +50,15 @@ final loginFormProvider =
     (ref) => LoginFormNotifier(),
   );
 
-
-class LoginFormNotifier extends StateNotifier<LoginFormState> {
+class LoginFormNotifier extends StateNotifier<LoginFormState> implements EmailFieldNotifier<LoginFormState> {
   LoginFormNotifier() : super(const LoginFormState());
 
   bool _emailFilled = false;
   bool _passwordFilled = false;
   bool _isPasswordVisible = false;
 
-  void setFieldToFilled(String field, {String? emailValue}) {
+  @override
+   void setFieldToFilled(String? field, {required String emailValue}) {
     if (field == 'email') {
       _emailFilled = true;
 
@@ -78,7 +82,8 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     state = state.copyWith(stage: newStage);
   }
 
-  void setFieldToUnfilled(String field) {
+  @override
+  void setFieldToUnfilled(String? field) {
     if (field == 'email') _emailFilled = false;
     if (field == 'password') _passwordFilled = false;
 
@@ -96,8 +101,9 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     state = state.copyWith(stage: newStage, isLoginClicked: false);
   }
 
-  void markEmailTouched() {
-    state = state.copyWith(emailTouched: true);
+  @override
+  void markEmailFieldTouched() {
+    state = state.copyWith(emailFieldTouched: true);
   }
 
   bool _validateEmail(String email) {
@@ -110,7 +116,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     state = state.copyWith(isPasswordVisible: _isPasswordVisible);
   }
 
-  void markLoginClicked() {
+  void markButtonClicked() {
     state = state.copyWith(isLoginClicked: true);
   }
 
@@ -121,3 +127,4 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     state = const LoginFormState();
   }
 }
+
