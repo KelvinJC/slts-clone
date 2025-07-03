@@ -61,7 +61,7 @@ class LoginScreen extends ConsumerWidget {
                     SizedBox(height: hp(3)),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: wp(5)),
-                      child: const EmailField(),
+                      child: EmailField(formProvider: loginFormProvider,),
                     ),
                     SizedBox(height: hp(2)),
                     Padding(
@@ -71,7 +71,7 @@ class LoginScreen extends ConsumerWidget {
                           if (val.trim() != '') {
                             ref
                                 .read(loginFormProvider.notifier)
-                                .setFieldToFilled('password');
+                                .setFieldToFilled('password', emailValue: '');
                           } else {
                             ref
                                 .read(loginFormProvider.notifier)
@@ -137,6 +137,10 @@ class LoginScreen extends ConsumerWidget {
                     SizedBox(height: hp(3)),
                     GestureDetector(
                       onTap: () async {
+                        ref
+                        .read(loginFormProvider.notifier)
+                        .reset();
+
                         Navigator.pushNamed(context, '/biometrics');
                       },
                       child: Text(
@@ -155,7 +159,6 @@ class LoginScreen extends ConsumerWidget {
   }
 
   Widget _buildGradientLoginButton(BuildContext ctx, WidgetRef ref, LoginFormState loginState) {
-
     return GradientButton(
       child: loginState.stage == LoginFormStage.formFilled && loginState.isLoginClicked
           ? CircularProgressIndicator(color: AppColors.onPrimary)
@@ -167,8 +170,8 @@ class LoginScreen extends ConsumerWidget {
               fontSize: 20  ,
             )
         ),
-      onPressed: () {
-        ref.read(loginFormProvider.notifier).markLoginClicked();
+      onPressed: () async {
+        ref.read(loginFormProvider.notifier).markButtonClicked();
       },
     );
   }
