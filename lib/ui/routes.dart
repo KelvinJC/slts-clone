@@ -9,6 +9,7 @@ import '../features/auth/presentation/screens/password_reset_link_screen.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/violation/presentation/screens/create_violation_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (_) => const SplashScreen(),
