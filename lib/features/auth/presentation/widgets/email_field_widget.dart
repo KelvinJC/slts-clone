@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
-import '../providers/login_form_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'email_field_interfaces.dart';
 
