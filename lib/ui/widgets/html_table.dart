@@ -1,37 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
-/// A simple HTML-like table widget with borders, flexible columns, optional rounded corners, and configurable cell sizes.
-/// It scrolls horizontally when the content overflows the available width.
-class HtmlTable extends StatelessWidget {
+class HtmlTable<T> extends StatelessWidget {
   final List<Widget> headers;
-  final List<List<Widget>> rows;
+  final List<T> rowData;
+  final List<List<Widget>> Function(List<T> rows) rowBuilder;
+  final void Function(T row, int index)? onRowTap;
+
+  // styling props (copy your existing ones here)…
   final BorderRadiusGeometry? borderRadius;
   final List<TableColumnWidth>? columnWidths;
-
-  /// Color and width for the outer border
   final Color outerBorderColor;
   final double outerBorderWidth;
-
-  /// Color and width for inside borders
   final Color innerBorderColor;
   final double innerBorderWidth;
-
-  /// Fixed height for each table row (including header)
   final double? rowHeight;
-
-  /// Padding inside each cell
   final EdgeInsetsGeometry cellPadding;
-
-  /// Optional fixed width for every cell
   final double? cellWidth;
-
   final int? maxVisibleRows;
 
   const HtmlTable({
-    super.key,
+    Key? key,
     required this.headers,
-    required this.rows,
+    required this.rowData,
+    required this.rowBuilder,
+    this.onRowTap,
     this.borderRadius,
     this.columnWidths,
     this.outerBorderColor = Colors.grey,
@@ -42,109 +35,16 @@ class HtmlTable extends StatelessWidget {
     this.cellPadding = const EdgeInsets.all(8.0),
     this.cellWidth,
     this.maxVisibleRows,
-  }) : assert(columnWidths == null || columnWidths.length == headers.length);
+  }) : assert(columnWidths == null || columnWidths.length == headers.length),
+       super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Table(
-      columnWidths: columnWidths != null
-          ? Map<int, TableColumnWidth>.fromIterables(
-              List.generate(columnWidths!.length, (i) => i),
-              columnWidths!,
-            )
-          : const {},
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      // border: TableBorder(
-      //   horizontalInside: BorderSide(
-      //     width: innerBorderWidth,
-      //     color: innerBorderColor,
-      //   ),
-      //   verticalInside: BorderSide(
-      //     width: innerBorderWidth,
-      //     color: innerBorderColor,
-      //   ),
-      // ),
-      children: [
-        // Header row
-        TableRow(
-          decoration: BoxDecoration(color: AppColors.surface),
-          children: headers.map((cell) {
-            Widget contentCell = DefaultTextStyle(
-              style: const TextStyle(
-                // fontWeight: FontWeight.bold,
-                color: AppColors.onBackgroundSurface,
-              ),
-              child: cell,
-            );
-            if (rowHeight != null) {
-              contentCell = Container(
-                height: rowHeight,
-                alignment: Alignment.center,
-                child: contentCell,
-              );
-            }
-            if (cellWidth != null) {
-              contentCell = Container(
-                width: cellWidth,
-                alignment: Alignment.center,
-                child: contentCell,
-              );
-            }
-            return Column(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.symmetric(vertical: 12),
-                  child: contentCell,
-                ),
-                Container(height: innerBorderWidth, color: innerBorderColor),
-              ],
-            );
-          }).toList(),
-        ),
-        // for (final row in rows)
-        for (final row
-            in (maxVisibleRows != null ? rows.take(maxVisibleRows!) : rows))
-          TableRow(
-            children: row.map((cell) {
-              Widget contentCell = cell;
-              if (rowHeight != null) {
-                contentCell = Container(
-                  height: rowHeight,
-                  alignment: Alignment.center,
-                  child: contentCell,
-                );
-              }
-              if (cellWidth != null) {
-                contentCell = Container(
-                  width: cellWidth,
-                  alignment: Alignment.center,
-                  child: contentCell,
-                );
-              }
-              return Padding(padding: cellPadding, child: contentCell);
-            }).toList(),
-          ),
-      ],
-    );
-
-    Widget tableContainer = Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: borderRadius,
-        border: Border.all(color: outerBorderColor, width: outerBorderWidth),
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.zero,
-        child: content,
-      ),
-    );
-
-    // Wrap in SizedBox if rowHeight is specified to fix vertical height
-    // if (rowHeight != null) {
-    //   final totalHeight =
-    //       (rowHeight! + cellPadding.vertical) * (rows.length + 1);
-    //   tableContainer = SizedBox(height: totalHeight, child: tableContainer);
-    // }
+    // Build the Widgets for each T
+    final builtRows = rowBuilder(rowData);
+    final visibleRows = maxVisibleRows != null
+        ? builtRows.take(maxVisibleRows!).toList()
+        : builtRows;
 
     return Material(
       elevation: 1,
@@ -153,25 +53,97 @@ class HtmlTable extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Align(alignment: Alignment.topLeft, child: tableContainer),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              border: Border.all(
+                color: outerBorderColor,
+                width: outerBorderWidth,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: borderRadius ?? BorderRadius.zero,
+              child: Table(
+                columnWidths: columnWidths != null
+                    ? Map<int, TableColumnWidth>.fromIterables(
+                        List.generate(columnWidths!.length, (i) => i),
+                        columnWidths!,
+                      )
+                    : const {},
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: [
+                  // Header row
+                  TableRow(
+                    decoration: BoxDecoration(color: AppColors.surface),
+                    children: headers.map((cell) {
+                      Widget c = DefaultTextStyle(
+                        style: const TextStyle(
+                          // fontWeight: FontWeight.bold,
+                          color: AppColors.onBackgroundSurface,
+                        ),
+                        child: cell,
+                      );
+                      // Widget c = cell;
+                      if (rowHeight != null) {
+                        c = Container(
+                          height: rowHeight,
+                          alignment: Alignment.centerLeft,
+                          child: c,
+                        );
+                      }
+                      if (cellWidth != null) {
+                        c = Container(
+                          width: cellWidth,
+                          alignment: Alignment.centerLeft,
+                          child: c,
+                        );
+                      }
+                      return Column(
+                        children: [
+                          Padding(padding: cellPadding, child: c),
+                          Container(
+                            height: innerBorderWidth,
+                            color: innerBorderColor,
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                  // Data rows
+                  for (var i = 0; i < visibleRows.length; i++)
+                    TableRow(
+                      children: visibleRows[i].map((cell) {
+                        Widget c = cell;
+                        if (rowHeight != null) {
+                          c = Container(
+                            height: rowHeight,
+                            alignment: Alignment.centerLeft,
+                            child: c,
+                          );
+                        }
+                        if (cellWidth != null) {
+                          c = Container(
+                            width: cellWidth,
+                            alignment: Alignment.centerLeft,
+                            child: c,
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            if (onRowTap != null) {
+                              onRowTap!(rowData[i], i);
+                            }
+                          },
+                          child: Padding(padding: cellPadding, child: c),
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-
-// Example usage:
-// HtmlTable(
-//   headers: [Text('Name'), Text('Age'), Text('Role')],
-//   rows: [
-//     [Text('Alice'), Text('28'), Text('Admin')],
-//     [Text('Bob'), Text('34'), Text('Director')],
-//   ],
-//   columnWidths: [IntrinsicColumnWidth(), FixedColumnWidth(80), IntrinsicColumnWidth(flex:2)],
-//   borderRadius: BorderRadius.circular(12),
-//   outerBorderColor: Colors.blue,
-//   innerBorderColor: Colors.grey.shade300,
-//   rowHeight: 60,
-//   cellWidth: 100, // fixed width per cell
-//   cellPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-// );

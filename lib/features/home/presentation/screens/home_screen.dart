@@ -49,6 +49,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return FloatingActionButton(
       onPressed: () => {},
       backgroundColor: AppColors.surface,
+      splashColor: AppColors.buttonGradient[1].withAlpha(50),
       elevation: 0,
       shape: const CircleBorder(),
       child: ShaderMask(
@@ -135,13 +136,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               asset: null,
               label: 'Quick Capture',
               selected: _currentIndex == 1,
-              onTap: () => setState(() => _currentIndex = 1),
+              onTap: () {
+                // setState(() => _currentIndex = 1);
+              },
             ),
             NavItem(
               asset: AppAssets.settings,
               label: 'Settings',
               selected: _currentIndex == 2,
-              onTap: () => setState(() => _currentIndex = 2),
+              onTap: () {
+                // setState(() => _currentIndex = 2);
+                Navigator.pushNamed(ctx, '/settings');
+              },
             ),
           ],
         ),
