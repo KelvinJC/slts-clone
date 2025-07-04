@@ -6,6 +6,7 @@ import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 
 import '../../../../ui/utils/app_assets.dart';
+import '../providers/fingerprint_auth_notifier.dart';
 
 // import '../providers/auth_notifier.dart';
 
@@ -14,6 +15,8 @@ class FingerprintLoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final fingerprintAuthState = ref.watch(biometricAuthProvider);
+    final fingerprintAuthNotifier = ref.read(biometricAuthProvider.notifier);
     final hp = context.hp;
     final wp = context.wp;
 
