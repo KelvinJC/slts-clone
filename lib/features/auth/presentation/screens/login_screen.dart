@@ -172,6 +172,11 @@ class LoginScreen extends ConsumerWidget {
         ),
       onPressed: () async {
         ref.read(loginFormProvider.notifier).markButtonClicked();
+
+        // simulate flow after correct login credentials to show 2FA screen
+        await Future.delayed(const Duration(seconds: 2));
+        Navigator.pushNamed(ctx, '/2fa');
+        ref.read(loginFormProvider.notifier).reset();
       },
     );
   }
