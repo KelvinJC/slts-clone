@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/auth/presentation/screens/2fa_screen.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/create_violation_screen.dart';
 import '../features/auth/presentation/screens/fingerprint_login_screen.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -10,7 +11,6 @@ import '../features/auth/presentation/screens/password_reset_link_screen.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
-import '../features/violation/presentation/screens/create_violation_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/': (_) => const SplashScreen(),
