@@ -1,5 +1,6 @@
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/ui/themes/app_theme.dart';
@@ -42,6 +43,10 @@ Future<void> main() async {
 
   // 2) Initialize secure storage / Hive etc.
   await LocalStorage.instance.init();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   // 3) Register headless handler before runApp
   BackgroundFetch.registerHeadlessTask(_onBackgroundFetch);

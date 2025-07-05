@@ -17,7 +17,7 @@ class SplashStageNotifier extends StateNotifier<SplashStage> {
     await Future.delayed(const Duration(seconds: 3));
     state = SplashStage.appLogo;
 
-    await Future.delayed(const Duration(milliseconds: 5400));
+    await Future.delayed(const Duration(milliseconds: 2500));
     state = SplashStage.done;
   }
 }

@@ -4,10 +4,8 @@ import 'login_screen.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
-import 'package:slts_enforcer_app/features/home/presentation/screens/home_screen.dart';
 import '../providers/splash_state.dart';
-import 'fingerprint_login_screen.dart';
-// import 'package:slts_enforcer_app/features/auth/presentation/screens/fingerprint_login_screen.dart';
+
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
@@ -81,8 +79,6 @@ class SplashScreen extends ConsumerWidget {
       ),
       SplashStage.appLogo || SplashStage.done => Image.asset(
         AppAssets.logoAnimation,
-        width: wp(40),
-        height: wp(40),
         fit: BoxFit.contain,
       )
     };

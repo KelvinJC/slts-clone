@@ -4,9 +4,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
-
-import '../../../../ui/utils/app_assets.dart';
-
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 // import '../providers/auth_notifier.dart';
 
 class PasswordResetLinkNotificationScreen extends ConsumerWidget {
@@ -93,7 +91,7 @@ class PasswordResetLinkNotificationScreen extends ConsumerWidget {
                       children: [
                         Image.asset(
                           AppAssets.passwordReset,
-                          width: wp(25),
+                          width: wp(20),
                           height: hp(20),
                         ),
                         Column(
@@ -102,21 +100,21 @@ class PasswordResetLinkNotificationScreen extends ConsumerWidget {
                               'A reset link has been sent to',
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                   color: AppColors.onBackgroundSurface,
-                                  fontSize: 13
+                                  fontSize: 12
                               ),
                             ),
                             Text(
                               'oye******@gmail.com.',
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                   color: AppColors.onBackgroundSurface,
-                                  fontSize: 13
+                                  fontSize: 12
                               ),
                             ),
                             Text(
                               'Click the link to reset your password',
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                   color: AppColors.onBackgroundSurface,
-                                  fontSize: 13
+                                  fontSize: 12
                               ),
                             )
                           ],
