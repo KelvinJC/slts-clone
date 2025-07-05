@@ -6,7 +6,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
-import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import '../widgets/app_logo_avatar.dart';
 // import '../providers/auth_notifier.dart';
 
 class ForgotPasswordScreen extends ConsumerWidget {
@@ -29,17 +29,7 @@ class ForgotPasswordScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: wp(10),
-                      backgroundColor: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12), // Adjust padding to shrink the logo
-                        child: Image.asset(
-                          AppAssets.appLogo,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
+                    AppLogoAvatar(),
                     SizedBox(height: wp(3)),
                     Text(
                       'Forgot password',

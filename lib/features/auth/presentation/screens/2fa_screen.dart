@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
-import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import '../widgets/2fa_token_form_widget.dart';
+import '../widgets/app_logo_avatar.dart';
 // import '../providers/auth_notifier.dart';
 
 
@@ -26,17 +26,7 @@ class TwoFactorAuthScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: wp(10),
-                      backgroundColor: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12), // Adjust padding to shrink the logo
-                        child: Image.asset(
-                          AppAssets.appLogo,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
+                    AppLogoAvatar(),
                     SizedBox(height: wp(3)),
                     Column(
                       children: [
