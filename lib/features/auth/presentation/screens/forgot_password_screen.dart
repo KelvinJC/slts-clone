@@ -136,7 +136,6 @@ class ForgotPasswordScreen extends ConsumerWidget {
       ),
       onPressed: () async {
         ref.read(forgotPwdFormProvider.notifier).markButtonClicked();
-        FocusScope.of(ctx).unfocus(); // hide keyboard
 
         // simulate a successful password change to show password reset link sent success screen
         await Future.delayed(const Duration(seconds: 2));
