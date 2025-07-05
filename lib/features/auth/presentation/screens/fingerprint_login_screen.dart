@@ -3,12 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
-import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
-
-import '../../../../ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import '../providers/fingerprint_auth_notifier.dart';
-import '../providers/login_form_notifier.dart';
-
 // import '../providers/auth_notifier.dart';
 
 class FingerprintLoginScreen extends ConsumerWidget {
