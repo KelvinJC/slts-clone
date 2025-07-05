@@ -79,8 +79,6 @@ class SplashScreen extends ConsumerWidget {
       ),
       SplashStage.appLogo || SplashStage.done => Image.asset(
         AppAssets.logoAnimation,
-        width: wp(40),
-        height: wp(40),
         fit: BoxFit.contain,
       )
     };
