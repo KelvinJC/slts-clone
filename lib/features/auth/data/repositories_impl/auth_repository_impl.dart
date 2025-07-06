@@ -6,6 +6,7 @@ import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 import 'package:slts_enforcer_app/core/utils/retry.dart';
+import 'package:slts_enforcer_app/features/auth/data/models/forgot_password_request.dart';
 // import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 // import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.dart';
@@ -54,7 +55,33 @@ class AuthRepositoryImpl implements AuthRepository {
       await storage.saveAuthToken(
         userModel.token.headers['SLTSTrafficAPIToken']!,
       );
+
+      // persist useBiometric
+      await storage.saveUseBiometrics(true);
+
       return userModel.toEntity();
+    });
+  }
+
+  // @override
+  // Future<User> loginWithToken(String token) async {
+  //   await ensureConnected();
+  //   return await retry<User>(() async {
+  //     final resp = await api.loginWithToken(token);
+  //     return resp.toEntity();
+  //   });
+  // }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    await ensureConnected();
+    final req = ForgotPasswordRequest(email: email);
+
+    return await retry<void>(() async {
+      final response = await api.requestPasswordReset(req);
+      if (response.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: response.message);
+      }
     });
   }
 

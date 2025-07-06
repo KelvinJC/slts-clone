@@ -13,4 +13,11 @@ abstract class AuthRepository {
   ///
   /// Throws a [Failure] if OTP verification fails or no userData is returned.
   Future<User> verifyOtp(String otp, String email);
+
+  // /// Returns a fully-populated User or throws on error
+  // /// Throws a [Failure] if authentication fails (i.e. response.message != "success").
+  // Future<User> loginWithToken(String token);
+
+  /// request a password‐reset link
+  Future<void> forgotPassword(String email);
 }

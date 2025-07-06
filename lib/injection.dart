@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:slts_enforcer_app/core/api/network_exceptions.dart';
+import 'package:slts_enforcer_app/core/services/biometric_service.dart';
 import 'package:slts_enforcer_app/features/sync/data/repositories_impl/sync_repository_impl.dart';
 import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/repositories/violation_repository_impl.dart';
@@ -71,6 +72,10 @@ final violationRepositoryProvider = Provider<ViolationRepository>(
 final syncRepositoryProvider = Provider<SyncRepository>(
   (ref) =>
       SyncRepositoryImpl(ref.read(apiProvider), ref.read(localStorageProvider)),
+);
+
+final biometricProvider = Provider<BiometricService>(
+  (ref) => BiometricService(),
 );
 
 class AppModule {

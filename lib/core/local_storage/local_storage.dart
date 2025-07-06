@@ -40,10 +40,23 @@ class LocalStorage {
 
   /// Convenience: clear your auth token (e.g. on logout).
   Future<void> clearAuthToken() => delete(_Keys.authToken);
+
+  /// Convenience: persist your auth token.
+  Future<void> saveUseBiometrics(bool useBiometrics) =>
+      write(_Keys.authToken, useBiometrics.toString());
+
+  /// Convenience: read your auth token.
+  Future<bool> getUseBiometrics() async {
+    final result = await read(_Keys.useBiometrics);
+    if (result == null) return false;
+
+    return Future.value(result.toString() == 'true');
+  }
 }
 
 /// Private keys used in secure storage.
 class _Keys {
   static const authToken = 'auth_token';
+  static const useBiometrics = 'use_biometrics';
   // add more keys here as needed
 }

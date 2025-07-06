@@ -1,5 +1,6 @@
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
+import 'package:slts_enforcer_app/features/auth/data/models/forgot_password_request.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/generic_response.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_response.dart';
@@ -24,6 +25,11 @@ abstract class AppApi {
 
   // @POST('/login')
   // Future<UserModel> login(@Body() LoginRequest body);
+
+  @POST('/password/forgot')
+  Future<GenericResponse> requestPasswordReset(
+    @Body() ForgotPasswordRequest body,
+  );
 
   @POST('/violations')
   Future<void> createViolation(@Body() CreateViolationRequest req);

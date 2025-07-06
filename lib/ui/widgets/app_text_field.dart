@@ -60,8 +60,14 @@ class AppTextField extends StatelessWidget {
   /// Whether the field is for preview mode.
   final bool isPreviewMode;
 
+  /// Whether the field is valid.
+  final bool? isValid;
+
+  /// Padding on top and bottom.
+  final double verticalPadding;
+
   const AppTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.initialValue,
     required this.hintText,
@@ -69,6 +75,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.enabled = true,
     this.maxLines = 1,
+    this.verticalPadding = 1.2,
     this.keyboardType = TextInputType.text,
     this.onTap,
     this.onSubmitted,
@@ -78,12 +85,12 @@ class AppTextField extends StatelessWidget {
     this.suffix,
     this.enabledBorderColor,
     this.validateBorder = false,
+    this.isValid,
     this.isPreviewMode = false,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both a controller and initialValue.',
-       ),
-       super(key: key);
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +102,18 @@ class AppTextField extends StatelessWidget {
       borderSide: BorderSide(width: 0, color: Colors.transparent),
       gapPadding: 0,
     );
+
+    Color borderColor;
+    if (isValid != null) {
+      borderColor = isValid!
+          ? (enabledBorderColor ?? AppColors.primary)
+          : AppColors.error;
+    } else {
+      bool isEmpty = (controller?.text ?? initialValue ?? '').isEmpty;
+      borderColor = (isEmpty && enabled)
+          ? AppColors.error
+          : (enabledBorderColor ?? AppColors.primary);
+    }
 
     return TextFormField(
       controller: controller,
@@ -142,7 +161,10 @@ class AppTextField extends StatelessWidget {
             : null,
         contentPadding: isPreviewMode
             ? EdgeInsets.zero
-            : EdgeInsets.symmetric(vertical: hp(1.2), horizontal: wp(3)),
+            : EdgeInsets.symmetric(
+                vertical: hp(verticalPadding),
+                horizontal: wp(3),
+              ),
         filled: true,
         fillColor: isPreviewMode
             ? Colors.transparent
@@ -158,9 +180,7 @@ class AppTextField extends StatelessWidget {
                 borderSide: BorderSide(
                   color: !validateBorder
                       ? AppColors.onBackgroundSurface2
-                      : ((controller?.text ?? initialValue) == '' && enabled
-                            ? AppColors.error
-                            : enabledBorderColor ?? AppColors.primary),
+                      : borderColor,
                   width: 1.5,
                 ),
               ),
@@ -171,9 +191,7 @@ class AppTextField extends StatelessWidget {
                 borderSide: BorderSide(
                   color: !validateBorder
                       ? AppColors.onBackgroundSurface2
-                      : ((controller?.text ?? initialValue)!.isEmpty && enabled
-                            ? AppColors.error
-                            : enabledBorderColor ?? AppColors.primary),
+                      : borderColor,
                   width: 1.5,
                 ),
               ),
