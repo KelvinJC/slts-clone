@@ -14,7 +14,7 @@ class AppAssets {
       'assets/images/patrol_mode_placeholder.png';
   static const appLogo = 'assets/images/splash-logo.png';
   static const trafficScene = 'assets/images/traffic-scene.jpg';
-  static const logoAnimation = 'assets/images/slts-animated-logo.gif';
+  static const logoAnimation = 'assets/images/slts-animated-logo-transparent.gif';
   static const passwordReset = 'assets/images/password-reset-img.png';
   static const arrowDown = 'assets/icons/arrow_down.png';
   static const imagePlaceholder = "assets/icons/image-placeholder.png";
