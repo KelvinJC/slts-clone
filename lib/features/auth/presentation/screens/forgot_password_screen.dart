@@ -7,6 +7,7 @@ import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import '../widgets/app_logo_avatar.dart';
+import '../widgets/blank_button_widget.dart';
 // import '../providers/auth_notifier.dart';
 
 class ForgotPasswordScreen extends ConsumerWidget {
@@ -55,8 +56,8 @@ class ForgotPasswordScreen extends ConsumerWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: wp(5)),
                       child: emailFieldState.emailValid
-                      ? _buildGradientSendLinkButton(context, ref, emailFieldState)
-                      : _buildBlankSendLinkButton(context, wp)
+                      ? const _GradientButton()
+                      : const BlankButton(text: 'Send Link'),
                     ),
                     SizedBox(height: hp(4)),
                     Row(
@@ -86,11 +87,6 @@ class ForgotPasswordScreen extends ConsumerWidget {
                         SizedBox(width: wp(2)),
                         GestureDetector(
                           onTap: () async {
-                            // ref
-                            // .read(forgotPwdFormProvider.notifier)
-                            // .reset();
-
-
                             Navigator.pop(context);
                           },
                           child: Text(
@@ -111,14 +107,21 @@ class ForgotPasswordScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildGradientSendLinkButton(BuildContext ctx, WidgetRef ref, ForgotPwdFormState pwdFormState) {
+class _GradientButton extends ConsumerWidget {
+  const _GradientButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(forgotPwdFormProvider);
+
     return GradientButton(
-      child: pwdFormState.emailValid && pwdFormState.isSendLinkClicked
+      child: state.emailValid && state.isSendLinkClicked
           ? CircularProgressIndicator(color: AppColors.onPrimary)
           : Text(
           'Send Link',
-          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.onPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20  ,
@@ -129,30 +132,8 @@ class ForgotPasswordScreen extends ConsumerWidget {
 
         // simulate a successful password change to show password reset link sent success screen
         await Future.delayed(const Duration(seconds: 2));
-        Navigator.popAndPushNamed(ctx, '/passwordResetNotification');
+        Navigator.popAndPushNamed(context, '/passwordResetNotification');
       },
-    );
-  }
-
-  Widget _buildBlankSendLinkButton(BuildContext ctx, double Function(double) wp) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: wp(3)),
-      decoration: BoxDecoration(
-        // color: Colors.grey[400],
-        borderRadius: BorderRadius.circular(wp(2)),
-        border: Border.all(color: AppColors.onBackgroundSurface2, width: wp(0.4)),
-      ),
-      child: Center(
-        child: Text(
-          'Send Link',
-          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
-            color: AppColors.onBackgroundSurface2,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-      ),
     );
   }
 }

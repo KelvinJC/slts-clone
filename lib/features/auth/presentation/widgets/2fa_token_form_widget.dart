@@ -5,6 +5,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import '../providers/2fa_token_form_notifier.dart';
+import 'blank_button_widget.dart';
 
 class TwoFactorAuthForm extends ConsumerWidget {
   const TwoFactorAuthForm({super.key});
@@ -109,15 +110,20 @@ class TwoFactorAuthForm extends ConsumerWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: wp(5)),
             child: [ButtonStage.gradient, ButtonStage.clicked].contains(buttonState)
-                ?  _buildGradientButton(context, ref)
-                : _buildTransparentButton(context, wp)
+                ? const _GradientButton()
+                : const BlankButton(text: 'Continue'),
           )
         ],
       ),
     );
   }
+}
 
-  Widget _buildGradientButton(BuildContext ctx, WidgetRef ref) {
+class _GradientButton extends ConsumerWidget {
+  const _GradientButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final formKey = ref.watch(formKeyProvider);
     final buttonState = ref.watch(buttonStateProvider);
 
@@ -126,44 +132,23 @@ class TwoFactorAuthForm extends ConsumerWidget {
           ? CircularProgressIndicator(color: AppColors.onPrimary)
           : Text(
           'Continue',
-          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.onPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20  ,
           )
       ),
       onPressed: () async {
-        FocusScope.of(ctx).unfocus(); // hide keyboard
+        FocusScope.of(context).unfocus(); // hide keyboard
 
         if (formKey.currentState!.validate() == true) {
           ref.read(buttonStateProvider.notifier).markButtonClicked();
           // simulate a successful 2fa authentication to show home screen
           await Future.delayed(const Duration(seconds: 1));
-          Navigator.popAndPushNamed(ctx, '/home');
+          Navigator.popAndPushNamed(context, '/home');
           ref.read(buttonStateProvider.notifier).clear();
         }
       },
-    );
-  }
-
-  Widget _buildTransparentButton(BuildContext ctx, double Function(double) wp) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: wp(3)),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(wp(2)),
-        border: Border.all(color: AppColors.onBackgroundSurface2, width: wp(0.4)),
-      ),
-      child: Center(
-        child: Text(
-          'Continue',
-          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
-            color: AppColors.onBackgroundSurface2,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-      ),
     );
   }
 }

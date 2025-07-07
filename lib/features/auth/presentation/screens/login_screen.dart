@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/widgets/blank_button_widget.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/widgets/email_field_widget.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -109,8 +110,8 @@ class LoginScreen extends ConsumerWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: wp(5)),
                       child: loginState.stage == LoginFormStage.formFilled
-                          ? _buildGradientLoginButton(context, ref, loginState)
-                          : _buildBlankLoginButton(context, wp),
+                          ? const _GradientButton()
+                          : const BlankButton(text: 'Login'),
                     ),
                     SizedBox(height: hp(4)),
                     GestureDetector(
@@ -145,49 +146,34 @@ class LoginScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildGradientLoginButton(BuildContext ctx, WidgetRef ref, LoginFormState loginState) {
+class _GradientButton extends ConsumerWidget {
+  const _GradientButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(loginFormProvider);
+
     return GradientButton(
-      child: loginState.stage == LoginFormStage.formFilled && loginState.isLoginClicked
+      child: state.stage == LoginFormStage.formFilled && state.isLoginClicked
           ? CircularProgressIndicator(color: AppColors.onPrimary)
           : Text(
-            'Login',
-            style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
-              color: AppColors.onPrimary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20  ,
-            )
-        ),
+          'Login',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: AppColors.onPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20  ,
+          )
+      ),
       onPressed: () async {
         ref.read(loginFormProvider.notifier).markButtonClicked();
 
         // simulate flow after correct login credentials to show 2FA screen
         await Future.delayed(const Duration(seconds: 2));
-        Navigator.pushNamed(ctx, '/2fa');
+        Navigator.pushNamed(context, '/2fa');
         ref.read(loginFormProvider.notifier).reset();
       },
-    );
-  }
-
-  Widget _buildBlankLoginButton(BuildContext ctx, double Function(double) wp) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: wp(3)),
-      decoration: BoxDecoration(
-        // color: Colors.grey[400],
-        borderRadius: BorderRadius.circular(wp(2)),
-        border: Border.all(color: AppColors.onBackgroundSurface2, width: wp(0.4)),
-      ),
-      child: Center(
-        child: Text(
-          'Login',
-          style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
-            color: AppColors.onBackgroundSurface2,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-      ),
     );
   }
 }
