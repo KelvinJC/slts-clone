@@ -23,7 +23,7 @@ class BlankButton extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'Login',
+          text,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.onBackgroundSurface2,
             fontWeight: FontWeight.bold,

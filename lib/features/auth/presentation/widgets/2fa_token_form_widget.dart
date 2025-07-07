@@ -135,7 +135,7 @@ class _GradientButton extends ConsumerWidget {
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.onPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 20  ,
+            fontSize: 20,
           )
       ),
       onPressed: () async {
