@@ -186,7 +186,7 @@ class FingerprintLoginScreen extends ConsumerWidget {
                               await fingerprintAuthNotifier.authenticate(biometricOnly: true);
                               // go back to login screen if biometric auth is successful
                               if (fingerprintAuthState.authorized == 'Authorized') {
-                                Navigator.pop(context);
+                                Navigator.popAndPushNamed(context, '/home');
                               }
                             },
                             child: Icon(
