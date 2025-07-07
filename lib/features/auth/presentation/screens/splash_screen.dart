@@ -31,7 +31,7 @@ class SplashScreen extends ConsumerWidget {
         // );
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 1500),
+            transitionDuration: const Duration(milliseconds: 2000),
             pageBuilder: (_, __, ___) => const LoginScreen(),
             transitionsBuilder: (_, animation, __, child) {
               final curvedAnimation = CurvedAnimation(
