@@ -43,7 +43,7 @@ class LocalStorage {
 
   /// Convenience: persist your auth token.
   Future<void> saveUseBiometrics(bool useBiometrics) =>
-      write(_Keys.authToken, useBiometrics.toString());
+      write(_Keys.useBiometrics, useBiometrics.toString());
 
   /// Convenience: read your auth token.
   Future<bool> getUseBiometrics() async {

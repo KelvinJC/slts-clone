@@ -36,21 +36,22 @@ class CreateViolationRequest {
   /// New: construct from your local ViolationModel
   factory CreateViolationRequest.fromViolationModel(ViolationModel v) {
     return CreateViolationRequest(
-      offence: v.offence,
-      eventType: v.eventType,
-      date: v.date,
-      zone: v.zone,
-      command: v.command,
+      offence: v.offenceName,
+      eventType: v.eventTypeName,
+      date: v.violationDateIso,
+      zone: v.zoneName,
+      command: v.commandName,
       firstName: v.firstName,
       surname: v.surname,
-      phone: v.phone,
-      plate: v.plate,
-      plateType: v.plateType,
-      plateColor: v.plateColor,
-      brand: v.brand,
-      vehicleType: v.vehicleType,
-      vehicleColor: v.vehicleColor,
-      mediaPaths: List<String>.from(v.mediaPaths),
+      phone: v.phoneNumber,
+      plate: v.plateNumber,
+      plateType: v.plateTypeName,
+      plateColor: v.plateColorName,
+      brand: v.vehicleBrandName,
+      vehicleType: v.vehicleTypeName,
+      vehicleColor: v.vehicleColorName,
+      // mediaPaths: List<String>.from(v.mediaPaths),
+      mediaPaths: [],
     );
   }
 

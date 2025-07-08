@@ -6,6 +6,8 @@ import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.d
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_response.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/run_plate_response.dart';
 import '../../features/auth/data/models/login_request.dart';
 import '../../features/auth/data/models/user_model.dart';
 
@@ -30,6 +32,9 @@ abstract class AppApi {
   Future<GenericResponse> requestPasswordReset(
     @Body() ForgotPasswordRequest body,
   );
+
+  @POST('/violation/run-plate-number')
+  Future<RunPlateResponse> runPlateNumber(@Body() RunPlateRequest body);
 
   @POST('/violations')
   Future<void> createViolation(@Body() CreateViolationRequest req);

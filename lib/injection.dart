@@ -27,10 +27,25 @@ import 'package:slts_enforcer_app/core/api/env.dart';
 /// 1) Dio client with interceptor that embeds Failure into DioException.error
 
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(baseUrl: Env.apiBase));
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: Env.apiBase,
+      headers: {
+        'Accept': 'application/json', // default for all requests
+      },
+    ),
+  );
 
   dio.interceptors.add(
     InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // 1) load the saved token
+        final token = await LocalStorage.instance.getAuthToken();
+        if (token != null) {
+          options.headers['SLTSTrafficAPIToken'] = token;
+        }
+        return handler.next(options);
+      },
       onError: (DioException err, ErrorInterceptorHandler handler) {
         // Map to our Failure
         final failure = FailureFromDio.fromDio(err);

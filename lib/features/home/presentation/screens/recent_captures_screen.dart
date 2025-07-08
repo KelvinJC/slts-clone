@@ -18,27 +18,27 @@ class RecentCapturesScreen extends ConsumerStatefulWidget {
 
 class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
   int _filterIndex = 0; // 0=All,1=Paid,2=Not Paid
-  final List<Violation> violations = [
-    Violation(
-      pcnNumber: 'PCN-002452',
-      plateNumber: 'ABC-1234XL',
-      offence: 'Speeding',
-      zone: 'Zone A',
-      date: DateTime.now(),
-      firstName: 'John',
-      surname: 'Doe',
-    ),
-    Violation(
-      pcnNumber: 'PCN-006752',
-      plateNumber: 'ABC-9034XJ',
-      offence: 'Illegal Parking',
-      zone: 'Zone B',
-      date: DateTime.now().subtract(Duration(days: 1)),
-      firstName: 'Jane',
-      surname: 'Smith',
-    ),
-    // …more sample data…
-  ];
+  // final List<Violation> violations = [
+  //   Violation(
+  //     pcnNumber: 'PCN-002452',
+  //     plateNumber: 'ABC-1234XL',
+  //     offence: 'Speeding',
+  //     zone: 'Zone A',
+  //     date: DateTime.now(),
+  //     firstName: 'John',
+  //     surname: 'Doe',
+  //   ),
+  //   Violation(
+  //     pcnNumber: 'PCN-006752',
+  //     plateNumber: 'ABC-9034XJ',
+  //     offence: 'Illegal Parking',
+  //     zone: 'Zone B',
+  //     date: DateTime.now().subtract(Duration(days: 1)),
+  //     firstName: 'Jane',
+  //     surname: 'Smith',
+  //   ),
+  //   // …more sample data…
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,47 +115,48 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                             color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(wp(2)),
                           ),
-                          child: HtmlTable<Violation>(
-                            headers: headers,
-                            rowData: violations,
-                            rowBuilder: (list) => list.map((v) {
-                              return [
-                                Text(v.pcnNumber),
-                                Text(v.plateNumber),
-                                Text(v.offence),
-                                Text(v.zone),
-                                Text(v.date.toLocal().toString().split(' ')[0]),
-                                Text(v.firstName),
-                                Text(v.surname),
-                              ];
-                            }).toList(),
-                            onRowTap: (v, index) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      ViolationReportScreen(violation: v),
-                                ),
-                              );
-                            },
-                            // Example styling props:
-                            columnWidths: List.generate(
-                              headers.length,
-                              (_) => IntrinsicColumnWidth(),
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            outerBorderColor: AppColors.onBackgroundSurface2,
-                            innerBorderColor: AppColors.onBackgroundSurface2,
-                            rowHeight: hp(3),
-                            cellPadding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 10,
-                            ),
-                            maxVisibleRows: _filterIndex == 0
-                                ? null
-                                : _filterIndex == 1
-                                ? (violations.length / 2).ceil()
-                                : 5,
-                          ),
+                          child: SizedBox(),
+                          // HtmlTable<Violation>(
+                          //   headers: headers,
+                          //   rowData: violations,
+                          //   rowBuilder: (list) => list.map((v) {
+                          //     return [
+                          //       Text(v.pcnNumber),
+                          //       Text(v.plateNumber),
+                          //       Text(v.offence),
+                          //       Text(v.zone),
+                          //       Text(v.date.toLocal().toString().split(' ')[0]),
+                          //       Text(v.firstName),
+                          //       Text(v.surname),
+                          //     ];
+                          //   }).toList(),
+                          //   onRowTap: (v, index) {
+                          //     Navigator.of(context).push(
+                          //       MaterialPageRoute(
+                          //         builder: (_) =>
+                          //             ViolationReportScreen(violation: v),
+                          //       ),
+                          //     );
+                          //   },
+                          //   // Example styling props:
+                          //   columnWidths: List.generate(
+                          //     headers.length,
+                          //     (_) => IntrinsicColumnWidth(),
+                          //   ),
+                          //   borderRadius: BorderRadius.circular(8),
+                          //   outerBorderColor: AppColors.onBackgroundSurface2,
+                          //   innerBorderColor: AppColors.onBackgroundSurface2,
+                          //   rowHeight: hp(3),
+                          //   cellPadding: const EdgeInsets.symmetric(
+                          //     vertical: 10,
+                          //     horizontal: 10,
+                          //   ),
+                          //   maxVisibleRows: _filterIndex == 0
+                          //       ? null
+                          //       : _filterIndex == 1
+                          //       ? (violations.length / 2).ceil()
+                          //       : 5,
+                          // ),
                         ),
                       ),
                     ],

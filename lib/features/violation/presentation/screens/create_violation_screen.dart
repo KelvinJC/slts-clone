@@ -133,30 +133,30 @@ class _State extends ConsumerState<CreateViolationScreen> {
       ).showSnackBar(const SnackBar(content: Text('Violation submitted')));
     } on Failure catch (f) {
       if (f is NetworkFailure) {
-        // Cache offline
-        final form = ref.read(violationNotifierProvider).value!;
-        final vModel = ViolationModel(
-          offence: form.offence,
-          eventType: form.eventType,
-          date: form.date,
-          zone: form.zone,
-          command: form.command,
-          firstName: form.firstName,
-          surname: form.surname,
-          phone: form.phone,
-          plate: form.plate,
-          plateType: form.plateType,
-          plateColor: form.plateColor,
-          brand: form.brand,
-          vehicleType: form.vehicleType,
-          vehicleColor: form.vehicleColor,
-          mediaPaths: form.mediaPaths,
-        );
-        await ref.read(syncOfflineDataProvider)();
-        // Note: syncOfflineData does the actual save via repository
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No connection—saved offline')),
-        );
+        // // Cache offline
+        // final form = ref.read(violationNotifierProvider).value!;
+        // final vModel = ViolationModel(
+        //   offence: form.offence,
+        //   eventType: form.eventType,
+        //   date: form.date,
+        //   zone: form.zone,
+        //   command: form.command,
+        //   firstName: form.firstName,
+        //   surname: form.surname,
+        //   phone: form.phone,
+        //   plate: form.plate,
+        //   plateType: form.plateType,
+        //   plateColor: form.plateColor,
+        //   brand: form.brand,
+        //   vehicleType: form.vehicleType,
+        //   vehicleColor: form.vehicleColor,
+        //   mediaPaths: form.mediaPaths,
+        // );
+        // await ref.read(syncOfflineDataProvider)();
+        // // Note: syncOfflineData does the actual save via repository
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('No connection—saved offline')),
+        // );
       } else {
         ScaffoldMessenger.of(
           context,

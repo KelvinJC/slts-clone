@@ -14,15 +14,15 @@ class ViolationReportScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Offence: ${violation.offence}',
-              style: TextStyle(fontSize: 18),
-            ),
-            Text('Zone: ${violation.zone}', style: TextStyle(fontSize: 18)),
-            Text(
-              'Date: ${violation.date.toLocal()}'.split(' ')[0],
-              style: TextStyle(fontSize: 18),
-            ),
+            // Text(
+            //   'Offence: ${violation.offence}',
+            //   style: TextStyle(fontSize: 18),
+            // ),
+            // Text('Zone: ${violation.zone}', style: TextStyle(fontSize: 18)),
+            // Text(
+            //   'Date: ${violation.date.toLocal()}'.split(' ')[0],
+            //   style: TextStyle(fontSize: 18),
+            // ),
             Text(
               'First Name: ${violation.firstName}',
               style: TextStyle(fontSize: 18),

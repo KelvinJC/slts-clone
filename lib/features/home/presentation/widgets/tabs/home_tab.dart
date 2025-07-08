@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -11,11 +13,19 @@ import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 
 import '../action_card.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
 
   @override
+  ConsumerState<HomeTab> createState() => _State();
+}
+
+class _State extends ConsumerState<HomeTab> {
+  var validateEmailBorder = false, validatePasswordBorder = false;
+
+  @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
     final wp = context.wp;
     final hp = context.hp;
     final avatarSize = wp(14);
@@ -31,7 +41,7 @@ class HomeTab extends StatelessWidget {
               children: [
                 SizedBox(height: hp(3)),
                 // … reuse your _buildTopBar from earlier or inline …
-                _buildTopBar(context, wp, hp, avatarSize, wp(0.5)),
+                _buildTopBar(context, wp, hp, avatarSize, wp(0.5), authState),
                 SizedBox(height: hp(4)),
                 AppTextField(
                   hintText: 'Run plate number...',
@@ -77,6 +87,7 @@ class HomeTab extends StatelessWidget {
     double Function(double) hp,
     double avatarSize,
     double border,
+    AuthState authState,
   ) {
     int notiSum = 1;
     return Row(
@@ -112,11 +123,15 @@ class HomeTab extends StatelessWidget {
                     fontSize: 15,
                   ),
                 ),
-                Text(
-                  'Oyewumi Olukunle',
-                  style: Theme.of(ctx).textTheme.headlineSmall!.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: wp(70),
+                  child: Text(
+                    authState.user?.fullName ?? '',
+                    style: Theme.of(ctx).textTheme.headlineSmall!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],
@@ -209,96 +224,98 @@ class HomeTab extends StatelessWidget {
       Text('First Name'),
       Text('Surname'),
     ];
-    final List<Violation> violations = [
-      Violation(
-        pcnNumber: 'PCN-002452',
-        plateNumber: 'ABC-1234XL',
-        offence: 'Speeding',
-        zone: 'Zone A',
-        date: DateTime.now(),
-        firstName: 'John',
-        surname: 'Doe',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      // …more sample data…
-    ];
+    // final List<Violation> violations = [
+    //   Violation(
+    //     pcnNumber: 'PCN-002452',
+    //     plateNumber: 'ABC-1234XL',
+    //     offence: 'Speeding',
+    //     zone: 'Zone A',
+    //     date: DateTime.now(),
+    //     firstName: 'John',
+    //     surname: 'Doe',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   // …more sample data…
+    // ];
+
     return Stack(
       children: [
         hasData
-            ? HtmlTable<Violation>(
-                headers: headers,
-                rowData: violations,
-                rowBuilder: (list) => list.map((v) {
-                  return [
-                    Text(v.pcnNumber),
-                    Text(v.plateNumber),
-                    Text(v.offence),
-                    Text(v.zone),
-                    Text(v.date.toLocal().toString().split(' ')[0]),
-                    Text(v.firstName),
-                    Text(v.surname),
-                  ];
-                }).toList(),
-                onRowTap: (v, index) {},
-                // Example styling props:
-                columnWidths: [
-                  FixedColumnWidth(wp(27)),
-                  FixedColumnWidth(wp(27)),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(18)),
-                  FixedColumnWidth(wp(26)),
-                  FixedColumnWidth(wp(25)),
-                  FixedColumnWidth(wp(25)),
-                ],
-                // columnWidths: List.generate(
-                //   headers.length,
-                //   (_) => IntrinsicColumnWidth(),
-                // ),
-                borderRadius: BorderRadius.circular(12),
-                outerBorderColor: AppColors.onBackgroundSurface2,
-                innerBorderColor: AppColors.onBackgroundSurface2,
-                rowHeight: hp(3.5),
-                cellPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 10,
-                ),
-                maxVisibleRows: 3,
-              )
+            ? SizedBox()
+            // HtmlTable<Violation>(
+            //     headers: headers,
+            //     rowData: violations,
+            //     rowBuilder: (list) => list.map((v) {
+            //       return [
+            //         Text(v.pcnNumber),
+            //         Text(v.plateNumber),
+            //         Text(v.offence),
+            //         Text(v.zone),
+            //         Text(v.date.toLocal().toString().split(' ')[0]),
+            //         Text(v.firstName),
+            //         Text(v.surname),
+            //       ];
+            //     }).toList(),
+            //     onRowTap: (v, index) {},
+            //     // Example styling props:
+            //     columnWidths: [
+            //       FixedColumnWidth(wp(27)),
+            //       FixedColumnWidth(wp(27)),
+            //       FixedColumnWidth(wp(30)),
+            //       FixedColumnWidth(wp(18)),
+            //       FixedColumnWidth(wp(26)),
+            //       FixedColumnWidth(wp(25)),
+            //       FixedColumnWidth(wp(25)),
+            //     ],
+            //     // columnWidths: List.generate(
+            //     //   headers.length,
+            //     //   (_) => IntrinsicColumnWidth(),
+            //     // ),
+            //     borderRadius: BorderRadius.circular(12),
+            //     outerBorderColor: AppColors.onBackgroundSurface2,
+            //     innerBorderColor: AppColors.onBackgroundSurface2,
+            //     rowHeight: hp(3.5),
+            //     cellPadding: const EdgeInsets.symmetric(
+            //       vertical: 10,
+            //       horizontal: 10,
+            //     ),
+            //     maxVisibleRows: 3,
+            //   )
             : Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

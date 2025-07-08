@@ -176,6 +176,7 @@ class _State extends ConsumerState<LoginScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: wp(5)),
                     child: GradientButton(
+                      isLoading: auth.loading,
                       isGradient: auth.emailValid && auth.passwordFilled,
                       onPressed: () =>
                           auth.emailValid &&

@@ -115,7 +115,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     double Function(double) hp,
   ) {
     return BottomAppBar(
-      height: hp(8),
+      height: hp(7),
       color: AppColors.surface,
       elevation: 0,
       shape: const CircularNotchedRectangle(inverted: true),

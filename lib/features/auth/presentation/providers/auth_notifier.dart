@@ -100,7 +100,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(loading: true, error: null);
 
     try {
-      // await _repo.authenticate(state.email, state.password);
+      await _repo.authenticate(state.email, state.password);
       state = state.copyWith(loading: false, step: AuthStep.otp);
     } on Failure catch (f) {
       state = state.copyWith(loading: false, error: f);
@@ -111,13 +111,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> verifyOtp(String otp) async {
     state = state.copyWith(loading: true, error: null);
     try {
-      // final user = await _repo.verifyOtp(otp, state.email);
+      final user = await _repo.verifyOtp(otp, state.email);
       state = state.copyWith(
         loading: false,
         step: AuthStep.authenticated,
-        // user: user,
+        user: user,
       );
     } on Failure catch (f) {
+      print(f);
       state = state.copyWith(loading: false, error: f);
     }
   }

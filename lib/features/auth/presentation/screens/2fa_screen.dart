@@ -6,7 +6,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
 class TwoFactorAuthScreen extends StatelessWidget {
-  const TwoFactorAuthScreen({Key? key}) : super(key: key);
+  const TwoFactorAuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

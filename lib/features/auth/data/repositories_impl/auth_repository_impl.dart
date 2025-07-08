@@ -46,14 +46,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return await retry<User>(() async {
       final resp = await api.verifyOtp(req);
-      if (resp.message.toLowerCase() != 'success' || resp.userData.isEmpty) {
+      if (resp.message.toLowerCase() != 'success' ||
+          (resp.userData?.isEmpty ?? true)) {
         throw UnexpectedFailure(rawMessage: 'OTP verification failed');
       }
 
-      final userModel = resp.userData.first;
+      final userModel = resp.userData?.first;
       // persist the token
       await storage.saveAuthToken(
-        userModel.token.headers['SLTSTrafficAPIToken']!,
+        userModel!.token.headers['SLTSTrafficAPIToken']!,
       );
 
       // persist useBiometric

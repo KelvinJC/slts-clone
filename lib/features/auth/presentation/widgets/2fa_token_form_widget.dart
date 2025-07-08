@@ -7,7 +7,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
 class TwoFactorAuthForm extends ConsumerStatefulWidget {
-  const TwoFactorAuthForm({Key? key}) : super(key: key);
+  const TwoFactorAuthForm({super.key});
 
   @override
   ConsumerState<TwoFactorAuthForm> createState() => _TwoFactorAuthFormState();
@@ -24,6 +24,11 @@ class _TwoFactorAuthFormState extends ConsumerState<TwoFactorAuthForm> {
     super.initState();
     _pinController = TextEditingController();
     _focusNode = FocusNode();
+
+    // add focus to input
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
   }
 
   @override
@@ -101,6 +106,13 @@ class _TwoFactorAuthFormState extends ConsumerState<TwoFactorAuthForm> {
                   });
                 }
               },
+              onCompleted: (value) => _onSubmit(),
+              // onClipboardFound: (value) {
+              //   if (value.trim().length == 6) {
+              //     _pinController.text = value;
+              //     _onSubmit();
+              //   }
+              // },
             ),
           ),
 
@@ -109,6 +121,7 @@ class _TwoFactorAuthFormState extends ConsumerState<TwoFactorAuthForm> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: wp(5)),
             child: GradientButton(
+              isLoading: auth.loading,
               isGradient: _buttonEnabled,
               onPressed: () =>
                   _buttonEnabled && !auth.loading ? _onSubmit() : null,

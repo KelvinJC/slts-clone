@@ -7,7 +7,7 @@ part 'verify_otp_response.g.dart';
 class VerifyOtpResponse {
   final String message;
   @JsonKey(name: 'userData')
-  final List<UserModel> userData;
+  final List<UserModel>? userData;
 
   VerifyOtpResponse({required this.message, required this.userData});
 

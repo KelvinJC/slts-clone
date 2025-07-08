@@ -5,16 +5,21 @@ class GradientButton extends StatelessWidget {
   final Widget child;
   final VoidCallback onPressed;
   final bool isGradient;
+  final bool isLoading;
 
   const GradientButton({
     super.key,
     required this.child,
     required this.onPressed,
     this.isGradient = true,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    var gradient = !isLoading
+        ? AppColors.buttonGradient
+        : AppColors.buttonGradient.map((e) => e.withAlpha(100)).toList();
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -23,7 +28,8 @@ class GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: isGradient
               ? LinearGradient(
-                  colors: AppColors.buttonGradient,
+                  ///if is loading reduce color
+                  colors: gradient,
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 )
