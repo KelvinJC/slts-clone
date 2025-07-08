@@ -26,5 +26,5 @@ class AppAssets {
   static const phone = 'assets/icons/phone.png';
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
   static const plateNumberPlaceHolder = 'assets/images/plate-number-focus.png';
-  static const menu = 'assets/icons/menu-dots-x.png';
+  static const menu = 'assets/icons/menu-dots.png';
 }
