@@ -12,7 +12,7 @@ class AppAssets {
   static const settings = 'assets/icons/settings.png';
   static const patrolModePlaceholder =
       'assets/images/patrol_mode_placeholder.png';
-  static const appLogo = 'assets/images/splash-logo.png';
+  static const appLogo = 'assets/images/slts-logo.png';
   static const trafficScene = 'assets/images/traffic-scene.jpg';
   static const logoAnimation = 'assets/images/slts-animated-logo-transparent.gif';
   static const passwordReset = 'assets/images/password-reset-img.png';
@@ -27,4 +27,12 @@ class AppAssets {
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
   static const plateNumberPlaceHolder = 'assets/images/plate-number-focus.png';
   static const menu = 'assets/icons/menu-dots.png';
+  static const whatsApp = 'assets/icons/whatsapp.png';
+  static const linkedIn = 'assets/icons/linkedin.png';
+  static const instaGram = 'assets/icons/instagram.png';
+  static const twitter = 'assets/icons/twitter.png';
+  static const copyLink = 'assets/icons/copy-link.png';
+  static const checkMark = 'assets/images/check-mark.png';
+  // static const copyLink = 'assets/icons/check-mark.png';
+
 }
