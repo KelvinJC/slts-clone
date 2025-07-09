@@ -4,8 +4,8 @@ import 'package:pinput/pinput.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
+import 'package:slts_enforcer_app/ui/widgets/blank_button_widget.dart';
 import '../providers/2fa_token_form_notifier.dart';
-import 'blank_button_widget.dart';
 
 class TwoFactorAuthForm extends ConsumerWidget {
   const TwoFactorAuthForm({super.key});
