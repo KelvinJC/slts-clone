@@ -7,7 +7,7 @@ import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import '../widgets/app_logo_avatar.dart';
-import '../widgets/blank_button_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/blank_button_widget.dart';
 // import '../providers/auth_notifier.dart';
 
 class ForgotPasswordScreen extends ConsumerWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:slts_enforcer_app/features/auth/presentation/widgets/blank_button_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/blank_button_widget.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/widgets/email_field_widget.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
