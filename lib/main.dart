@@ -92,7 +92,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeNotifierProvider);
-    final auth = ref.watch(authNotifierProvider);
+    // final auth = ref.watch(authNotifierProvider);
 
     // ref.listen<AuthState>(authNotifierProvider, (prev, next) {
     //   if (next.step == AuthStep.otp) {

@@ -118,7 +118,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: user,
       );
     } on Failure catch (f) {
-      print(f);
       state = state.copyWith(loading: false, error: f);
     }
   }
@@ -132,11 +131,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(loading: true, error: null);
       try {
-        // final user = await _repo.loginWithToken(token);
+        final user = await _repo.loginWithToken(token);
         state = state.copyWith(
           loading: false,
           step: AuthStep.authenticated,
-          // user: user,
+          user: user,
         );
       } on Failure catch (f) {
         state = state.copyWith(loading: false, error: f);

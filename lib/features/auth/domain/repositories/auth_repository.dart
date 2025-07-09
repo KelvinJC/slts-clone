@@ -19,5 +19,8 @@ abstract class AuthRepository {
   // Future<User> loginWithToken(String token);
 
   /// request a password‐reset link
-  Future<void> forgotPassword(String email);
+  Future<void> forgotPassword(String email, String token);
+
+  ///login with token
+  Future<User> loginWithToken(String token);
 }

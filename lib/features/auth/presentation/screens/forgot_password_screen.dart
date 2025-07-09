@@ -91,6 +91,7 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                     padding: EdgeInsets.symmetric(horizontal: wp(5)),
                     child: GradientButton(
                       isGradient: state.emailValid,
+                      isLoading: state.loading,
                       onPressed: () => state.emailValid && !state.loading
                           ? notifier.sendLink()
                           : null,
@@ -119,11 +120,14 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
 
                   if (state.errorMessage != null) ...[
                     SizedBox(height: hp(2)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: wp(5)),
-                      child: Text(
-                        state.errorMessage!,
-                        style: TextStyle(color: AppColors.error),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                        child: Text(
+                          state.errorMessage!,
+                          style: TextStyle(color: AppColors.error),
+                        ),
                       ),
                     ),
                   ],

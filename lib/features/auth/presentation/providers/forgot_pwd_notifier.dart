@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/features/auth/domain/repositories/auth_repository.dart';
@@ -56,6 +57,12 @@ class ForgotPwdNotifier extends StateNotifier<ForgotPwdState> {
 
   /// Calls the backend to send a reset link to [email].
   Future<void> sendLink() async {
+    if (state.email.isEmpty) return;
+
+    // 1) generate 6‑digit token
+    final rnd = Random();
+    final token = (100000 + rnd.nextInt(900000)).toString();
+
     // update state to loading and capture the email
     state = state.copyWith(
       loading: true,
@@ -65,7 +72,7 @@ class ForgotPwdNotifier extends StateNotifier<ForgotPwdState> {
     );
 
     try {
-      // await _repo.forgotPassword(state.email);
+      await _repo.forgotPassword(state.email, token);
       // success → clear loading, mark link sent
       state = state.copyWith(loading: false, linkSent: true);
     } on Failure catch (f) {
