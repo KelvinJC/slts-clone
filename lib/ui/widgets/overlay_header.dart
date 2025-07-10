@@ -96,9 +96,7 @@ class OverlayHeader extends StatelessWidget {
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             ),
           ),
-
           SizedBox(width: wp(3)),
-
           // Title
           Text(
             title,
@@ -108,7 +106,6 @@ class OverlayHeader extends StatelessWidget {
               color: AppColors.onSurface,
             ),
           ),
-
           // Optional right placed icon
           if (rightIcon != null) ...[
             Spacer(),
@@ -127,7 +124,7 @@ class OverlayHeader extends StatelessWidget {
                   color: AppColors.onBackground,
                 ),
                 onPressed: onRightIconTap,
-                tooltip: toolTip!,
+                tooltip: toolTip,
               ),
             ),
           ],
