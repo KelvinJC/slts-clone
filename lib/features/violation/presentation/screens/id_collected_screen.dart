@@ -158,7 +158,7 @@ class IdCollectedScreen extends StatelessWidget {
                                               SizedBox(
                                                 width: wp(35),
                                                 child: GradientButton(
-                                                  onPressed: () => Navigator.pushNamed(context, '/idCollectionNotification'),
+                                                  onPressed: () => Navigator.popAndPushNamed(context, '/idCollectionNotification'),
                                                   child: Text(
                                                     'Proceed',
                                                     style: Theme.of(context).textTheme.labelLarge?.copyWith(

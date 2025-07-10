@@ -159,7 +159,7 @@ class VehicleImpoundedScreen extends StatelessWidget {
                                               SizedBox(
                                                 width: wp(35),
                                                 child: GradientButton(
-                                                  onPressed: () => Navigator.pushNamed(context, '/vehicleImpoundedNotification'),
+                                                  onPressed: () => Navigator.popAndPushNamed(context, '/vehicleImpoundedNotification'),
                                                   child: Text(
                                                     'Proceed',
                                                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
