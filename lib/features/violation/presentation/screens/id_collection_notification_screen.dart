@@ -85,10 +85,7 @@ class IdCollectionNotificationScreen extends StatelessWidget {
                                           Icons.cancel,
                                           color: AppColors.onBackgroundSurface
                                       ),
-                                      onPressed: () {
-                                        int count = 0;
-                                        Navigator.popUntil(context, (route) => count++ >= 2);
-                                      },
+                                      onPressed: () => Navigator.pop(context),
                                     ),
                                   ),
                                   Column(
