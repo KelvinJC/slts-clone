@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/dropdown_menu_notifier.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
@@ -111,15 +113,16 @@ final Map<String, String> locationOfOffence = {
 
 
 // image scrolls with cards
-class ViolationReportScreen extends StatelessWidget {
+class ViolationReportScreen extends ConsumerWidget {
   final Violation violation;
   const ViolationReportScreen({super.key, required this.violation});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hp = context.hp;
     final wp = context.wp;
     final imagePath = AppAssets.plateNumberPlaceHolder;
+
 
     return Scaffold(
       body: Stack(
@@ -186,7 +189,17 @@ class ViolationReportScreen extends StatelessWidget {
                     title: 'Violation Report',
                     onBack: () => Navigator.of(context).pop(),
                     rightIcon: AppAssets.menu,
-                    onRightIconTap: () => {},
+                    onRightIconTap: () => {
+                      ref.read(menuStateProvider.notifier).toggleDropDown()
+                    },
+                    toolTip: 'More options',
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: wp(5), top: hp(12)),
+                      child: DropDownMenu(),
+                    )
                   ),
                 ]
               )
@@ -256,7 +269,6 @@ class DetailsCard extends StatelessWidget {
   }
 }
 
-
 class KeyValueTextRow extends StatelessWidget {
   final String label;
   final String value;
@@ -281,13 +293,9 @@ class KeyValueTextRow extends StatelessWidget {
             width: wp(40),
             child: Text(
               label,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(
-                color: AppColors
-                    .onBackgroundSurface,
-                fontWeight: FontWeight.bold,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: AppColors.onBackgroundSurface,
+                // fontWeight: FontWeight.bold,
                 fontSize: wp(3.5),
               ),
             ),
@@ -296,10 +304,7 @@ class KeyValueTextRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: wp(3.5),
               ),
@@ -307,6 +312,123 @@ class KeyValueTextRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class DropDownMenu extends ConsumerWidget {
+  const DropDownMenu({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hp = context.hp;
+    final wp = context.wp;
+    final menuState = ref.watch(menuStateProvider);
+
+    final menuItems = [
+      {
+        'title': 'Pay Now',
+        'onClick': () {
+          Navigator.pushNamed(context, '/resendViolationLink');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'ID Collected',
+        'onClick': () {
+          Navigator.pushNamed(context, '/idCollected');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Vehicle Impounded',
+        'onClick': () {
+          Navigator.pushNamed(context, '/vehicleImpounded');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Resend Link',
+        'onClick': () {
+          Navigator.pushNamed(context, '/resendViolationLink');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Other',
+        'onClick': () {}
+      },
+    ];
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      width: wp(50),
+      height: menuState ? hp(29) : 0.0,
+      decoration: BoxDecoration(
+        color: AppColors.onPrimary,
+        borderRadius: BorderRadius.circular(wp(5)),
+        border: Border.all(
+          color: menuState ? AppColors.onBackgroundSurface2 : Colors.transparent,
+          width: menuState ? 0.5 : 0.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grayOverlay, // subtle shadow
+            blurRadius: menuState ? 2 : 0,
+            spreadRadius: menuState ? 1 : 0,
+            offset: const Offset(0, 2), // downward shadow
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias, // ensure content doesn't overflow
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: wp(5)),
+        child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: menuItems.length,
+          separatorBuilder: (_, __) => SizedBox(height: hp(2.5)),
+          itemBuilder: (context, index) {
+            final item = menuItems[index];
+            return MenuLink(
+              title: item['title'] as String,
+              onClick: item['onClick'] as VoidCallback,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+
+class MenuLink extends StatelessWidget {
+  /// Text display of the link.
+  final String title;
+
+  /// Called when the link is clicked.
+  final VoidCallback? onClick;
+
+  const MenuLink({
+    super.key,
+    required this.title,
+    required this.onClick,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final wp = context.wp;
+
+    return GestureDetector(
+      onTap: onClick,
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            color: AppColors.onBackgroundSurface,
+            // fontWeight: FontWeight.bold,
+            fontSize: wp(3.5),
+        ),
+      )
     );
   }
 }
