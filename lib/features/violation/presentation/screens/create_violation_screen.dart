@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/sync/data/models/violation_model.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_dropdown_field.dart';
 // import 'package:slts_enforcer_app/ui/widgets/app_radio_dropdown.dart';
@@ -44,11 +45,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
 
   bool isOffenderDetailsValid() {
     final form = ref.read(violationNotifierProvider).value!;
-    return form.offence.isNotEmpty &&
-        form.eventType.isNotEmpty &&
+    return form.offence != null &&
+        form.eventType != null &&
         form.date.isNotEmpty &&
-        form.zone.isNotEmpty &&
-        form.command.isNotEmpty &&
+        form.zone != null &&
+        form.command != null &&
         form.firstName.isNotEmpty &&
         form.surname.isNotEmpty &&
         form.phone.isNotEmpty;
@@ -57,11 +58,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
   bool isVehicleDetailsValid() {
     final form = ref.read(violationNotifierProvider).value!;
     return form.plate.isNotEmpty &&
-        form.plateType.isNotEmpty &&
-        form.plateColor.isNotEmpty &&
-        form.brand.isNotEmpty &&
-        form.vehicleType.isNotEmpty &&
-        form.vehicleColor.isNotEmpty;
+        form.plateType != null &&
+        form.plateColor != null &&
+        form.brand != null &&
+        form.vehicleType != null &&
+        form.vehicleColor != null;
   }
 
   void _next() => setState(() {
@@ -169,135 +170,164 @@ class _State extends ConsumerState<CreateViolationScreen> {
   @override
   Widget build(BuildContext context) {
     final wp = context.wp, hp = context.hp;
-    final formValue = ref.watch(violationNotifierProvider).value!;
-    final isLoading = ref.watch(violationNotifierProvider).isLoading;
 
-    // // Titles per step
-    // const titles = {
-    //   ViolationStep.offender: 'Offender Details',
-    //   ViolationStep.vehicle: 'Vehicle Info',
-    //   ViolationStep.media: 'Media Capture',
-    //   ViolationStep.review: 'Review',
-    // };
+    // Watch the AsyncValue<ViolationFormState> itself
+    final asyncForm = ref.watch(violationNotifierProvider);
 
-    // Step widgets
-    final pages = [
-      _offenderStep(ref, formValue),
-      _vehicleStep(ref, formValue),
-      _mediaStep(ref, formValue),
-      _reviewStep(formValue),
-    ];
+    return asyncForm.when(
+      loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          BlurryGradientBackground(colors: AppColors.homeGradient),
-          Column(
+      error: (err, st) => Scaffold(
+        body: Center(child: Text('Error loading form: ${err.toString()}')),
+      ),
+
+      data: (formValue) {
+        // once we have data, render your normal UI:
+        final isLoading = ref.watch(violationNotifierProvider).isLoading;
+
+        final pages = [
+          _offenderStep(ref, formValue),
+          _vehicleStep(ref, formValue),
+          _mediaStep(ref, formValue),
+          _reviewStep(formValue),
+        ];
+        return Scaffold(
+          body: Stack(
             children: [
-              OverlayHeader(
-                title: 'Create Violation',
-                onBack: _step == ViolationStep.offender
-                    ? () => Navigator.of(context).pop()
-                    : _back,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: wp(4)),
-                  child: IndexedStack(index: _step.index, children: pages),
-                ),
-              ),
-              // Bottom row
-              Container(
-                color: AppColors.surface,
-                padding: EdgeInsets.zero,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: wp(4)),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: hp(2.5), bottom: hp(0.5)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _step == ViolationStep.offender
-                                ? null
-                                : _back,
-                            child: Container(
-                              height: hp(5.5),
-                              // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(wp(2)),
-                                border: Border.all(
-                                  color: AppColors.onBackgroundSurface2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Back',
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontSize: 18,
-                                        color: AppColors.onBackgroundSurface2,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: wp(4)),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: isLoading
-                                ? null
-                                : (_step == ViolationStep.review
-                                      ? _save
-                                      : _next),
-                            child: Container(
-                              height: hp(5.5),
-                              // padding: EdgeInsets.symmetric(vertical: hp(2)),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.buttonGradient,
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                                borderRadius: BorderRadius.circular(wp(2)),
-                              ),
-                              child: Center(
-                                child: isLoading
-                                    ? SizedBox(
-                                        height: wp(5),
-                                        width: wp(5),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        _step == ViolationStep.review
-                                            ? 'Save'
-                                            : 'Next',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          color: AppColors.surface,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+              BlurryGradientBackground(colors: AppColors.homeGradient),
+              Column(
+                children: [
+                  OverlayHeader(
+                    title: 'Create Violation',
+                    onBack: _step == ViolationStep.offender
+                        ? () => Navigator.of(context).pop()
+                        : _back,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                      child: IndexedStack(index: _step.index, children: pages),
                     ),
                   ),
-                ),
+                  // Bottom row
+                  Container(
+                    color: AppColors.surface,
+                    padding: EdgeInsets.zero,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: hp(2.5), bottom: hp(0.5)),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: _step == ViolationStep.offender
+                                    ? null
+                                    : _back,
+                                child: Container(
+                                  height: hp(5.5),
+                                  // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: BorderRadius.circular(wp(2)),
+                                    border: Border.all(
+                                      color: AppColors.onBackgroundSurface2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Back',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                            fontSize: 18,
+                                            color:
+                                                AppColors.onBackgroundSurface2,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: wp(4)),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: isLoading
+                                    ? null
+                                    : (_step == ViolationStep.review
+                                          ? _save
+                                          : _next),
+                                child: Container(
+                                  height: hp(5.5),
+                                  // padding: EdgeInsets.symmetric(vertical: hp(2)),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: AppColors.buttonGradient,
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(wp(2)),
+                                  ),
+                                  child: Center(
+                                    child: isLoading
+                                        ? SizedBox(
+                                            height: wp(5),
+                                            width: wp(5),
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : Text(
+                                            _step == ViolationStep.review
+                                                ? 'Save'
+                                                : 'Next',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: AppColors.surface,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  List<DropdownMenuItem<DropdownOption>> dropdownItemBuilder(
+    List<DropdownOption> options,
+  ) {
+    return options
+        .map(
+          (o) => DropdownMenuItem(
+            value: o,
+            child: SizedBox(width: context.wp(80), child: Text(o.name)),
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> selectedBuilder(List<DropdownOption> options) {
+    return options.map((o) {
+      return SizedBox(
+        width: context.wp(75),
+        child: Text(o.name, overflow: TextOverflow.ellipsis),
+      );
+    }).toList();
   }
 
   Widget _offenderStep(
@@ -308,7 +338,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
     // dropdown options
-    const offenceOptions = ['Overspeeding', 'Illegal Parking', 'Signal Jump'];
+    // const offenceOptions = ['Overspeeding', 'Illegal Parking', 'Signal Jump'];
     const eventTypeOptions = ['Minor', 'Major'];
     const zoneOptions = ['Lagos', 'Abuja', 'Kano'];
     const commandOptions = ['Command HQ', 'Sector 1', 'Sector 2'];
@@ -373,12 +403,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
       //   },
       // ),
       // SizedBox(height: context.hp(1)),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.offence.isEmpty ? null : form.offence,
-        items: offenceOptions
-            .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-            .toList(),
+        value: form.offence,
+        items: dropdownItemBuilder(form.offenceOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.offenceOptions),
         hintText: 'Choose an offence',
         validateBorder: validateOffenderOffenceBorder,
         onChanged: (v) {
@@ -388,7 +417,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('offence', v!);
         },
       ),
-      if (validateOffenderOffenceBorder && form.offence.isEmpty)
+      if (validateOffenderOffenceBorder && form.offence == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -405,15 +434,13 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.eventType.isEmpty ? null : form.eventType,
-        items: eventTypeOptions
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-            .toList(),
+        value: form.eventType,
+        items: dropdownItemBuilder(form.eventTypeOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.eventTypeOptions),
         hintText: 'Choose event type',
         validateBorder: validateOffenderEventTypeBorder,
-
         onChanged: (v) {
           if (!validateOffenderEventTypeBorder) {
             validateOffenderEventTypeBorder = true;
@@ -421,7 +448,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('eventType', v!);
         },
       ),
-      if (validateOffenderEventTypeBorder && form.eventType.isEmpty)
+      if (validateOffenderEventTypeBorder && form.eventType == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -491,23 +518,22 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.zone.isEmpty ? null : form.zone,
-        items: zoneOptions
-            .map((z) => DropdownMenuItem(value: z, child: Text(z)))
-            .toList(),
+        value: form.zone,
+        items: dropdownItemBuilder(form.zoneOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.zoneOptions),
         hintText: 'Choose zone',
         validateBorder: validateOffenderZoneBorder,
-
-        onChanged: (v) {
+        onChanged: (v) async {
           if (!validateOffenderZoneBorder) {
             validateOffenderZoneBorder = true;
           }
-          notifier.updateField('zone', v!);
+          // await notifier.updateField('command', null);
+          await notifier.updateField('zone', v!);
         },
       ),
-      if (validateOffenderZoneBorder && form.zone.isEmpty)
+      if (validateOffenderZoneBorder && form.zone == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -524,15 +550,13 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.command.isEmpty ? null : form.command,
-        items: commandOptions
-            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-            .toList(),
+        value: form.command,
+        items: dropdownItemBuilder(form.commandOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.commandOptions),
         hintText: 'Choose command',
         validateBorder: validateOffenderCommandBorder,
-
         onChanged: (v) {
           if (!validateOffenderCommandBorder) {
             validateOffenderCommandBorder = true;
@@ -540,7 +564,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('command', v!);
         },
       ),
-      if (validateOffenderCommandBorder && form.command.isEmpty)
+      if (validateOffenderCommandBorder && form.command == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -655,12 +679,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
   }) {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
-    // Example option lists
-    const plateTypeOptions = ['Local', 'Commercial', 'Diplomatic'];
-    const plateColorOptions = ['White', 'Blue', 'Yellow'];
-    const brandOptions = ['Toyota', 'Honda', 'Ford'];
-    const vehicleTypeOptions = ['Sedan', 'SUV', 'Truck'];
-    const vehicleColorOptions = ['Black', 'Red', 'Silver'];
+    // // Example option lists
+    // const plateTypeOptions = ['Local', 'Commercial', 'Diplomatic'];
+    // const plateColorOptions = ['White', 'Blue', 'Yellow'];
+    // const brandOptions = ['Toyota', 'Honda', 'Ford'];
+    // const vehicleTypeOptions = ['Sedan', 'SUV', 'Truck'];
+    // const vehicleColorOptions = ['Black', 'Red', 'Silver'];
 
     //array of widgets
     var childrenArray = <Widget>[
@@ -735,12 +759,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.plateType.isEmpty ? null : form.plateType,
-        items: plateTypeOptions
-            .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-            .toList(),
+        value: form.plateType,
+        items: dropdownItemBuilder(form.plateTypeOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.plateTypeOptions),
         hintText: 'Choose plate type',
         validateBorder: validateVehicleTypeBorder,
         onChanged: (v) {
@@ -748,7 +771,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('plateType', v!);
         },
       ),
-      if (validateVehicleTypeBorder && form.plateType.isEmpty)
+      if (validateVehicleTypeBorder && form.plateType == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -765,12 +788,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.plateColor.isEmpty ? null : form.plateColor,
-        items: plateColorOptions
-            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-            .toList(),
+        value: form.plateColor,
+        items: dropdownItemBuilder(form.plateColorOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.plateColorOptions),
         hintText: 'Choose plate color',
         validateBorder: validateVehiclePlateColorBorder,
         onChanged: (v) {
@@ -780,7 +802,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('plateColor', v!);
         },
       ),
-      if (validateVehiclePlateColorBorder && form.plateColor.isEmpty)
+      if (validateVehiclePlateColorBorder && form.plateColor == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -797,12 +819,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.brand.isEmpty ? null : form.brand,
-        items: brandOptions
-            .map((b) => DropdownMenuItem(value: b, child: Text(b)))
-            .toList(),
+        value: form.brand,
+        items: dropdownItemBuilder(form.vehicleBrandOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.vehicleBrandOptions),
         hintText: 'Choose brand',
         validateBorder: validateVehicleBrandBorder,
         onChanged: (v) {
@@ -810,7 +831,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('brand', v!);
         },
       ),
-      if (validateVehicleBrandBorder && form.brand.isEmpty)
+      if (validateVehicleBrandBorder && form.brand == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -827,12 +848,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.vehicleType.isEmpty ? null : form.vehicleType,
-        items: vehicleTypeOptions
-            .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-            .toList(),
+        value: form.vehicleType,
+        items: dropdownItemBuilder(form.vehicleTypeOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.vehicleTypeOptions),
         hintText: 'Choose vehicle type',
         validateBorder: validateVehicleVehicleTypeBorder,
         onChanged: (v) {
@@ -842,7 +862,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('vehicleType', v!);
         },
       ),
-      if (validateVehicleVehicleTypeBorder && form.vehicleType.isEmpty)
+      if (validateVehicleVehicleTypeBorder && form.vehicleType == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -859,12 +879,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
-      AppDropdownField<String>(
+      AppDropdownField<DropdownOption>(
         isPreviewMode: isPreviewMode,
-        value: form.vehicleColor.isEmpty ? null : form.vehicleColor,
-        items: vehicleColorOptions
-            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-            .toList(),
+        value: form.vehicleColor,
+        items: dropdownItemBuilder(form.vehicleColorOptions),
+        selectedItemBuilder: (_) => selectedBuilder(form.vehicleColorOptions),
         hintText: 'Choose vehicle color',
         validateBorder: validateVehicleColorBorder,
         onChanged: (v) {
@@ -872,7 +891,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           notifier.updateField('vehicleColor', v!);
         },
       ),
-      if (validateVehicleColorBorder && form.vehicleColor.isEmpty)
+      if (validateVehicleColorBorder && form.vehicleColor == null)
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
@@ -1098,7 +1117,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
                                       // '${item.isCompleted ? 'Completed' : 'Uploading'}',
 
                                       //static representation
-                                      '1.2MB of 10.0MB • ',
+                                      '1.2MB of 1.2MB • ',
                                       // 'Uploading'
                                       style: Theme.of(context)
                                           .textTheme
@@ -1110,7 +1129,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
                                           ),
                                     ),
                                     Text(
-                                      'Uploading...' ?? 'Completed',
+                                      'Completed' ?? 'Uploading...',
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall!

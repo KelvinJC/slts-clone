@@ -84,7 +84,11 @@ class SearchResultScreen extends ConsumerWidget {
                                 ),
                                 SizedBox(height: hp(2)),
                                 _row('Full Name', violation.offenderName, wp),
-                                _row('PCN Number', violation.pcnNumber, wp),
+                                _row(
+                                  'ID Number (Drivers Lic.)',
+                                  violation.pcnNumber,
+                                  wp,
+                                ),
                                 _row('Phone Number', violation.phoneNumber, wp),
                                 _row('Address', '-', wp),
                                 _row('Gender', '-', wp),
@@ -214,7 +218,11 @@ class SearchResultScreen extends ConsumerWidget {
                                       .copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(height: hp(2)),
-                                _row('Offence Type', violation.offenceName, wp),
+                                _row(
+                                  'Offence Type',
+                                  violation.eventTypeName,
+                                  wp,
+                                ),
                                 _row('Offence Code', violation.offenceCode, wp),
                                 _row('Severity Level', '-', wp),
                                 _row(

@@ -32,6 +32,8 @@ class AppDropdownField<T> extends StatelessWidget {
   /// If true, validates that a non-null value is selected; shows error border when null.
   final bool validateBorder;
 
+  final List<Widget> Function(BuildContext)? selectedItemBuilder;
+
   const AppDropdownField({
     Key? key,
     required this.value,
@@ -42,6 +44,7 @@ class AppDropdownField<T> extends StatelessWidget {
     this.isPreviewMode = false,
     this.enabledBorderColor,
     this.validateBorder = false,
+    this.selectedItemBuilder,
   }) : super(key: key);
 
   @override
@@ -66,7 +69,9 @@ class AppDropdownField<T> extends StatelessWidget {
     Widget dropdown = DropdownButtonFormField<T>(
       value: value,
       items: items,
+      selectedItemBuilder: selectedItemBuilder,
       onChanged: enabled && !isPreviewMode ? onChanged : (v) => {},
+      padding: EdgeInsets.zero,
       decoration: InputDecoration(
         hintText: isPreviewMode ? '' : hintText,
         // focusColor: isPreviewMode ? AppColors.onBackground : null,
