@@ -30,3 +30,7 @@ num? parseFormattedNumber(String formatted) {
     return null;
   }
 }
+
+String padNumber(int number) {
+  return 'ENF-${number.toString().padLeft(5, '0')}';
+}

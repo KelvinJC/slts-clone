@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
@@ -12,16 +14,17 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
     final wp = context.wp;
     final hp = context.hp;
 
     // TODO: replace these with values from your user state
-    final userName = 'Oyewumi Olukunle';
-    final userId = 'ENF-00921';
-    final email = 'officer.michael@traffic.ng';
-    final phone = '+234 801 234 5678';
-    final address = 'Victoria Island Unit';
-    final zone = 'Victoria Island Unit';
+    final userName = authState.user?.fullName ?? '';
+    final userId = padNumber(authState.user?.id ?? 0);
+    final email = authState.user?.email ?? '';
+    final phone = authState.user?.phone ?? '';
+    final address = '-';
+    final zone = '-';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -72,30 +75,20 @@ class ProfileScreen extends ConsumerWidget {
                                         decoration: const BoxDecoration(
                                           color: AppColors.surface,
                                           shape: BoxShape.circle,
-                                        ),
-                                        child: CircleAvatar(
-                                          backgroundColor:
-                                              AppColors.homeGradient[0],
-                                          radius: (wp(14) - 2 * wp(0.5)) / 2,
-                                          backgroundImage: const AssetImage(
-                                            AppAssets.avatar,
+                                          image: DecorationImage(
+                                            image: AssetImage(AppAssets.avatar),
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
+                                        // child: CircleAvatar(
+                                        //   backgroundColor:
+                                        //       AppColors.homeGradient[0],
+                                        //   radius: (wp(14) - 2 * wp(0.5)) / 2,
+                                        //   backgroundImage: NetworkImage(
+                                        //     authState.user?.avatar ?? '',
+                                        //   ),
+                                        // ),
                                       ),
-                                      // Container(
-                                      //   width: wp(14),
-                                      //   height: wp(14),
-                                      //   padding: EdgeInsets.all(wp(0.5)),
-                                      //   decoration: BoxDecoration(
-                                      //     shape: BoxShape.circle,
-                                      //     color: AppColors.surface,
-                                      //   ),
-                                      //   child: CircleAvatar(
-                                      //     backgroundImage: const AssetImage(
-                                      //       AppAssets.avatar,
-                                      //     ),
-                                      //   ),
-                                      // ),
                                       SizedBox(width: wp(4)),
                                       Expanded(
                                         child: Column(
