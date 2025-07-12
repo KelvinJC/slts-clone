@@ -131,7 +131,12 @@ class ViolationNotifier extends StateNotifier<AsyncValue<ViolationFormState>> {
         break;
       case 'zone':
         breakLoop = true;
-        updated = form.copyWith(zone: val, command: null, commandOptions: []);
+        updated = form.copyWith(
+          zone: val,
+          isCommandLoading: true,
+          command: null,
+          commandOptions: [],
+        );
         state = AsyncValue.data(updated);
         await _loadCommandsForZone(val);
         break;
@@ -184,7 +189,11 @@ class ViolationNotifier extends StateNotifier<AsyncValue<ViolationFormState>> {
         cmds.map((c) => c.toJson()).toList(),
       );
       state = AsyncValue.data(
-        form.copyWith(commandOptions: cmds, command: null),
+        form.copyWith(
+          commandOptions: cmds,
+          command: null,
+          isCommandLoading: false,
+        ),
       );
     } on Failure catch (f) {
       print('Failed to load commands: $f');
@@ -193,7 +202,11 @@ class ViolationNotifier extends StateNotifier<AsyncValue<ViolationFormState>> {
       final raw = await _storage.readJsonList('commands_zone_${zone.id}') ?? [];
       final cmds = raw.map((m) => DropdownOption.fromJson(m)).toList();
       state = AsyncValue.data(
-        form.copyWith(commandOptions: cmds, command: null),
+        form.copyWith(
+          commandOptions: cmds,
+          command: null,
+          isCommandLoading: false,
+        ),
       );
     }
   }

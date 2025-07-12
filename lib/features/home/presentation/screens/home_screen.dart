@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/core/utils/ocr_utils.dart';
+import 'package:slts_enforcer_app/features/search/presentation/screens/search_screen.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -47,7 +49,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildGradientFAB(BuildContext ctx, double Function(double) wp) {
     return FloatingActionButton(
-      onPressed: () => {},
+      onPressed: () {
+        detectPlateAndNavigate(
+          context,
+          onSelected: (plate) {
+            // navigate to SearchScreen, passing initial value
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SearchScreen(initialQuery: plate),
+              ),
+            );
+          },
+        );
+      },
       backgroundColor: AppColors.surface,
       splashColor: AppColors.buttonGradient[1].withAlpha(50),
       elevation: 0,
@@ -138,6 +153,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               selected: _currentIndex == 1,
               onTap: () {
                 // setState(() => _currentIndex = 1);
+                detectPlateAndNavigate(
+                  context,
+                  onSelected: (plate) {
+                    // navigate to SearchScreen, passing initial value
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SearchScreen(initialQuery: plate),
+                      ),
+                    );
+                  },
+                );
               },
             ),
             NavItem(

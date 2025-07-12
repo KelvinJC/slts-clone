@@ -34,6 +34,9 @@ class AppDropdownField<T> extends StatelessWidget {
 
   final List<Widget> Function(BuildContext)? selectedItemBuilder;
 
+  /// Whether the field is currently processing.
+  final bool isProcessing;
+
   const AppDropdownField({
     Key? key,
     required this.value,
@@ -45,6 +48,7 @@ class AppDropdownField<T> extends StatelessWidget {
     this.enabledBorderColor,
     this.validateBorder = false,
     this.selectedItemBuilder,
+    this.isProcessing = false,
   }) : super(key: key);
 
   @override
@@ -113,11 +117,17 @@ class AppDropdownField<T> extends StatelessWidget {
           ? SizedBox.shrink()
           : Padding(
               padding: EdgeInsets.only(right: wp(1.2)),
-              child: ImageIcon(
-                AssetImage(AppAssets.arrowDown),
-                color: AppColors.onBackgroundSurface2,
-                size: wp(3.5),
-              ),
+              child: isProcessing
+                  ? SizedBox(
+                      height: wp(3),
+                      width: wp(3),
+                      child: const CircularProgressIndicator(),
+                    )
+                  : ImageIcon(
+                      AssetImage(AppAssets.arrowDown),
+                      color: AppColors.onBackgroundSurface2,
+                      size: wp(3.5),
+                    ),
             ),
     );
 

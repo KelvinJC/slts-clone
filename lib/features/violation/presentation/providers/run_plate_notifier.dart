@@ -35,6 +35,8 @@ class RunPlateNotifier extends StateNotifier<RunPlateState> {
       state = state.copyWith(loading: false, error: f.displayMessage);
     }
   }
+
+  clear() => state = const RunPlateState();
 }
 
 final runPlateProvider = StateNotifierProvider<RunPlateNotifier, RunPlateState>(

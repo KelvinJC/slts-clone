@@ -66,6 +66,10 @@ class AppTextField extends StatelessWidget {
   /// Padding on top and bottom.
   final double verticalPadding;
 
+  // _focusNode
+  /// Focus node for the text field.
+  final FocusNode? focusNode;
+
   const AppTextField({
     super.key,
     this.controller,
@@ -87,6 +91,7 @@ class AppTextField extends StatelessWidget {
     this.validateBorder = false,
     this.isValid,
     this.isPreviewMode = false,
+    this.focusNode,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both a controller and initialValue.',
@@ -117,6 +122,7 @@ class AppTextField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       initialValue: controller == null ? initialValue : null,
       onChanged: onChanged,
       onTap: onTap,

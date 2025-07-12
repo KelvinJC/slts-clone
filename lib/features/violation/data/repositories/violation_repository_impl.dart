@@ -41,6 +41,10 @@ class ViolationRepositoryImpl implements ViolationRepository {
         throw UnexpectedFailure(rawMessage: response.message);
       }
 
+      if (response.data.isEmpty) {
+        throw UnexpectedFailure(rawMessage: 'No violations found');
+      }
+
       return response.data.map((m) => m.toEntity()).toList();
     });
   }

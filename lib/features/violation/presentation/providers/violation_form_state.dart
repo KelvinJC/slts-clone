@@ -27,6 +27,8 @@ class DropdownOption {
 
 /// Holds the in‑progress form data.
 class ViolationFormState {
+  final bool isCommandLoading;
+
   // — text fields
   final DropdownOption? offence;
   // final int? offenceId;
@@ -91,6 +93,7 @@ class ViolationFormState {
     this.vehicleTypeOptions = const [],
     this.plateColorOptions = const [],
     this.plateTypeOptions = const [],
+    this.isCommandLoading = false,
   });
 
   /// initial empty state
@@ -121,6 +124,7 @@ class ViolationFormState {
     List<DropdownOption>? vehicleTypeOptions,
     List<DropdownOption>? plateColorOptions,
     List<DropdownOption>? plateTypeOptions,
+    bool? isCommandLoading,
   }) {
     return ViolationFormState(
       offence: offence ?? this.offence,
@@ -147,6 +151,7 @@ class ViolationFormState {
       vehicleTypeOptions: vehicleTypeOptions ?? this.vehicleTypeOptions,
       plateColorOptions: plateColorOptions ?? this.plateColorOptions,
       plateTypeOptions: plateTypeOptions ?? this.plateTypeOptions,
+      isCommandLoading: isCommandLoading ?? this.isCommandLoading,
     );
   }
 }

@@ -337,12 +337,6 @@ class _State extends ConsumerState<CreateViolationScreen> {
   }) {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
-    // dropdown options
-    // const offenceOptions = ['Overspeeding', 'Illegal Parking', 'Signal Jump'];
-    const eventTypeOptions = ['Minor', 'Major'];
-    const zoneOptions = ['Lagos', 'Abuja', 'Kano'];
-    const commandOptions = ['Command HQ', 'Sector 1', 'Sector 2'];
-
     //array of widgets
     var childrenArray = <Widget>[
       // header
@@ -551,6 +545,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
         ),
       ),
       AppDropdownField<DropdownOption>(
+        isProcessing: form.isCommandLoading,
         isPreviewMode: isPreviewMode,
         value: form.command,
         items: dropdownItemBuilder(form.commandOptions),

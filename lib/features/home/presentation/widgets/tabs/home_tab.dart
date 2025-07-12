@@ -275,7 +275,7 @@ class _State extends ConsumerState<HomeTab> {
 
     return Stack(
       children: [
-        hasData
+        !hasData
             ? SizedBox()
             // HtmlTable<Violation>(
             //     headers: headers,

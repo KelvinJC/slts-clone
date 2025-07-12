@@ -12,7 +12,9 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  /// Optionally prefill the search bar and immediately focus it.
+  final String? initialQuery;
+  const SearchScreen({super.key, this.initialQuery});
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -20,6 +22,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   late final TextEditingController _controller;
+  late final FocusNode _focusNode;
 
   /// Track which violation IDs are expanded
   final Set<int> _expandedIds = {};
@@ -30,11 +33,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _controller = TextEditingController(text: widget.initialQuery ?? '');
+    _focusNode = FocusNode();
+    // addPostFrameCallback if initialQuery is not null
+    if (widget.initialQuery != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _focusNode.requestFocus(),
+      );
+    }
+  }
+
+  void clear() {
+    // Clear any previous results when leaving
+    ref.read(runPlateProvider.notifier).clear();
   }
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -47,65 +63,75 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final wp = context.wp;
     final hp = context.hp;
 
-    return Scaffold(
-      // Show pay/create action bar only when we have results
-      bottomNavigationBar: runState.results != null
-          ? _buildActionRow(wp, hp)
-          : null,
-      body: Stack(
-        children: [
-          BlurryGradientBackground(colors: AppColors.homeGradient),
-          Column(
-            children: [
-              OverlayHeader(
-                title: 'Run Plate Number',
-                onBack: () => Navigator.of(context).pop(),
-                opacity: 0,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: wp(4),
-                  vertical: hp(2),
+    return PopScope(
+      onPopInvokedWithResult: (_, t) async {
+        clear();
+        return Future.value(true);
+      },
+      child: Scaffold(
+        // Show pay/create action bar only when we have results
+        bottomNavigationBar: runState.results != null
+            ? _buildActionRow(wp, hp)
+            : null,
+        body: Stack(
+          children: [
+            BlurryGradientBackground(colors: AppColors.homeGradient),
+            Column(
+              children: [
+                OverlayHeader(
+                  title: 'Run Plate Number',
+                  onBack: () => Navigator.of(context).pop(),
+                  opacity: 0,
                 ),
-                child: AppTextField(
-                  controller: _controller,
-                  hintText: 'Run plate number…',
-                  showSearchIcon: true,
-                  onSubmitted: (val) {
-                    runCtrl.search(val.trim());
-                    FocusScope.of(context).unfocus();
-                  },
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: wp(4),
+                    vertical: hp(2),
+                  ),
+                  child: AppTextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    hintText: 'Run plate number…',
+                    showSearchIcon: true,
+                    onSubmitted: (val) {
+                      FocusScope.of(context).unfocus();
+                      // schedule the search after build is over:
+                      Future.microtask(() {
+                        if (val.trim().isNotEmpty) runCtrl.search(val.trim());
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: wp(4)),
-                  child: runState.loading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        )
-                      : runState.error != null
-                      ? Center(
-                          child: Text(
-                            runState.error!,
-                            style: TextStyle(color: AppColors.error),
-                          ),
-                        )
-                      : (runState.results == null
-                            ? _buildHistory(context, wp, hp)
-                            : _buildResults(
-                                context,
-                                wp,
-                                hp,
-                                runState.results!,
-                              )),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                    child: runState.loading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
+                          )
+                        : runState.error != null
+                        ? Center(
+                            child: Text(
+                              runState.error!,
+                              style: TextStyle(color: AppColors.error),
+                            ),
+                          )
+                        : (runState.results == null
+                              ? _buildHistory(context, wp, hp)
+                              : _buildResults(
+                                  context,
+                                  wp,
+                                  hp,
+                                  runState.results!,
+                                )),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -138,6 +164,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               _controller.selection = TextSelection.fromPosition(
                 TextPosition(offset: item.length),
               );
+              _focusNode.requestFocus();
             },
           ),
         ),
@@ -179,8 +206,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 _row('Plate Number:', list.first.plateNumber, wp),
                 SizedBox(height: hp(2)),
                 _row('Owner Full Name:', list.first.offenderName, wp),
-                SizedBox(height: hp(2)),
-                _row('Document Status:', list.first.status, wp),
+                // SizedBox(height: hp(2)),
+                // _row('Document Status:', list.first.status, wp),
                 SizedBox(height: hp(2)),
                 _row('Total Violations:', '${list.length}', wp),
               ],
