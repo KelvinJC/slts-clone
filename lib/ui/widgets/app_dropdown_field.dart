@@ -121,7 +121,7 @@ class AppDropdownField<T> extends StatelessWidget {
                   ? SizedBox(
                       height: wp(3),
                       width: wp(3),
-                      child: const CircularProgressIndicator(),
+                      child: const CircularProgressIndicator(strokeWidth: 1.5),
                     )
                   : ImageIcon(
                       AssetImage(AppAssets.arrowDown),

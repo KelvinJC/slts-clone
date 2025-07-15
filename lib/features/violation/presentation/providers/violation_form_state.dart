@@ -1,3 +1,6 @@
+import 'package:slts_enforcer_app/core/errors/failures.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/violation_hive_model.dart';
+
 /// Simple id/name pair for dropdowns
 class DropdownOption {
   final int id;
@@ -27,6 +30,9 @@ class DropdownOption {
 
 /// Holds the in‑progress form data.
 class ViolationFormState {
+  final Failure? error;
+  final bool loading;
+  final ViolationHiveModel? violationModel;
   final bool isCommandLoading;
 
   // — text fields
@@ -94,6 +100,9 @@ class ViolationFormState {
     this.plateColorOptions = const [],
     this.plateTypeOptions = const [],
     this.isCommandLoading = false,
+    this.error,
+    this.loading = false,
+    this.violationModel,
   });
 
   /// initial empty state
@@ -125,6 +134,9 @@ class ViolationFormState {
     List<DropdownOption>? plateColorOptions,
     List<DropdownOption>? plateTypeOptions,
     bool? isCommandLoading,
+    Failure? error,
+    bool? loading,
+    ViolationHiveModel? violationModel,
   }) {
     return ViolationFormState(
       offence: offence ?? this.offence,
@@ -152,6 +164,9 @@ class ViolationFormState {
       plateColorOptions: plateColorOptions ?? this.plateColorOptions,
       plateTypeOptions: plateTypeOptions ?? this.plateTypeOptions,
       isCommandLoading: isCommandLoading ?? this.isCommandLoading,
+      error: error ?? this.error,
+      loading: loading ?? this.loading,
+      violationModel: violationModel ?? this.violationModel,
     );
   }
 }
