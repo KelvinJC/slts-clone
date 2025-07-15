@@ -7,7 +7,6 @@ import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/forgot_password_request.dart';
-import 'package:slts_enforcer_app/features/auth/data/models/login_with_token_request.dart';
 // import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 // import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.dart';
@@ -66,11 +65,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User> loginWithToken(String token) async {
+  Future<User> loginWithToken() async {
     await ensureConnected();
-    final req = LoginWithTokenRequest(token: token);
     return await retry<User>(() async {
-      final resp = await api.loginWithToken(req);
+      final resp = await api.loginWithToken();
       if (resp.message.toLowerCase() != 'success' ||
           (resp.userData?.isEmpty ?? true)) {
         throw UnexpectedFailure(rawMessage: 'Login failed');

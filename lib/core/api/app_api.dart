@@ -2,7 +2,6 @@ import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/forgot_password_request.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/generic_response.dart';
-import 'package:slts_enforcer_app/features/auth/data/models/login_with_token_request.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_response.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
@@ -32,8 +31,8 @@ abstract class AppApi {
     @Body() ForgotPasswordRequest body,
   );
 
-  @POST('/login/token')
-  Future<VerifyOtpResponse> loginWithToken(@Body() LoginWithTokenRequest body);
+  @POST('/authenticate-with-token')
+  Future<VerifyOtpResponse> loginWithToken();
 
   @POST('/violation/run-plate-number')
   Future<RunPlateResponse> runPlateNumber(@Body() RunPlateRequest body);

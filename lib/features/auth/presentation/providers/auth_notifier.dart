@@ -131,7 +131,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(loading: true, error: null);
       try {
-        final user = await _repo.loginWithToken(token);
+        final user = await _repo.loginWithToken();
         state = state.copyWith(
           loading: false,
           step: AuthStep.authenticated,
