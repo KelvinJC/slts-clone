@@ -70,6 +70,9 @@ class AppTextField extends StatelessWidget {
   /// Focus node for the text field.
   final FocusNode? focusNode;
 
+  /// Whether the field is currently processing.
+  final bool isProcessing;
+
   const AppTextField({
     super.key,
     this.controller,
@@ -92,6 +95,7 @@ class AppTextField extends StatelessWidget {
     this.isValid,
     this.isPreviewMode = false,
     this.focusNode,
+    this.isProcessing = false,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both a controller and initialValue.',
@@ -117,7 +121,9 @@ class AppTextField extends StatelessWidget {
       bool isEmpty = (controller?.text ?? initialValue ?? '').isEmpty;
       borderColor = (isEmpty && enabled)
           ? AppColors.error
-          : (enabledBorderColor ?? AppColors.primary);
+          : (!enabled
+                ? AppColors.onBackgroundSurface2
+                : enabledBorderColor ?? AppColors.primary);
     }
 
     return TextFormField(
@@ -142,7 +148,9 @@ class AppTextField extends StatelessWidget {
                       !hintText.toLowerCase().contains('select') ||
                   isPreviewMode)
               ? AppColors.onBackground
-              : AppColors.onBackgroundSurface2,
+              : (!enabled
+                    ? AppColors.onBackgroundSurface
+                    : AppColors.onBackgroundSurface2),
         ),
         prefixIcon: prefix != null
             ? Padding(
@@ -159,12 +167,21 @@ class AppTextField extends StatelessWidget {
                       ),
                     )
                   : null),
-        suffixIcon: suffix != null && !isPreviewMode
+        suffixIcon: isProcessing
             ? Padding(
-                padding: EdgeInsets.symmetric(vertical: hp(1.5)),
-                child: suffix,
+                padding: EdgeInsets.all(hp(1.5)),
+                child: SizedBox(
+                  height: wp(3),
+                  width: wp(3),
+                  child: const CircularProgressIndicator(strokeWidth: 1.5),
+                ),
               )
-            : null,
+            : (suffix != null && !isPreviewMode
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                      child: suffix,
+                    )
+                  : null),
         contentPadding: isPreviewMode
             ? EdgeInsets.zero
             : EdgeInsets.symmetric(
@@ -174,11 +191,24 @@ class AppTextField extends StatelessWidget {
         filled: true,
         fillColor: isPreviewMode
             ? Colors.transparent
-            : Theme.of(context).colorScheme.surface,
+            : (!enabled
+                  ? AppColors.surface.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surface),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
           borderSide: BorderSide.none,
         ),
+        disabledBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(
+                  color: !validateBorder
+                      ? AppColors.onBackgroundSurface2
+                      : borderColor,
+                  width: 1.5,
+                ),
+              ),
         enabledBorder: isPreviewMode
             ? previewBorder
             : OutlineInputBorder(

@@ -19,7 +19,12 @@ import '../providers/violation_notifier.dart';
 import '../../../sync/presentation/providers/sync_service.dart';
 import 'package:slts_enforcer_app/core/errors/failures.dart';
 
-enum ViolationStep { offender, vehicle, media, review }
+enum ViolationStep {
+  // offender, vehicle,
+  vehicleOffender,
+  media,
+  review,
+}
 
 class CreateViolationScreen extends ConsumerStatefulWidget {
   const CreateViolationScreen({super.key});
@@ -29,7 +34,7 @@ class CreateViolationScreen extends ConsumerStatefulWidget {
 }
 
 class _State extends ConsumerState<CreateViolationScreen> {
-  ViolationStep _step = ViolationStep.offender;
+  ViolationStep _step = ViolationStep.vehicleOffender;
   var validateOffenderOffenceBorder = false,
       validateOffenderEventTypeBorder = false,
       validateOffenderViolationDateBorder = false,
@@ -38,6 +43,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       validateOffenderFirstNameBorder = false,
       validateOffenderSurnameBorder = false,
       validateOffenderPhoneBorder = false,
+      validateOffenderEmailBorder = false,
       validateVehiclePlateBorder = false,
       validateVehicleTypeBorder = false,
       validateVehiclePlateColorBorder = false,
@@ -53,51 +59,94 @@ class _State extends ConsumerState<CreateViolationScreen> {
     );
   }
 
-  bool isOffenderDetailsValid() {
-    final form = ref.read(violationNotifierProvider);
-    return form.offence != null &&
-        form.eventType != null &&
-        form.date.isNotEmpty &&
-        form.zone != null &&
-        form.command != null &&
-        form.firstName.isNotEmpty &&
-        form.surname.isNotEmpty &&
-        form.phone.isNotEmpty;
-  }
+  // bool isOffenderDetailsValid() {
+  //   final form = ref.read(violationNotifierProvider);
+  //   return form.offence != null &&
+  //       form.eventType != null &&
+  //       form.date.isNotEmpty &&
+  //       form.zone != null &&
+  //       form.command != null &&
+  //       form.firstName.isNotEmpty &&
+  //       form.surname.isNotEmpty &&
+  //       form.phone.isNotEmpty;
+  // }
 
-  bool isVehicleDetailsValid() {
+  // bool isVehicleDetailsValid() {
+  //   final form = ref.read(violationNotifierProvider);
+  //   return form.plate.isNotEmpty &&
+  //       form.plateType != null &&
+  //       form.plateColor != null &&
+  //       form.brand != null &&
+  //       form.vehicleType != null &&
+  //       form.vehicleColor != null;
+  // }
+
+  bool isVehicleOffenderDetailsValid() {
     final form = ref.read(violationNotifierProvider);
-    return form.plate.isNotEmpty &&
-        form.plateType != null &&
-        form.plateColor != null &&
-        form.brand != null &&
-        form.vehicleType != null &&
-        form.vehicleColor != null;
+    return form.plate.isNotEmpty; // &&
+    // form.plateType != null &&
+    // form.plateColor != null &&
+    // form.brand != null &&
+    // form.vehicleType != null &&
+    // form.vehicleColor != null &&
+    //
+    // form.offence != null &&
+    // form.eventType != null &&
+    // form.date.isNotEmpty &&
+    // form.zone != null &&
+    // form.command != null &&
+    // form.firstName.isNotEmpty &&
+    // form.surname.isNotEmpty &&
+    // form.phone.isNotEmpty &&
+    // form.email.isNotEmpty;
+    ;
   }
 
   void _next() => setState(() {
-    if (_step == ViolationStep.offender) {
-      if (!isOffenderDetailsValid()) {
-        validateOffenderOffenceBorder = true;
-        validateOffenderEventTypeBorder = true;
-        validateOffenderViolationDateBorder = true;
-        validateOffenderZoneBorder = true;
-        validateOffenderCommandBorder = true;
-        validateOffenderFirstNameBorder = true;
-        validateOffenderSurnameBorder = true;
-        validateOffenderPhoneBorder = true;
-        return; // Prevent moving to next step if validation fails
-      }
-    }
+    // if (_step == ViolationStep.offender) {
+    //   if (!isOffenderDetailsValid()) {
+    //     validateOffenderOffenceBorder = true;
+    //     validateOffenderEventTypeBorder = true;
+    //     validateOffenderViolationDateBorder = true;
+    //     validateOffenderZoneBorder = true;
+    //     validateOffenderCommandBorder = true;
+    //     validateOffenderFirstNameBorder = true;
+    //     validateOffenderSurnameBorder = true;
+    //     validateOffenderPhoneBorder = true;
+    //     return; // Prevent moving to next step if validation fails
+    //   }
+    // }
 
-    if (_step == ViolationStep.vehicle) {
-      if (!isVehicleDetailsValid()) {
+    // if (_step == ViolationStep.vehicle) {
+    //   if (!isVehicleDetailsValid()) {
+    //     validateVehiclePlateBorder = true;
+    //     validateVehicleTypeBorder = true;
+    //     validateVehiclePlateColorBorder = true;
+    //     validateVehicleBrandBorder = true;
+    //     validateVehicleVehicleTypeBorder = true;
+    //     validateVehicleColorBorder = true;
+    //     return; // Prevent moving to next step if validation fails
+    //   }
+    // }
+
+    if (_step == ViolationStep.vehicleOffender) {
+      if (!isVehicleOffenderDetailsValid()) {
         validateVehiclePlateBorder = true;
-        validateVehicleTypeBorder = true;
-        validateVehiclePlateColorBorder = true;
-        validateVehicleBrandBorder = true;
-        validateVehicleVehicleTypeBorder = true;
-        validateVehicleColorBorder = true;
+        // validateVehicleTypeBorder = true;
+        // validateVehiclePlateColorBorder = true;
+        // validateVehicleBrandBorder = true;
+        // validateVehicleVehicleTypeBorder = true;
+        // validateVehicleColorBorder = true;
+        //
+        // validateOffenderOffenceBorder = true;
+        // validateOffenderEventTypeBorder = true;
+        // validateOffenderViolationDateBorder = true;
+        // validateOffenderZoneBorder = true;
+        // validateOffenderCommandBorder = true;
+        // validateOffenderFirstNameBorder = true;
+        // validateOffenderSurnameBorder = true;
+        // validateOffenderPhoneBorder = true;
+        // validateOffenderEmailBorder = true;
         return; // Prevent moving to next step if validation fails
       }
     }
@@ -130,9 +179,10 @@ class _State extends ConsumerState<CreateViolationScreen> {
 
   Future<void> _save() async {
     final form = ref.read(violationNotifierProvider);
-    if (!isOffenderDetailsValid() ||
-        !isVehicleDetailsValid() ||
-        form.mediaPaths.isEmpty) {
+    if (
+    // !isOffenderDetailsValid() ||
+    //   !isVehicleDetailsValid() ||
+    !isVehicleOffenderDetailsValid() || form.mediaPaths.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all steps')),
       );
@@ -195,8 +245,9 @@ class _State extends ConsumerState<CreateViolationScreen> {
     final notifier = ref.read(violationNotifierProvider.notifier);
 
     final pages = [
-      _offenderStep(ref, formValue, notifier),
-      _vehicleStep(ref, formValue, notifier),
+      // _offenderStep(ref, formValue, notifier),
+      // _vehicleStep(ref, formValue, notifier),
+      _offenderVehicleStep(ref, formValue, notifier),
       _mediaStep(ref, formValue, notifier),
       _reviewStep(formValue, notifier),
     ];
@@ -213,7 +264,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
             children: [
               OverlayHeader(
                 title: 'Create Violation',
-                onBack: _step == ViolationStep.offender
+                onBack: _step == ViolationStep.vehicleOffender
                     ? () => Navigator.of(context).pop()
                     : _back,
               ),
@@ -235,7 +286,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
                       children: [
                         Expanded(
                           child: GestureDetector(
-                            onTap: _step == ViolationStep.offender
+                            onTap: _step == ViolationStep.vehicleOffender
                                 ? null
                                 : _back,
                             child: Container(
@@ -406,7 +457,636 @@ class _State extends ConsumerState<CreateViolationScreen> {
     }).toList();
   }
 
-  Widget _offenderStep(
+  // Widget _offenderStep(
+  //   WidgetRef ref,
+  //   ViolationFormState form,
+  //   ViolationNotifier notifier, {
+  //   bool isPreviewMode = false,
+  // }) {
+  //   Widget _row(String label, String value, double Function(double) wp) => Row(
+  //     children: [
+  //       Text(label, style: Theme.of(context).textTheme.titleSmall),
+  //       Spacer(),
+  //       Visibility(
+  //         visible: isPreviewMode,
+  //         child: Text(value, style: TextStyle(color: AppColors.onBackground)),
+  //       ),
+  //     ],
+  //   );
+
+  //   //array of widgets
+  //   var childrenArray = <Widget>[
+  //     // header
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             'Offender Details',
+  //             style: Theme.of(
+  //               context,
+  //             ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+  //           ),
+  //           Visibility(
+  //             visible: isPreviewMode,
+  //             child: GestureDetector(
+  //               onTap: () => _back(step: ViolationStep.offender),
+  //               child: Text(
+  //                 'Edit',
+  //                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
+  //                   // fontWeight: FontWeight.bold,
+  //                   color: AppColors.primary,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: Text(
+  //         'Information captured about the person committing the offense.',
+  //         style: Theme.of(context).textTheme.bodySmall,
+  //       ),
+  //     ),
+
+  //     // — Offence dropdown
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Select Offence *', form.offence?.name ?? '', context.wp),
+  //     ),
+  //     // AppRadioDropdown<String>(
+  //     //   value: form.offence.isEmpty ? null : form.offence,
+  //     //   options: offenceOptions,
+  //     //   itemLabel: (o) => o,
+  //     //   hintText: 'Overspeeding',
+  //     //   showError: validateOffenderOffenceBorder,
+  //     //   onChanged: (v) {
+  //     //     if (!validateOffenderOffenceBorder) {
+  //     //       validateOffenderOffenceBorder = true;
+  //     //     }
+  //     //     notifier.updateField('offence', v!);
+  //     //   },
+  //     // ),
+  //     // SizedBox(height: context.hp(1)),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.offence,
+  //         items: dropdownItemBuilder(form.offenceOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.offenceOptions),
+  //         hintText: 'Choose an offence',
+  //         validateBorder: validateOffenderOffenceBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderOffenceBorder) {
+  //             validateOffenderOffenceBorder = true;
+  //           }
+  //           notifier.updateField('offence', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderOffenceBorder && form.offence == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select an offence',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Event type dropdown
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Event Type *',
+  //         form.eventType?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.eventType,
+  //         items: dropdownItemBuilder(form.eventTypeOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.eventTypeOptions),
+  //         hintText: 'Choose event type',
+  //         validateBorder: validateOffenderEventTypeBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderEventTypeBorder) {
+  //             validateOffenderEventTypeBorder = true;
+  //           }
+  //           notifier.updateField('eventType', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderEventTypeBorder && form.eventType == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select an event type',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Violation date picker
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Violation Date *',
+  //         form.date.isNotEmpty
+  //             ? formatDateShort(
+  //                 DateTime.parse(form.date),
+  //                 pattern: 'dd-MM-yyyy',
+  //               )
+  //             : form.date,
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: GestureDetector(
+  //         onTap: () async {
+  //           if (isPreviewMode) return; // Disable in preview mode
+  //           final picked = await showDatePicker(
+  //             context: context,
+  //             initialDate: form.date.isNotEmpty
+  //                 ? DateTime.parse(form.date)
+  //                 : DateTime.now(),
+  //             firstDate: DateTime(2000),
+  //             lastDate: DateTime.now(),
+  //           );
+  //           if (picked != null) {
+  //             if (!validateOffenderViolationDateBorder) {
+  //               validateOffenderViolationDateBorder = true;
+  //             }
+  //             notifier.updateField('date', picked.toIso8601String());
+  //           }
+  //         },
+  //         child: AbsorbPointer(
+  //           child: AppTextField(
+  //             isPreviewMode: isPreviewMode,
+  //             hintText: form.date.isEmpty
+  //                 ? 'Select date'
+  //                 : form.date.split('T').first,
+  //             initialValue: form.date.isEmpty ? '' : form.date.split('T').first,
+  //             validateBorder: validateOffenderViolationDateBorder,
+  //             readOnly: true,
+  //             keyboardType: TextInputType.datetime,
+  //             suffix: Icon(
+  //               Icons.calendar_today,
+  //               color: AppColors.onBackgroundSurface2,
+  //               size: context.wp(4),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //     if (validateOffenderViolationDateBorder && form.date.isEmpty)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please choose a date',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Zone dropdown
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Select Zone *', form.zone?.name ?? '', context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.zone,
+  //         items: dropdownItemBuilder(form.zoneOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.zoneOptions),
+  //         hintText: 'Choose zone',
+  //         validateBorder: validateOffenderZoneBorder,
+  //         onChanged: (v) async {
+  //           if (!validateOffenderZoneBorder) {
+  //             validateOffenderZoneBorder = true;
+  //           }
+  //           // await notifier.updateField('command', null);
+  //           await notifier.updateField('zone', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderZoneBorder && form.zone == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a zone',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Command dropdown
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Select Command *', form.command?.name ?? '', context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isProcessing: form.isCommandLoading,
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.command,
+  //         items: dropdownItemBuilder(form.commandOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.commandOptions),
+  //         hintText: 'Choose command',
+  //         validateBorder: validateOffenderCommandBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderCommandBorder) {
+  //             validateOffenderCommandBorder = true;
+  //           }
+  //           notifier.updateField('command', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderCommandBorder && form.command == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a command',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — First name
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Offender First Name *', form.firstName, context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppTextField(
+  //         isPreviewMode: isPreviewMode,
+  //         hintText: 'Olukunle',
+  //         initialValue: form.firstName,
+  //         validateBorder: validateOffenderFirstNameBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderFirstNameBorder) {
+  //             validateOffenderFirstNameBorder = true;
+  //           }
+  //           notifier.updateField('firstName', v);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderFirstNameBorder && form.firstName.isEmpty)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please enter first name',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Surname
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Offender Surname *', form.surname, context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppTextField(
+  //         isPreviewMode: isPreviewMode,
+  //         hintText: 'Oyewumi',
+  //         initialValue: form.surname,
+  //         validateBorder: validateOffenderSurnameBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderSurnameBorder) {
+  //             validateOffenderSurnameBorder = true;
+  //           }
+  //           notifier.updateField('surname', v);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderSurnameBorder && form.surname.isEmpty)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please enter surname',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Phone
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Offender Phone *', form.phone, context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppTextField(
+  //         isPreviewMode: isPreviewMode,
+  //         hintText: '+234 81...',
+  //         initialValue: form.phone,
+  //         keyboardType: TextInputType.phone,
+  //         validateBorder: validateOffenderPhoneBorder,
+  //         onChanged: (v) {
+  //           if (!validateOffenderPhoneBorder) {
+  //             validateOffenderPhoneBorder = true;
+  //           }
+  //           notifier.updateField('phone', v);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateOffenderPhoneBorder && form.phone.isEmpty)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please enter phone number',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+  //   ];
+  //   return !isPreviewMode
+  //       ? ListView(
+  //           padding: EdgeInsets.only(bottom: context.hp(2)),
+  //           children: childrenArray,
+  //         )
+  //       : Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: childrenArray,
+  //         );
+  // }
+
+  // Widget _vehicleStep(
+  //   WidgetRef ref,
+  //   ViolationFormState form,
+  //   ViolationNotifier notifier, {
+  //   bool isPreviewMode = false,
+  // }) {
+  //   Widget _row(String label, String value, double Function(double) wp) => Row(
+  //     children: [
+  //       Text(label, style: Theme.of(context).textTheme.titleSmall),
+  //       Spacer(),
+  //       Visibility(
+  //         visible: isPreviewMode,
+  //         child: Text(value, style: TextStyle(color: AppColors.onBackground)),
+  //       ),
+  //     ],
+  //   );
+
+  //   // // Example option lists
+  //   // const plateTypeOptions = ['Local', 'Commercial', 'Diplomatic'];
+  //   // const plateColorOptions = ['White', 'Blue', 'Yellow'];
+  //   // const brandOptions = ['Toyota', 'Honda', 'Ford'];
+  //   // const vehicleTypeOptions = ['Sedan', 'SUV', 'Truck'];
+  //   // const vehicleColorOptions = ['Black', 'Red', 'Silver'];
+
+  //   //array of widgets
+  //   var childrenArray = <Widget>[
+  //     // header
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             'Vehicle Info',
+  //             style: Theme.of(
+  //               context,
+  //             ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+  //           ),
+  //           Visibility(
+  //             visible: isPreviewMode,
+  //             child: GestureDetector(
+  //               onTap: () => _back(step: ViolationStep.vehicle),
+  //               child: Text(
+  //                 'Edit',
+  //                 style: Theme.of(context).textTheme.titleSmall!.copyWith(
+  //                   // fontWeight: FontWeight.bold,
+  //                   color: AppColors.primary,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: Text(
+  //         'Details about the vehicle involved',
+  //         style: Theme.of(context).textTheme.bodySmall,
+  //       ),
+  //     ),
+
+  //     // — Plate Number (text)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row('Enter Plate Number *', form.plate, context.wp),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppTextField(
+  //         isPreviewMode: isPreviewMode,
+  //         hintText: 'KSF-622AE',
+  //         initialValue: form.plate,
+  //         validateBorder: validateVehiclePlateBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehiclePlateBorder) validateVehiclePlateBorder = true;
+  //           notifier.updateField('plate', v);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehiclePlateBorder && form.plate.isEmpty)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please enter a plate number',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Plate Type (dropdown)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Plate Type *',
+  //         form.plateType?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.plateType,
+  //         items: dropdownItemBuilder(form.plateTypeOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.plateTypeOptions),
+  //         hintText: 'Choose plate type',
+  //         validateBorder: validateVehicleTypeBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
+  //           notifier.updateField('plateType', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehicleTypeBorder && form.plateType == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a plate type',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Plate Color (dropdown)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Plate Color *',
+  //         form.plateColor?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.plateColor,
+  //         items: dropdownItemBuilder(form.plateColorOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.plateColorOptions),
+  //         hintText: 'Choose plate color',
+  //         validateBorder: validateVehiclePlateColorBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehiclePlateColorBorder) {
+  //             validateVehiclePlateColorBorder = true;
+  //           }
+  //           notifier.updateField('plateColor', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehiclePlateColorBorder && form.plateColor == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a plate color',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Vehicle Brand (dropdown)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Vehicle Brand *',
+  //         form.brand?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.brand,
+  //         items: dropdownItemBuilder(form.vehicleBrandOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.vehicleBrandOptions),
+  //         hintText: 'Choose brand',
+  //         validateBorder: validateVehicleBrandBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
+  //           notifier.updateField('brand', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehicleBrandBorder && form.brand == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a vehicle brand',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Vehicle Type (dropdown)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Vehicle Type *',
+  //         form.vehicleType?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.vehicleType,
+  //         items: dropdownItemBuilder(form.vehicleTypeOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.vehicleTypeOptions),
+  //         hintText: 'Choose vehicle type',
+  //         validateBorder: validateVehicleVehicleTypeBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehicleVehicleTypeBorder) {
+  //             validateVehicleVehicleTypeBorder = true;
+  //           }
+  //           notifier.updateField('vehicleType', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehicleVehicleTypeBorder && form.vehicleType == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a vehicle type',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+
+  //     // — Vehicle Color (dropdown)
+  //     Padding(
+  //       padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+  //       child: _row(
+  //         'Select Vehicle Color *',
+  //         form.vehicleColor?.name ?? '',
+  //         context.wp,
+  //       ),
+  //     ),
+  //     Visibility(
+  //       visible: !isPreviewMode,
+  //       child: AppDropdownField<DropdownOption>(
+  //         isPreviewMode: isPreviewMode,
+  //         value: form.vehicleColor,
+  //         items: dropdownItemBuilder(form.vehicleColorOptions),
+  //         selectedItemBuilder: (_) => selectedBuilder(form.vehicleColorOptions),
+  //         hintText: 'Choose vehicle color',
+  //         validateBorder: validateVehicleColorBorder,
+  //         onChanged: (v) {
+  //           if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
+  //           notifier.updateField('vehicleColor', v!);
+  //         },
+  //       ),
+  //     ),
+  //     if (validateVehicleColorBorder && form.vehicleColor == null)
+  //       Padding(
+  //         padding: EdgeInsets.only(top: context.hp(0.5)),
+  //         child: Text(
+  //           'Please select a vehicle color',
+  //           style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+  //         ),
+  //       ),
+  //   ];
+  //   return !isPreviewMode
+  //       ? ListView(
+  //           padding: EdgeInsets.only(bottom: context.hp(2)),
+  //           children: childrenArray,
+  //         )
+  //       : Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: childrenArray,
+  //         );
+  // }
+
+  Widget _offenderVehicleStep(
     WidgetRef ref,
     ViolationFormState form,
     ViolationNotifier notifier, {
@@ -422,373 +1102,6 @@ class _State extends ConsumerState<CreateViolationScreen> {
         ),
       ],
     );
-
-    //array of widgets
-    var childrenArray = <Widget>[
-      // header
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(1), bottom: context.hp(1)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Offender Details',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Visibility(
-              visible: isPreviewMode,
-              child: GestureDetector(
-                onTap: () => _back(step: ViolationStep.offender),
-                child: Text(
-                  'Edit',
-                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    // fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: Text(
-          'Information captured about the person committing the offense.',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
-
-      // — Offence dropdown
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Select Offence *', form.offence?.name ?? '', context.wp),
-      ),
-      // AppRadioDropdown<String>(
-      //   value: form.offence.isEmpty ? null : form.offence,
-      //   options: offenceOptions,
-      //   itemLabel: (o) => o,
-      //   hintText: 'Overspeeding',
-      //   showError: validateOffenderOffenceBorder,
-      //   onChanged: (v) {
-      //     if (!validateOffenderOffenceBorder) {
-      //       validateOffenderOffenceBorder = true;
-      //     }
-      //     notifier.updateField('offence', v!);
-      //   },
-      // ),
-      // SizedBox(height: context.hp(1)),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppDropdownField<DropdownOption>(
-          isPreviewMode: isPreviewMode,
-          value: form.offence,
-          items: dropdownItemBuilder(form.offenceOptions),
-          selectedItemBuilder: (_) => selectedBuilder(form.offenceOptions),
-          hintText: 'Choose an offence',
-          validateBorder: validateOffenderOffenceBorder,
-          onChanged: (v) {
-            if (!validateOffenderOffenceBorder) {
-              validateOffenderOffenceBorder = true;
-            }
-            notifier.updateField('offence', v!);
-          },
-        ),
-      ),
-      if (validateOffenderOffenceBorder && form.offence == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select an offence',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Event type dropdown
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Select Event Type *',
-          form.eventType?.name ?? '',
-          context.wp,
-        ),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppDropdownField<DropdownOption>(
-          isPreviewMode: isPreviewMode,
-          value: form.eventType,
-          items: dropdownItemBuilder(form.eventTypeOptions),
-          selectedItemBuilder: (_) => selectedBuilder(form.eventTypeOptions),
-          hintText: 'Choose event type',
-          validateBorder: validateOffenderEventTypeBorder,
-          onChanged: (v) {
-            if (!validateOffenderEventTypeBorder) {
-              validateOffenderEventTypeBorder = true;
-            }
-            notifier.updateField('eventType', v!);
-          },
-        ),
-      ),
-      if (validateOffenderEventTypeBorder && form.eventType == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select an event type',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Violation date picker
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Violation Date *',
-          form.date.isNotEmpty
-              ? formatDateShort(
-                  DateTime.parse(form.date),
-                  pattern: 'dd-MM-yyyy',
-                )
-              : form.date,
-          context.wp,
-        ),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: GestureDetector(
-          onTap: () async {
-            if (isPreviewMode) return; // Disable in preview mode
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: form.date.isNotEmpty
-                  ? DateTime.parse(form.date)
-                  : DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now(),
-            );
-            if (picked != null) {
-              if (!validateOffenderViolationDateBorder) {
-                validateOffenderViolationDateBorder = true;
-              }
-              notifier.updateField('date', picked.toIso8601String());
-            }
-          },
-          child: AbsorbPointer(
-            child: AppTextField(
-              isPreviewMode: isPreviewMode,
-              hintText: form.date.isEmpty
-                  ? 'Select date'
-                  : form.date.split('T').first,
-              initialValue: form.date.isEmpty ? '' : form.date.split('T').first,
-              validateBorder: validateOffenderViolationDateBorder,
-              readOnly: true,
-              keyboardType: TextInputType.datetime,
-              suffix: Icon(
-                Icons.calendar_today,
-                color: AppColors.onBackgroundSurface2,
-                size: context.wp(4),
-              ),
-            ),
-          ),
-        ),
-      ),
-      if (validateOffenderViolationDateBorder && form.date.isEmpty)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please choose a date',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Zone dropdown
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Select Zone *', form.zone?.name ?? '', context.wp),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppDropdownField<DropdownOption>(
-          isPreviewMode: isPreviewMode,
-          value: form.zone,
-          items: dropdownItemBuilder(form.zoneOptions),
-          selectedItemBuilder: (_) => selectedBuilder(form.zoneOptions),
-          hintText: 'Choose zone',
-          validateBorder: validateOffenderZoneBorder,
-          onChanged: (v) async {
-            if (!validateOffenderZoneBorder) {
-              validateOffenderZoneBorder = true;
-            }
-            // await notifier.updateField('command', null);
-            await notifier.updateField('zone', v!);
-          },
-        ),
-      ),
-      if (validateOffenderZoneBorder && form.zone == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a zone',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Command dropdown
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Select Command *', form.command?.name ?? '', context.wp),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppDropdownField<DropdownOption>(
-          isProcessing: form.isCommandLoading,
-          isPreviewMode: isPreviewMode,
-          value: form.command,
-          items: dropdownItemBuilder(form.commandOptions),
-          selectedItemBuilder: (_) => selectedBuilder(form.commandOptions),
-          hintText: 'Choose command',
-          validateBorder: validateOffenderCommandBorder,
-          onChanged: (v) {
-            if (!validateOffenderCommandBorder) {
-              validateOffenderCommandBorder = true;
-            }
-            notifier.updateField('command', v!);
-          },
-        ),
-      ),
-      if (validateOffenderCommandBorder && form.command == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a command',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — First name
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Offender First Name *', form.firstName, context.wp),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppTextField(
-          isPreviewMode: isPreviewMode,
-          hintText: 'Olukunle',
-          initialValue: form.firstName,
-          validateBorder: validateOffenderFirstNameBorder,
-          onChanged: (v) {
-            if (!validateOffenderFirstNameBorder) {
-              validateOffenderFirstNameBorder = true;
-            }
-            notifier.updateField('firstName', v);
-          },
-        ),
-      ),
-      if (validateOffenderFirstNameBorder && form.firstName.isEmpty)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please enter first name',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Surname
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Offender Surname *', form.surname, context.wp),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppTextField(
-          isPreviewMode: isPreviewMode,
-          hintText: 'Oyewumi',
-          initialValue: form.surname,
-          validateBorder: validateOffenderSurnameBorder,
-          onChanged: (v) {
-            if (!validateOffenderSurnameBorder) {
-              validateOffenderSurnameBorder = true;
-            }
-            notifier.updateField('surname', v);
-          },
-        ),
-      ),
-      if (validateOffenderSurnameBorder && form.surname.isEmpty)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please enter surname',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-
-      // — Phone
-      Padding(
-        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Offender Phone *', form.phone, context.wp),
-      ),
-      Visibility(
-        visible: !isPreviewMode,
-        child: AppTextField(
-          isPreviewMode: isPreviewMode,
-          hintText: '+234 81...',
-          initialValue: form.phone,
-          keyboardType: TextInputType.phone,
-          validateBorder: validateOffenderPhoneBorder,
-          onChanged: (v) {
-            if (!validateOffenderPhoneBorder) {
-              validateOffenderPhoneBorder = true;
-            }
-            notifier.updateField('phone', v);
-          },
-        ),
-      ),
-      if (validateOffenderPhoneBorder && form.phone.isEmpty)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please enter phone number',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
-    ];
-    return !isPreviewMode
-        ? ListView(
-            padding: EdgeInsets.only(bottom: context.hp(2)),
-            children: childrenArray,
-          )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: childrenArray,
-          );
-  }
-
-  Widget _vehicleStep(
-    WidgetRef ref,
-    ViolationFormState form,
-    ViolationNotifier notifier, {
-    bool isPreviewMode = false,
-  }) {
-    Widget _row(String label, String value, double Function(double) wp) => Row(
-      children: [
-        Text(label, style: Theme.of(context).textTheme.titleSmall),
-        Spacer(),
-        Visibility(
-          visible: isPreviewMode,
-          child: Text(value, style: TextStyle(color: AppColors.onBackground)),
-        ),
-      ],
-    );
-
-    // // Example option lists
-    // const plateTypeOptions = ['Local', 'Commercial', 'Diplomatic'];
-    // const plateColorOptions = ['White', 'Blue', 'Yellow'];
-    // const brandOptions = ['Toyota', 'Honda', 'Ford'];
-    // const vehicleTypeOptions = ['Sedan', 'SUV', 'Truck'];
-    // const vehicleColorOptions = ['Black', 'Red', 'Silver'];
 
     //array of widgets
     var childrenArray = <Widget>[
@@ -807,7 +1120,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
             Visibility(
               visible: isPreviewMode,
               child: GestureDetector(
-                onTap: () => _back(step: ViolationStep.vehicle),
+                onTap: () => _back(step: ViolationStep.vehicleOffender),
                 child: Text(
                   'Edit',
                   style: Theme.of(context).textTheme.titleSmall!.copyWith(
@@ -858,11 +1171,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Plate Type (dropdown)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Select Plate Type *',
-          form.plateType?.name ?? '',
-          context.wp,
-        ),
+        child: _row('Plate Type *', form.plateType?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -871,31 +1180,28 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.plateType,
           items: dropdownItemBuilder(form.plateTypeOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.plateTypeOptions),
-          hintText: 'Choose plate type',
+          hintText: form.plateType?.name ?? 'Choose plate type',
           validateBorder: validateVehicleTypeBorder,
           onChanged: (v) {
             if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
             notifier.updateField('plateType', v!);
           },
+          enabled: false,
         ),
       ),
-      if (validateVehicleTypeBorder && form.plateType == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a plate type',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
+      // if (validateVehicleTypeBorder && form.plateType == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a plate type',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
 
       // — Plate Color (dropdown)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Select Plate Color *',
-          form.plateColor?.name ?? '',
-          context.wp,
-        ),
+        child: _row('Plate Color *', form.plateColor?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -904,7 +1210,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.plateColor,
           items: dropdownItemBuilder(form.plateColorOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.plateColorOptions),
-          hintText: 'Choose plate color',
+          hintText: form.plateColor?.name ?? 'Choose plate color',
           validateBorder: validateVehiclePlateColorBorder,
           onChanged: (v) {
             if (!validateVehiclePlateColorBorder) {
@@ -912,25 +1218,22 @@ class _State extends ConsumerState<CreateViolationScreen> {
             }
             notifier.updateField('plateColor', v!);
           },
+          enabled: false,
         ),
       ),
-      if (validateVehiclePlateColorBorder && form.plateColor == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a plate color',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
+      // if (validateVehiclePlateColorBorder && form.plateColor == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a plate color',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
 
       // — Vehicle Brand (dropdown)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Select Vehicle Brand *',
-          form.brand?.name ?? '',
-          context.wp,
-        ),
+        child: _row('Vehicle Brand *', form.brand?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -939,31 +1242,28 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.brand,
           items: dropdownItemBuilder(form.vehicleBrandOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleBrandOptions),
-          hintText: 'Choose brand',
+          hintText: form.brand?.name ?? 'Choose brand',
           validateBorder: validateVehicleBrandBorder,
           onChanged: (v) {
             if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
             notifier.updateField('brand', v!);
           },
+          enabled: false,
         ),
       ),
-      if (validateVehicleBrandBorder && form.brand == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a vehicle brand',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
+      // if (validateVehicleBrandBorder && form.brand == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a vehicle brand',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
 
       // — Vehicle Type (dropdown)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
-          'Select Vehicle Type *',
-          form.vehicleType?.name ?? '',
-          context.wp,
-        ),
+        child: _row('Vehicle Type *', form.vehicleType?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -972,7 +1272,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.vehicleType,
           items: dropdownItemBuilder(form.vehicleTypeOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleTypeOptions),
-          hintText: 'Choose vehicle type',
+          hintText: form.vehicleType?.name ?? 'Choose vehicle type',
           validateBorder: validateVehicleVehicleTypeBorder,
           onChanged: (v) {
             if (!validateVehicleVehicleTypeBorder) {
@@ -980,22 +1280,23 @@ class _State extends ConsumerState<CreateViolationScreen> {
             }
             notifier.updateField('vehicleType', v!);
           },
+          enabled: false,
         ),
       ),
-      if (validateVehicleVehicleTypeBorder && form.vehicleType == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a vehicle type',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
-        ),
+      // if (validateVehicleVehicleTypeBorder && form.vehicleType == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a vehicle type',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
 
       // — Vehicle Color (dropdown)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
         child: _row(
-          'Select Vehicle Color *',
+          'Vehicle Color *',
           form.vehicleColor?.name ?? '',
           context.wp,
         ),
@@ -1007,22 +1308,388 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.vehicleColor,
           items: dropdownItemBuilder(form.vehicleColorOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleColorOptions),
-          hintText: 'Choose vehicle color',
+          hintText: form.vehicleColor?.name ?? 'Choose vehicle color',
           validateBorder: validateVehicleColorBorder,
           onChanged: (v) {
             if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
             notifier.updateField('vehicleColor', v!);
           },
+          enabled: false,
         ),
       ),
-      if (validateVehicleColorBorder && form.vehicleColor == null)
-        Padding(
-          padding: EdgeInsets.only(top: context.hp(0.5)),
-          child: Text(
-            'Please select a vehicle color',
-            style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
-          ),
+      // if (validateVehicleColorBorder && form.vehicleColor == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a vehicle color',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+      // header
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(3), bottom: context.hp(1)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Offender Details',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+            ),
+            // Visibility(
+            //   visible: isPreviewMode,
+            //   child: GestureDetector(
+            //     onTap: () => _back(step: ViolationStep.offender),
+            //     child: Text(
+            //       'Edit',
+            //       style: Theme.of(context).textTheme.titleSmall!.copyWith(
+            //         // fontWeight: FontWeight.bold,
+            //         color: AppColors.primary,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+          ],
         ),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: Text(
+          'Information captured about the person committing the offense.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
+
+      // // — Offence dropdown
+      // Padding(
+      //   padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+      //   child: _row('Select Offence *', form.offence?.name ?? '', context.wp),
+      // ),
+      // // AppRadioDropdown<String>(
+      // //   value: form.offence.isEmpty ? null : form.offence,
+      // //   options: offenceOptions,
+      // //   itemLabel: (o) => o,
+      // //   hintText: 'Overspeeding',
+      // //   showError: validateOffenderOffenceBorder,
+      // //   onChanged: (v) {
+      // //     if (!validateOffenderOffenceBorder) {
+      // //       validateOffenderOffenceBorder = true;
+      // //     }
+      // //     notifier.updateField('offence', v!);
+      // //   },
+      // // ),
+      // // SizedBox(height: context.hp(1)),
+      // Visibility(
+      //   visible: !isPreviewMode,
+      //   child: AppDropdownField<DropdownOption>(
+      //     isPreviewMode: isPreviewMode,
+      //     value: form.offence,
+      //     items: dropdownItemBuilder(form.offenceOptions),
+      //     selectedItemBuilder: (_) => selectedBuilder(form.offenceOptions),
+      //     hintText: 'Choose an offence',
+      //     validateBorder: validateOffenderOffenceBorder,
+      //     onChanged: (v) {
+      //       if (!validateOffenderOffenceBorder) {
+      //         validateOffenderOffenceBorder = true;
+      //       }
+      //       notifier.updateField('offence', v!);
+      //     },
+      //   ),
+      // ),
+      // if (validateOffenderOffenceBorder && form.offence == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select an offence',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // // — Event type dropdown
+      // Padding(
+      //   padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+      //   child: _row(
+      //     'Select Event Type *',
+      //     form.eventType?.name ?? '',
+      //     context.wp,
+      //   ),
+      // ),
+      // Visibility(
+      //   visible: !isPreviewMode,
+      //   child: AppDropdownField<DropdownOption>(
+      //     isPreviewMode: isPreviewMode,
+      //     value: form.eventType,
+      //     items: dropdownItemBuilder(form.eventTypeOptions),
+      //     selectedItemBuilder: (_) => selectedBuilder(form.eventTypeOptions),
+      //     hintText: 'Choose event type',
+      //     validateBorder: validateOffenderEventTypeBorder,
+      //     onChanged: (v) {
+      //       if (!validateOffenderEventTypeBorder) {
+      //         validateOffenderEventTypeBorder = true;
+      //       }
+      //       notifier.updateField('eventType', v!);
+      //     },
+      //   ),
+      // ),
+      // if (validateOffenderEventTypeBorder && form.eventType == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select an event type',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // // — Violation date picker
+      // Padding(
+      //   padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+      //   child: _row(
+      //     'Violation Date *',
+      //     form.date.isNotEmpty
+      //         ? formatDateShort(
+      //             DateTime.parse(form.date),
+      //             pattern: 'dd-MM-yyyy',
+      //           )
+      //         : form.date,
+      //     context.wp,
+      //   ),
+      // ),
+      // Visibility(
+      //   visible: !isPreviewMode,
+      //   child: GestureDetector(
+      //     onTap: () async {
+      //       if (isPreviewMode) return; // Disable in preview mode
+      //       final picked = await showDatePicker(
+      //         context: context,
+      //         initialDate: form.date.isNotEmpty
+      //             ? DateTime.parse(form.date)
+      //             : DateTime.now(),
+      //         firstDate: DateTime(2000),
+      //         lastDate: DateTime.now(),
+      //       );
+      //       if (picked != null) {
+      //         if (!validateOffenderViolationDateBorder) {
+      //           validateOffenderViolationDateBorder = true;
+      //         }
+      //         notifier.updateField('date', picked.toIso8601String());
+      //       }
+      //     },
+      //     child: AbsorbPointer(
+      //       child: AppTextField(
+      //         isPreviewMode: isPreviewMode,
+      //         hintText: form.date.isEmpty
+      //             ? 'Select date'
+      //             : form.date.split('T').first,
+      //         initialValue: form.date.isEmpty ? '' : form.date.split('T').first,
+      //         validateBorder: validateOffenderViolationDateBorder,
+      //         readOnly: true,
+      //         keyboardType: TextInputType.datetime,
+      //         suffix: Icon(
+      //           Icons.calendar_today,
+      //           color: AppColors.onBackgroundSurface2,
+      //           size: context.wp(4),
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // if (validateOffenderViolationDateBorder && form.date.isEmpty)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please choose a date',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // // — Zone dropdown
+      // Padding(
+      //   padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+      //   child: _row('Select Zone *', form.zone?.name ?? '', context.wp),
+      // ),
+      // Visibility(
+      //   visible: !isPreviewMode,
+      //   child: AppDropdownField<DropdownOption>(
+      //     isPreviewMode: isPreviewMode,
+      //     value: form.zone,
+      //     items: dropdownItemBuilder(form.zoneOptions),
+      //     selectedItemBuilder: (_) => selectedBuilder(form.zoneOptions),
+      //     hintText: 'Choose zone',
+      //     validateBorder: validateOffenderZoneBorder,
+      //     onChanged: (v) async {
+      //       if (!validateOffenderZoneBorder) {
+      //         validateOffenderZoneBorder = true;
+      //       }
+      //       // await notifier.updateField('command', null);
+      //       await notifier.updateField('zone', v!);
+      //     },
+      //   ),
+      // ),
+      // if (validateOffenderZoneBorder && form.zone == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a zone',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // // — Command dropdown
+      // Padding(
+      //   padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+      //   child: _row('Select Command *', form.command?.name ?? '', context.wp),
+      // ),
+      // Visibility(
+      //   visible: !isPreviewMode,
+      //   child: AppDropdownField<DropdownOption>(
+      //     isProcessing: form.isCommandLoading,
+      //     isPreviewMode: isPreviewMode,
+      //     value: form.command,
+      //     items: dropdownItemBuilder(form.commandOptions),
+      //     selectedItemBuilder: (_) => selectedBuilder(form.commandOptions),
+      //     hintText: 'Choose command',
+      //     validateBorder: validateOffenderCommandBorder,
+      //     onChanged: (v) {
+      //       if (!validateOffenderCommandBorder) {
+      //         validateOffenderCommandBorder = true;
+      //       }
+      //       notifier.updateField('command', v!);
+      //     },
+      //   ),
+      // ),
+      // if (validateOffenderCommandBorder && form.command == null)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please select a command',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // — First name
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: _row('Offender First Name *', form.firstName, context.wp),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: AppTextField(
+          isPreviewMode: isPreviewMode,
+          hintText: form.firstName ?? 'Olukunle',
+          initialValue: form.firstName,
+          validateBorder: validateOffenderFirstNameBorder,
+          onChanged: (v) {
+            if (!validateOffenderFirstNameBorder) {
+              validateOffenderFirstNameBorder = true;
+            }
+            notifier.updateField('firstName', v);
+          },
+          enabled: false,
+        ),
+      ),
+      // if (validateOffenderFirstNameBorder && form.firstName.isEmpty)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please enter first name',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // — Surname
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: _row('Offender Surname *', form.surname, context.wp),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: AppTextField(
+          isPreviewMode: isPreviewMode,
+          hintText: form.surname ?? 'Oyewumi',
+          initialValue: form.surname,
+          validateBorder: validateOffenderSurnameBorder,
+          onChanged: (v) {
+            if (!validateOffenderSurnameBorder) {
+              validateOffenderSurnameBorder = true;
+            }
+            notifier.updateField('surname', v);
+          },
+          enabled: false,
+        ),
+      ),
+      // if (validateOffenderSurnameBorder && form.surname.isEmpty)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please enter surname',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // — Phone
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: _row('Offender Phone *', form.phone, context.wp),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: AppTextField(
+          isPreviewMode: isPreviewMode,
+          hintText: form.phone ?? '+234 81...',
+          initialValue: form.phone,
+          keyboardType: TextInputType.phone,
+          validateBorder: validateOffenderPhoneBorder,
+          onChanged: (v) {
+            if (!validateOffenderPhoneBorder) {
+              validateOffenderPhoneBorder = true;
+            }
+            notifier.updateField('phone', v);
+          },
+          enabled: false,
+        ),
+      ),
+      // if (validateOffenderPhoneBorder && form.phone.isEmpty)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please enter phone number',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // — Phone
+      Padding(
+        padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
+        child: _row('Offender Email Address *', form.phone, context.wp),
+      ),
+      Visibility(
+        visible: !isPreviewMode,
+        child: AppTextField(
+          isPreviewMode: isPreviewMode,
+          hintText: form.email ?? 'jane.doe@me.com',
+          initialValue: form.email,
+          keyboardType: TextInputType.emailAddress,
+          validateBorder: validateOffenderEmailBorder,
+          onChanged: (v) {
+            if (!validateOffenderEmailBorder) {
+              validateOffenderEmailBorder = true;
+            }
+            notifier.updateField('email', v);
+          },
+          enabled: false,
+        ),
+      ),
+      // if (validateOffenderEmailBorder && form.email.isEmpty)
+      //   Padding(
+      //     padding: EdgeInsets.only(top: context.hp(0.5)),
+      //     child: Text(
+      //       'Please enter an email address',
+      //       style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
+      //     ),
+      //   ),
+
+      // END
     ];
     return !isPreviewMode
         ? ListView(
@@ -1401,20 +2068,31 @@ class _State extends ConsumerState<CreateViolationScreen> {
             borderRadius: BorderRadius.circular(context.wp(2)),
             color: AppColors.surface,
           ),
-          child: _offenderStep(ref, form, notifier, isPreviewMode: true),
-        ),
-        const SizedBox(height: 15),
-
-        Container(
-          padding: EdgeInsets.all(context.wp(3)),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(context.wp(2)),
-            color: AppColors.surface,
+          child: //_offenderStep(ref, form, notifier, isPreviewMode: true),
+          _offenderVehicleStep(
+            ref,
+            form,
+            notifier,
+            isPreviewMode: true,
           ),
-          child: _vehicleStep(ref, form, notifier, isPreviewMode: true),
         ),
         const SizedBox(height: 15),
 
+        // Container(
+        //   padding: EdgeInsets.all(context.wp(3)),
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(context.wp(2)),
+        //     color: AppColors.surface,
+        //   ),
+        //   child: //_vehicleStep(ref, form, notifier, isPreviewMode: true),
+        //   _offenderVehicleStep(
+        //     ref,
+        //     form,
+        //     notifier,
+        //     isPreviewMode: true,
+        //   ),
+        // ),
+        // const SizedBox(height: 15),
         Container(
           padding: EdgeInsets.all(context.wp(3)),
           decoration: BoxDecoration(

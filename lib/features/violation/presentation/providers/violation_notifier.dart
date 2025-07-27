@@ -150,6 +150,9 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       case 'phone':
         updated = form.copyWith(phone: val);
         break;
+      case 'email':
+        updated = form.copyWith(email: val);
+        break;
       case 'plate':
         updated = form.copyWith(plate: val);
         break;

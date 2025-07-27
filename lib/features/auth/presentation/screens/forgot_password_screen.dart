@@ -177,36 +177,29 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                         ),
                       ),
 
+                      SizedBox(height: hp(3)),
                       Image.asset(
-                        AppAssets.passwordReset,
-                        width: wp(24),
-                        height: hp(12),
+                        AppAssets.passwordResetEmail,
+                        fit: BoxFit.cover,
+                        // width: wp(24),
+                        height: hp(20),
                       ),
 
                       SizedBox(height: hp(2)),
-                      Text(
-                        'Reset link sent!',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: hp(1)),
-                      Text(
-                        'A link has been sent to\n'
-                        '${state.email.trim().replaceAllMapped(RegExp(r"(.{3})(.*)(@)"), (m) => "${m[1]}***")}',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.onBackgroundSurface,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: wp(3)),
+                        child: Text(
+                          'A reset link has been sent to\n'
+                          '${state.email.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}. '
+                          'Click the link to reset your password.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.onSurface),
                         ),
                       ),
+                      SizedBox(height: hp(2)),
 
-                      SizedBox(height: hp(3)),
-                      Text(
-                        'Click the link to reset your password',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.onBackgroundSurface,
-                          fontSize: 12,
-                        ),
-                      ),
+                      // SizedBox(height: hp(3)),
                       // ElevatedButton(
                       //   onPressed: () {
                       //     notifier.reset();

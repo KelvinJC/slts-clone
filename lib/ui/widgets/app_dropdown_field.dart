@@ -63,7 +63,9 @@ class AppDropdownField<T> extends StatelessWidget {
               : AppColors.onBackgroundSurface2)
         : ((value == null && enabled)
               ? AppColors.error
-              : enabledBorderColor ?? AppColors.primary);
+              : (!enabled
+                    ? AppColors.onBackgroundSurface2
+                    : enabledBorderColor ?? AppColors.primary));
     final previewBorder = OutlineInputBorder(
       borderRadius: BorderRadius.zero,
       borderSide: BorderSide.none,
@@ -74,7 +76,7 @@ class AppDropdownField<T> extends StatelessWidget {
       value: value,
       items: items,
       selectedItemBuilder: selectedItemBuilder,
-      onChanged: enabled && !isPreviewMode ? onChanged : (v) => {},
+      onChanged: (enabled && !isPreviewMode) ? onChanged : null, //(v) => {},
       padding: EdgeInsets.zero,
       decoration: InputDecoration(
         hintText: isPreviewMode ? '' : hintText,
@@ -93,7 +95,9 @@ class AppDropdownField<T> extends StatelessWidget {
         filled: true,
         fillColor: isPreviewMode
             ? Colors.transparent
-            : Theme.of(context).colorScheme.surface,
+            : (!enabled
+                  ? AppColors.surface.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surface),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
           borderSide: BorderSide.none,
@@ -113,7 +117,7 @@ class AppDropdownField<T> extends StatelessWidget {
         disabledBorder: previewBorder,
       ),
       style: TextStyle(color: AppColors.onBackground, fontSize: wp(3.8)),
-      icon: isPreviewMode
+      icon: isPreviewMode || !enabled
           ? SizedBox.shrink()
           : Padding(
               padding: EdgeInsets.only(right: wp(1.2)),
@@ -131,7 +135,7 @@ class AppDropdownField<T> extends StatelessWidget {
             ),
     );
 
-    if (isPreviewMode) {
+    if (isPreviewMode || !enabled) {
       // Block taps (so no menu), but keep your 'enabled' look
       return AbsorbPointer(child: dropdown);
     }

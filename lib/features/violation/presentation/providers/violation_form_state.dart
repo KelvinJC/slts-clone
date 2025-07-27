@@ -48,6 +48,7 @@ class ViolationFormState {
   final String firstName;
   final String surname;
   final String phone;
+  final String email;
   final String plate;
   final DropdownOption? plateType;
   // final String? plateTypeId;
@@ -83,6 +84,7 @@ class ViolationFormState {
     this.firstName = '',
     this.surname = '',
     this.phone = '',
+    this.email = '',
     this.plate = '',
     this.plateType,
     this.plateColor,
@@ -117,6 +119,7 @@ class ViolationFormState {
     String? firstName,
     String? surname,
     String? phone,
+    String? email,
     String? plate,
     DropdownOption? plateType,
     DropdownOption? plateColor,
@@ -147,6 +150,7 @@ class ViolationFormState {
       firstName: firstName ?? this.firstName,
       surname: surname ?? this.surname,
       phone: phone ?? this.phone,
+      email: email ?? this.email,
       plate: plate ?? this.plate,
       plateType: plateType ?? this.plateType,
       plateColor: plateColor ?? this.plateColor,

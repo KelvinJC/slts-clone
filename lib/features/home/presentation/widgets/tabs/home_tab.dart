@@ -3,13 +3,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+// import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
-import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
+// import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 
 import '../action_card.dart';
 
@@ -29,6 +30,8 @@ class _State extends ConsumerState<HomeTab> {
     final wp = context.wp;
     final hp = context.hp;
     final avatarSize = wp(14);
+    final runState = ref.watch(runPlateProvider);
+    final runCtrl = ref.read(runPlateProvider.notifier);
 
     return Stack(
       children: [
@@ -44,10 +47,36 @@ class _State extends ConsumerState<HomeTab> {
                 _buildTopBar(context, wp, hp, avatarSize, wp(0.5), authState),
                 SizedBox(height: hp(4)),
                 AppTextField(
+                  focusNode: runCtrl.focusNode,
+                  controller: runCtrl.controller,
                   hintText: 'Run plate number...',
-                  readOnly: true,
                   showSearchIcon: true,
-                  onTap: () => Navigator.pushNamed(context, '/search'),
+                  isProcessing: runState.loading,
+                  // onChanged: (v) => runCtrl.setPlate(v),
+                  onSubmitted: (val) {
+                    FocusScope.of(context).unfocus();
+                    // schedule the search after build is over:
+                    Future.microtask(() {
+                      if (val.trim().isNotEmpty) {
+                        runCtrl.search().then((_) {
+                          print(runState.results?.length);
+                          if (runState.results == null ||
+                              runState.results!.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('No results found for "$val"'),
+                              ),
+                            );
+                          } else {
+                            Navigator.pushNamed(context, '/search');
+                          }
+                        });
+                      }
+                    });
+                  },
+                  // onTap: () => Navigator.push
+                  //
+                  //Named(context, '/search'),
                 ),
                 SizedBox(height: hp(3.5)),
                 Row(
@@ -62,7 +91,7 @@ class _State extends ConsumerState<HomeTab> {
                     SizedBox(width: wp(5)),
                     Expanded(
                       child: ActionCard(
-                        asset: AppAssets.violation,
+                        asset: AppAssets.createJob,
                         label: 'Create Violation',
                         onTap: () =>
                             Navigator.pushNamed(context, '/createViolation'),

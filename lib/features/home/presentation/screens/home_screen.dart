@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/core/utils/ocr_utils.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/search/presentation/screens/search_screen.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -60,18 +61,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildGradientFAB(BuildContext ctx, double Function(double) wp) {
+    final notifier = ref.read(runPlateProvider.notifier);
     return FloatingActionButton(
       onPressed: () {
         detectPlateAndNavigate(
           context,
           onSelected: (plate) {
-            // navigate to SearchScreen, passing initial value
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => SearchScreen(initialQuery: plate),
-              ),
-            );
+            print(plate);
+            // // navigate to SearchScreen, passing initial value
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (_) => SearchScreen(initialQuery: plate),
+            //   ),
+            // );
+            setState(() {
+              notifier.setPlate(plate);
+            });
           },
         );
       },
@@ -141,6 +147,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     double Function(double) wp,
     double Function(double) hp,
   ) {
+    final notifier = ref.read(runPlateProvider.notifier);
+
     return BottomAppBar(
       height: hp(7),
       color: AppColors.surface,
@@ -168,13 +176,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 detectPlateAndNavigate(
                   context,
                   onSelected: (plate) {
-                    // navigate to SearchScreen, passing initial value
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SearchScreen(initialQuery: plate),
-                      ),
-                    );
+                    print(plate);
+                    // // navigate to SearchScreen, passing initial value
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (_) => SearchScreen(initialQuery: plate),
+                    //   ),
+                    // );
+                    setState(() {
+                      notifier.setPlate(plate);
+                    });
                   },
                 );
               },
