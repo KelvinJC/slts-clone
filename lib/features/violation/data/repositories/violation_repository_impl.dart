@@ -46,7 +46,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
       }
 
       return response.data.map((m) => m.toEntity()).toList();
-    });
+    }, attempts: 2);
   }
 
   List<DropdownOption> _toOptions(

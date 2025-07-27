@@ -59,7 +59,7 @@ class _State extends ConsumerState<HomeTab> {
                     Future.microtask(() {
                       if (val.trim().isNotEmpty) {
                         runCtrl.search().then((_) {
-                          print(runState.results?.length);
+                          // print(runState.results?.length);
                           if (runState.results == null ||
                               runState.results!.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(

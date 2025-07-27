@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
 import 'package:slts_enforcer_app/features/sync/data/models/violation_model.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/violation_hive_model.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_dropdown_field.dart';
@@ -27,7 +28,8 @@ enum ViolationStep {
 }
 
 class CreateViolationScreen extends ConsumerStatefulWidget {
-  const CreateViolationScreen({super.key});
+  final Violation? violation;
+  const CreateViolationScreen({super.key, this.violation});
 
   @override
   ConsumerState<CreateViolationScreen> createState() => _State();
@@ -35,27 +37,31 @@ class CreateViolationScreen extends ConsumerStatefulWidget {
 
 class _State extends ConsumerState<CreateViolationScreen> {
   ViolationStep _step = ViolationStep.vehicleOffender;
-  var validateOffenderOffenceBorder = false,
-      validateOffenderEventTypeBorder = false,
-      validateOffenderViolationDateBorder = false,
-      validateOffenderZoneBorder = false,
-      validateOffenderCommandBorder = false,
-      validateOffenderFirstNameBorder = false,
-      validateOffenderSurnameBorder = false,
-      validateOffenderPhoneBorder = false,
-      validateOffenderEmailBorder = false,
-      validateVehiclePlateBorder = false,
-      validateVehicleTypeBorder = false,
-      validateVehiclePlateColorBorder = false,
-      validateVehicleBrandBorder = false,
-      validateVehicleVehicleTypeBorder = false,
-      validateVehicleColorBorder = false;
+  var
+      // validateOffenderOffenceBorder = false,
+      // validateOffenderEventTypeBorder = false,
+      // validateOffenderViolationDateBorder = false,
+      // validateOffenderZoneBorder = false,
+      // validateOffenderCommandBorder = false,
+      // validateOffenderFirstNameBorder = false,
+      // validateOffenderSurnameBorder = false,
+      // validateOffenderPhoneBorder = false,
+      // validateOffenderEmailBorder = false,
+      validateVehiclePlateBorder =
+      false;
+  // validateVehicleTypeBorder = false,
+  // validateVehiclePlateColorBorder = false,
+  // validateVehicleBrandBorder = false,
+  // validateVehicleVehicleTypeBorder = false,
+  // validateVehicleColorBorder = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(violationNotifierProvider.notifier).loadSettings(),
+      (_) => ref
+          .read(violationNotifierProvider.notifier)
+          .loadSettings(v: widget.violation),
     );
   }
 
@@ -81,9 +87,28 @@ class _State extends ConsumerState<CreateViolationScreen> {
   //       form.vehicleColor != null;
   // }
 
-  bool isVehicleOffenderDetailsValid() {
+  Future<bool> isVehicleOffenderDetailsValid() async {
     final form = ref.read(violationNotifierProvider);
-    return form.plate.isNotEmpty; // &&
+    final notifier = ref.read(violationNotifierProvider.notifier);
+    if (notifier.plateNoController.text.isEmpty) return false;
+    if (notifier.plateNoController.text.trim() == form.plate.trim()) {
+      return true;
+    }
+
+    FocusScope.of(context).unfocus();
+    await notifier.search(isNext: true);
+    if (notifier.list.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No results found for "${notifier.plateNoController.text}"',
+          ),
+        ),
+      );
+    }
+    return notifier.list.isNotEmpty;
+    // return //notifier.plateNoController.text.isNotEmpty &&
+    // notifier.list.isNotEmpty; // &&
     // form.plateType != null &&
     // form.plateColor != null &&
     // form.brand != null &&
@@ -99,10 +124,9 @@ class _State extends ConsumerState<CreateViolationScreen> {
     // form.surname.isNotEmpty &&
     // form.phone.isNotEmpty &&
     // form.email.isNotEmpty;
-    ;
   }
 
-  void _next() => setState(() {
+  void _next() async {
     // if (_step == ViolationStep.offender) {
     //   if (!isOffenderDetailsValid()) {
     //     validateOffenderOffenceBorder = true;
@@ -130,24 +154,28 @@ class _State extends ConsumerState<CreateViolationScreen> {
     // }
 
     if (_step == ViolationStep.vehicleOffender) {
-      if (!isVehicleOffenderDetailsValid()) {
-        validateVehiclePlateBorder = true;
-        // validateVehicleTypeBorder = true;
-        // validateVehiclePlateColorBorder = true;
-        // validateVehicleBrandBorder = true;
-        // validateVehicleVehicleTypeBorder = true;
-        // validateVehicleColorBorder = true;
-        //
-        // validateOffenderOffenceBorder = true;
-        // validateOffenderEventTypeBorder = true;
-        // validateOffenderViolationDateBorder = true;
-        // validateOffenderZoneBorder = true;
-        // validateOffenderCommandBorder = true;
-        // validateOffenderFirstNameBorder = true;
-        // validateOffenderSurnameBorder = true;
-        // validateOffenderPhoneBorder = true;
-        // validateOffenderEmailBorder = true;
-        return; // Prevent moving to next step if validation fails
+      final isVehicleOffenderValid = await isVehicleOffenderDetailsValid();
+      if (!isVehicleOffenderValid) {
+        setState(() {
+          validateVehiclePlateBorder = true;
+          // validateVehicleTypeBorder = true;
+          // validateVehiclePlateColorBorder = true;
+          // validateVehicleBrandBorder = true;
+          // validateVehicleVehicleTypeBorder = true;
+          // validateVehicleColorBorder = true;
+          //
+          // validateOffenderOffenceBorder = true;
+          // validateOffenderEventTypeBorder = true;
+          // validateOffenderViolationDateBorder = true;
+          // validateOffenderZoneBorder = true;
+          // validateOffenderCommandBorder = true;
+          // validateOffenderFirstNameBorder = true;
+          // validateOffenderSurnameBorder = true;
+          // validateOffenderPhoneBorder = true;
+          // validateOffenderEmailBorder = true;
+          // Prevent moving to next step if validation fails
+        });
+        return;
       }
     }
 
@@ -160,9 +188,11 @@ class _State extends ConsumerState<CreateViolationScreen> {
       }
     }
 
-    _step = ViolationStep
-        .values[(_step.index + 1).clamp(0, ViolationStep.values.length - 1)];
-  });
+    setState(() {
+      _step = ViolationStep
+          .values[(_step.index + 1).clamp(0, ViolationStep.values.length - 1)];
+    });
+  }
 
   void _back({ViolationStep? step}) => setState(() {
     _step =
@@ -182,7 +212,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
     if (
     // !isOffenderDetailsValid() ||
     //   !isVehicleDetailsValid() ||
-    !isVehicleOffenderDetailsValid() || form.mediaPaths.isEmpty) {
+    !await isVehicleOffenderDetailsValid() || form.mediaPaths.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all steps')),
       );
@@ -1144,26 +1174,51 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Plate Number (text)
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Enter Plate Number *', form.plate, context.wp),
+        child: _row(
+          'Enter Plate Number *',
+          notifier.plateNoController.text,
+          context.wp,
+        ),
       ),
       Visibility(
         visible: !isPreviewMode,
         child: AppTextField(
           isPreviewMode: isPreviewMode,
-          hintText: 'KSF-622AE',
-          initialValue: form.plate,
+          hintText: notifier.plateNoController.text ?? 'KSF-622AE',
+          // initialValue: notifier.plateNoController.text,
+          focusNode: notifier.plateNoFocusNode,
+          controller: notifier.plateNoController,
+          isProcessing: form.plateNoLoading,
           validateBorder: validateVehiclePlateBorder,
-          onChanged: (v) {
-            if (!validateVehiclePlateBorder) validateVehiclePlateBorder = true;
-            notifier.updateField('plate', v);
+          // onChanged: (v) {
+          //   if (!validateVehiclePlateBorder) validateVehiclePlateBorder = true;
+          //   notifier.updateField('plate', v);
+          // },
+          onSubmitted: (val) {
+            FocusScope.of(context).unfocus();
+            // schedule the search after build is over:
+            Future.microtask(() {
+              if (val.trim().isNotEmpty) {
+                notifier.search().then((_) {
+                  if (notifier.list.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('No results found for "$val"')),
+                    );
+                  }
+                });
+              }
+            });
           },
         ),
       ),
-      if (validateVehiclePlateBorder && form.plate.isEmpty)
+      if (validateVehiclePlateBorder &&
+          (notifier.plateNoController.text.isEmpty || notifier.list.isEmpty))
         Padding(
           padding: EdgeInsets.only(top: context.hp(0.5)),
           child: Text(
-            'Please enter a plate number',
+            notifier.plateNoController.text.isEmpty
+                ? 'Please enter a plate number'
+                : 'Please enter a valid plate number',
             style: TextStyle(color: AppColors.error, fontSize: context.wp(3)),
           ),
         ),
@@ -1181,10 +1236,10 @@ class _State extends ConsumerState<CreateViolationScreen> {
           items: dropdownItemBuilder(form.plateTypeOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.plateTypeOptions),
           hintText: form.plateType?.name ?? 'Choose plate type',
-          validateBorder: validateVehicleTypeBorder,
+          // validateBorder: validateVehicleTypeBorder,
           onChanged: (v) {
-            if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
-            notifier.updateField('plateType', v!);
+            // if (!validateVehicleTypeBorder) validateVehicleTypeBorder = true;
+            // notifier.updateField('plateType', v!);
           },
           enabled: false,
         ),
@@ -1211,12 +1266,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           items: dropdownItemBuilder(form.plateColorOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.plateColorOptions),
           hintText: form.plateColor?.name ?? 'Choose plate color',
-          validateBorder: validateVehiclePlateColorBorder,
+          // validateBorder: validateVehiclePlateColorBorder,
           onChanged: (v) {
-            if (!validateVehiclePlateColorBorder) {
-              validateVehiclePlateColorBorder = true;
-            }
-            notifier.updateField('plateColor', v!);
+            // if (!validateVehiclePlateColorBorder) {
+            //   validateVehiclePlateColorBorder = true;
+            // }
+            // notifier.updateField('plateColor', v!);
           },
           enabled: false,
         ),
@@ -1243,10 +1298,10 @@ class _State extends ConsumerState<CreateViolationScreen> {
           items: dropdownItemBuilder(form.vehicleBrandOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleBrandOptions),
           hintText: form.brand?.name ?? 'Choose brand',
-          validateBorder: validateVehicleBrandBorder,
+          // validateBorder: validateVehicleBrandBorder,
           onChanged: (v) {
-            if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
-            notifier.updateField('brand', v!);
+            // if (!validateVehicleBrandBorder) validateVehicleBrandBorder = true;
+            // notifier.updateField('brand', v!);
           },
           enabled: false,
         ),
@@ -1273,12 +1328,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           items: dropdownItemBuilder(form.vehicleTypeOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleTypeOptions),
           hintText: form.vehicleType?.name ?? 'Choose vehicle type',
-          validateBorder: validateVehicleVehicleTypeBorder,
+          // validateBorder: validateVehicleVehicleTypeBorder,
           onChanged: (v) {
-            if (!validateVehicleVehicleTypeBorder) {
-              validateVehicleVehicleTypeBorder = true;
-            }
-            notifier.updateField('vehicleType', v!);
+            // if (!validateVehicleVehicleTypeBorder) {
+            //   validateVehicleVehicleTypeBorder = true;
+            // }
+            // notifier.updateField('vehicleType', v!);
           },
           enabled: false,
         ),
@@ -1309,10 +1364,10 @@ class _State extends ConsumerState<CreateViolationScreen> {
           items: dropdownItemBuilder(form.vehicleColorOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.vehicleColorOptions),
           hintText: form.vehicleColor?.name ?? 'Choose vehicle color',
-          validateBorder: validateVehicleColorBorder,
+          // validateBorder: validateVehicleColorBorder,
           onChanged: (v) {
-            if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
-            notifier.updateField('vehicleColor', v!);
+            // if (!validateVehicleColorBorder) validateVehicleColorBorder = true;
+            // notifier.updateField('vehicleColor', v!);
           },
           enabled: false,
         ),
@@ -1578,12 +1633,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           isPreviewMode: isPreviewMode,
           hintText: form.firstName ?? 'Olukunle',
           initialValue: form.firstName,
-          validateBorder: validateOffenderFirstNameBorder,
+          // validateBorder: validateOffenderFirstNameBorder,
           onChanged: (v) {
-            if (!validateOffenderFirstNameBorder) {
-              validateOffenderFirstNameBorder = true;
-            }
-            notifier.updateField('firstName', v);
+            // if (!validateOffenderFirstNameBorder) {
+            //   validateOffenderFirstNameBorder = true;
+            // }
+            // notifier.updateField('firstName', v);
           },
           enabled: false,
         ),
@@ -1608,12 +1663,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           isPreviewMode: isPreviewMode,
           hintText: form.surname ?? 'Oyewumi',
           initialValue: form.surname,
-          validateBorder: validateOffenderSurnameBorder,
+          // validateBorder: validateOffenderSurnameBorder,
           onChanged: (v) {
-            if (!validateOffenderSurnameBorder) {
-              validateOffenderSurnameBorder = true;
-            }
-            notifier.updateField('surname', v);
+            // if (!validateOffenderSurnameBorder) {
+            //   validateOffenderSurnameBorder = true;
+            // }
+            // notifier.updateField('surname', v);
           },
           enabled: false,
         ),
@@ -1639,12 +1694,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           hintText: form.phone ?? '+234 81...',
           initialValue: form.phone,
           keyboardType: TextInputType.phone,
-          validateBorder: validateOffenderPhoneBorder,
+          // validateBorder: validateOffenderPhoneBorder,
           onChanged: (v) {
-            if (!validateOffenderPhoneBorder) {
-              validateOffenderPhoneBorder = true;
-            }
-            notifier.updateField('phone', v);
+            // if (!validateOffenderPhoneBorder) {
+            //   validateOffenderPhoneBorder = true;
+            // }
+            // notifier.updateField('phone', v);
           },
           enabled: false,
         ),
@@ -1670,12 +1725,12 @@ class _State extends ConsumerState<CreateViolationScreen> {
           hintText: form.email ?? 'jane.doe@me.com',
           initialValue: form.email,
           keyboardType: TextInputType.emailAddress,
-          validateBorder: validateOffenderEmailBorder,
+          // validateBorder: validateOffenderEmailBorder,
           onChanged: (v) {
-            if (!validateOffenderEmailBorder) {
-              validateOffenderEmailBorder = true;
-            }
-            notifier.updateField('email', v);
+            // if (!validateOffenderEmailBorder) {
+            //   validateOffenderEmailBorder = true;
+            // }
+            // notifier.updateField('email', v);
           },
           enabled: false,
         ),

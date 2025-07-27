@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/domain/repositories/violation_repository.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 import 'package:slts_enforcer_app/injection.dart';
@@ -11,11 +12,59 @@ import '../../../../core/errors/failures.dart';
 /// Manages form state + all dropdown loading + media + submission.
 class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final ViolationRepository _repo;
+  final TextEditingController plateNoController;
+  final FocusNode plateNoFocusNode;
+  List<Violation> list = [];
   final LocalStorage _storage;
 
   ViolationNotifier(this._repo, this._storage)
-    : super(ViolationFormState.initial()) {
+    : plateNoController = TextEditingController(),
+      plateNoFocusNode = FocusNode(),
+      super(ViolationFormState.initial()) {
     // _loadAllSettings();
+  }
+
+  Future<void> search({bool isNext = false}) async {
+    final plate = plateNoController.text.trim();
+    if (plate.isEmpty) return;
+
+    if (plate == state.plate) {
+      // No change, skip search
+      return;
+    }
+
+    if (!isNext) {
+      // clear state
+      resetFormFields();
+    }
+
+    state = state.copyWith(plateNoLoading: true, error: null);
+    try {
+      list = await _repo.runPlateNumber(plate);
+      if (list.isNotEmpty) {
+        await loadSettings(v: list.first, skipLoading: true);
+      } else {
+        // clear state
+        resetFormFields();
+      }
+      state = state.copyWith(plateNoLoading: false);
+    } on Failure catch (f) {
+      if (isNext) {
+        // clear state
+        resetFormFields();
+      }
+      state = state.copyWith(
+        plateNoLoading: false,
+        // error: f
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    plateNoFocusNode.dispose();
+    plateNoController.dispose();
+    super.dispose();
   }
 
   /// 1) Fetch all “settings” lists from the server on startup.
@@ -153,9 +202,9 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       case 'email':
         updated = form.copyWith(email: val);
         break;
-      case 'plate':
-        updated = form.copyWith(plate: val);
-        break;
+      // case 'plate':
+      //   updated = form.copyWith(plate: val);
+      //   break;
       case 'plateType':
         updated = form.copyWith(plateType: val);
         break;
@@ -291,34 +340,66 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   /// Clears *only* the user‐entered fields and media, but preserves all the
   /// pre‐loaded settings lists (offenceOptions, zoneOptions, etc).
   void resetFormFields() {
-    final form = state;
-    state = form.copyWith(
-      offence: null,
-      eventType: null,
-      date: '',
-      zone: null,
-      command: null,
+    // plateNoController.clear();
+    list.clear();
+    state = state.copyWith(
+      plateType: DropdownOption.empty(),
+      plateColor: DropdownOption.empty(),
+      brand: DropdownOption.empty(),
+      vehicleType: DropdownOption.empty(),
+      vehicleColor: DropdownOption.empty(),
+      //
       firstName: '',
       surname: '',
       phone: '',
-      plate: '',
-      plateType: null,
-      plateColor: null,
-      brand: null,
-      vehicleType: null,
-      vehicleColor: null,
-      mediaPaths: [],
+      email: '',
+      // OBSOLETE
+      offence: DropdownOption.empty(),
+      eventType: DropdownOption.empty(),
+      date: '',
+      zone: DropdownOption.empty(),
+      command: DropdownOption.empty(),
     );
   }
 
   void resetErrors() {
-    final form = state;
-    state = form.copyWith(error: null, loading: false);
+    print('Resetting errors');
+    state = state.copyWith(error: null, loading: false);
   }
 
-  Future<void> loadSettings() async {
-    state = state.copyWith(loading: true, error: null);
-    await _loadAllSettings();
+  Future<void> loadSettings({Violation? v, bool skipLoading = false}) async {
+    state = state.copyWith(loading: skipLoading ? false : true, error: null);
+    if (v != null) {
+      // Set the plate number in the controller
+      plateNoController.clear();
+      plateNoController.text = v.plateNumber;
+
+      // Clear the list and add the selected violation
+      list.clear();
+      list = [v];
+
+      state = state.copyWith(
+        plate: v.plateNumber,
+        plateType: DropdownOption(v.plateTypeId, v.plateTypeName),
+        plateColor: DropdownOption(v.plateColorId, v.plateColorName),
+        brand: DropdownOption(v.vehicleBrandId, v.vehicleBrandName),
+        vehicleType: DropdownOption(v.vehicleTypeId, v.vehicleTypeName),
+        vehicleColor: DropdownOption(v.vehicleColorId, v.vehicleColorName),
+        //
+        firstName: v.firstName,
+        surname: v.surname,
+        phone: v.phoneNumber,
+        email: v.emailAddress,
+        // OBSOLETE
+        offence: DropdownOption(v.offenceId, v.offenceName),
+        eventType: DropdownOption(v.eventTypeId, v.eventTypeName),
+        date: v.violationDate.toIso8601String(),
+        zone: DropdownOption(v.zoneId, v.zoneName),
+        command: DropdownOption(v.commandId, v.commandName),
+      );
+    } else {
+      await _loadAllSettings();
+    }
     state = state.copyWith(loading: false, error: null);
   }
 }

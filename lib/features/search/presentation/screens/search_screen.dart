@@ -4,6 +4,7 @@ import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
 // import 'package:slts_enforcer_app/features/search/presentation/screens/search_result_screen.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/create_violation_screen.dart';
 // import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
@@ -73,7 +74,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Scaffold(
         // Show pay/create action bar only when we have results
         bottomNavigationBar: runState.results != null
-            ? _buildActionRow(wp, hp)
+            ? _buildActionRow(wp, hp, runState)
             : null,
         body: Stack(
           children: [
@@ -615,6 +616,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget _buildActionRow(
     double Function(double) wp,
     double Function(double) hp,
+    RunPlateState runState,
   ) {
     final anySelected = _selectedIds.isNotEmpty;
 
@@ -669,7 +671,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: GestureDetector(
               onTap: !anySelected
                   ? () {
-                      Navigator.pushNamed(context, '/createViolation');
+                      // Navigator.pushNamed(context, '/createViolation');
+                      final v = runState.results?.first;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CreateViolationScreen(violation: v),
+                        ),
+                      );
                     }
                   : null,
               child: Container(

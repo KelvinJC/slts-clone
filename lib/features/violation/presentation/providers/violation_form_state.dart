@@ -26,6 +26,8 @@ class DropdownOption {
 
   @override
   String toString() => 'DropdownOption(id: $id, name: $name)';
+
+  static empty() => const DropdownOption(0, '');
 }
 
 /// Holds the in‑progress form data.
@@ -34,6 +36,7 @@ class ViolationFormState {
   final bool loading;
   final ViolationHiveModel? violationModel;
   final bool isCommandLoading;
+  final bool plateNoLoading;
 
   // — text fields
   final DropdownOption? offence;
@@ -102,6 +105,7 @@ class ViolationFormState {
     this.plateColorOptions = const [],
     this.plateTypeOptions = const [],
     this.isCommandLoading = false,
+    this.plateNoLoading = false,
     this.error,
     this.loading = false,
     this.violationModel,
@@ -137,6 +141,7 @@ class ViolationFormState {
     List<DropdownOption>? plateColorOptions,
     List<DropdownOption>? plateTypeOptions,
     bool? isCommandLoading,
+    bool? plateNoLoading,
     Failure? error,
     bool? loading,
     ViolationHiveModel? violationModel,
@@ -168,7 +173,9 @@ class ViolationFormState {
       plateColorOptions: plateColorOptions ?? this.plateColorOptions,
       plateTypeOptions: plateTypeOptions ?? this.plateTypeOptions,
       isCommandLoading: isCommandLoading ?? this.isCommandLoading,
-      error: error ?? this.error,
+      plateNoLoading: plateNoLoading ?? this.plateNoLoading,
+      // error: error ?? this.error,
+      error: error,
       loading: loading ?? this.loading,
       violationModel: violationModel ?? this.violationModel,
     );
