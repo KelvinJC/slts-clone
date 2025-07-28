@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:slts_enforcer_app/core/api/app_api.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
-import 'package:slts_enforcer_app/features/sync/data/models/violation_model.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/violation_hive_model.dart';
 import '../../domain/repositories/sync_repository.dart';
 
 /// The key under which we store pending violations in secure storage.
@@ -17,7 +17,7 @@ class SyncRepositoryImpl implements SyncRepository {
 
   /// Called by your create‑violation use‑case when offline:
   @override
-  Future<void> saveOfflineViolation(ViolationModel v) async {
+  Future<void> saveOfflineViolation(ViolationHiveModel v) async {
     // 1) Read existing list
     final raw = await _storage.read(_offlineKey) ?? '[]';
     final List<dynamic> list = jsonDecode(raw);

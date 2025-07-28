@@ -1,56 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/core/errors/failures.dart';
+import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
+import 'package:slts_enforcer_app/core/services/biometric_service.dart';
+import 'package:slts_enforcer_app/features/auth/domain/entities/user.dart';
+import 'package:slts_enforcer_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:slts_enforcer_app/injection.dart';
-import '../../../../core/errors/failures.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
 
 /// The various steps in the authentication flow.
 enum AuthStep {
-  /// Waiting for user to submit their email/password.
-  credentials,
-
-  /// Waiting for user to submit their one-time passcode (OTP).
-  otp,
-
-  /// Authentication complete; user is signed in.
+  credentials, // entering email/password
+  otp, // entering 2FA code
   authenticated,
 }
 
-/// Holds all of the state needed to drive the authentication UI.
+/// Holds all the state needed to drive the authentication UI.
 class AuthState {
-  /// Which part of the flow we are in.
   final AuthStep step;
-
-  /// Whether a network call is in progress.
   final bool loading;
-
-  /// The last error that occurred, if any.
   final Failure? error;
-
-  /// The authenticated user, once [step] == [AuthStep.authenticated].
   final User? user;
 
-  /// The email used in the credentials step (needed for OTP).
-  final String? email;
+  final String email;
+  final String password;
+  final bool obscureText;
+  // final String otp;
 
-  /// Constructs a new [AuthState].
-  ///
-  /// Defaults to the credentials step with no loading, no error, and no user.
   const AuthState({
     this.step = AuthStep.credentials,
     this.loading = false,
     this.error,
     this.user,
-    this.email,
+    this.email = '',
+    this.password = '',
+    this.obscureText = true,
+    // this.otp = '',
   });
 
-  /// Creates a copy of this [AuthState] but with the given fields replaced.
+  bool get emailValid {
+    final re = RegExp(r'^[\w-.]+@([\w-]+\.)+\w{2,4}$');
+    return re.hasMatch(email);
+  }
+
+  bool get passwordFilled => password.isNotEmpty;
+
   AuthState copyWith({
     AuthStep? step,
     bool? loading,
     Failure? error,
     User? user,
     String? email,
+    String? password,
+    bool? obscureText,
+    // String? otp,
   }) {
     return AuthState(
       step: step ?? this.step,
@@ -58,52 +59,59 @@ class AuthState {
       error: error,
       user: user ?? this.user,
       email: email ?? this.email,
+      password: password ?? this.password,
+      obscureText: obscureText ?? this.obscureText,
+      // otp: otp ?? this.otp,
     );
   }
 }
 
 /// A [StateNotifier] that manages the two-step authentication flow:
-/// 1) username/password → OTP
-/// 2) OTP → authenticated user
+/// 1) credentials → submit → OTP
+/// 2) OTP → submit → authenticated user
 class AuthNotifier extends StateNotifier<AuthState> {
-  /// The repository that performs the actual API calls.
   final AuthRepository _repo;
+  final LocalStorage _storage;
 
-  /// Creates a new [AuthNotifier], initializing state to [AuthState].
-  AuthNotifier(this._repo) : super(const AuthState());
+  AuthNotifier(this._repo, this._storage) : super(const AuthState());
 
-  /// Step 1: Send email & password to the server.
-  ///
-  /// On success, advances [state.step] to [AuthStep.otp] and stores the [email]
-  /// for the OTP step. On failure, captures the [Failure] in state.
-  Future<void> authenticate(String email, String password) async {
+  /// Called on every email change
+  void updateEmail(String email) {
+    state = state.copyWith(email: email, error: null);
+  }
+
+  /// Called on every password change
+  void updatePassword(String password) {
+    state = state.copyWith(password: password, error: null);
+  }
+
+  /// Called on every OTP change
+  // void updateOtp(String otp) {
+  //   state = state.copyWith(otp: otp, error: null);
+  // }
+
+  /// Toggle password field visibility
+  void togglePasswordVisibility() {
+    state = state.copyWith(obscureText: !state.obscureText);
+  }
+
+  /// Step 1: send email & password
+  Future<void> submitCredentials() async {
     state = state.copyWith(loading: true, error: null);
+
     try {
-      await _repo.authenticate(email, password);
-      state = state.copyWith(loading: false, step: AuthStep.otp, email: email);
+      await _repo.authenticate(state.email, state.password);
+      state = state.copyWith(loading: false, step: AuthStep.otp);
     } on Failure catch (f) {
       state = state.copyWith(loading: false, error: f);
     }
   }
 
-  /// Step 2: Send the OTP token and previously stored email.
-  ///
-  /// On success, advances [state.step] to [AuthStep.authenticated] and
-  /// stores the returned [User] in state. On failure, captures the [Failure].
+  /// Step 2: verify OTP (email was kept in state)
   Future<void> verifyOtp(String otp) async {
-    final email = state.email;
-    if (email == null) {
-      state = state.copyWith(
-        error: UnexpectedFailure(
-          rawMessage: 'Email is missing; please login again.',
-        ),
-      );
-      return;
-    }
-
     state = state.copyWith(loading: true, error: null);
     try {
-      final user = await _repo.verifyOtp(otp, email);
+      final user = await _repo.verifyOtp(otp, state.email);
       state = state.copyWith(
         loading: false,
         step: AuthStep.authenticated,
@@ -114,34 +122,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Resets the flow back to the initial credentials step.
-  void reset() {
-    state = const AuthState();
+  Future<void> loginWithBiometrics() async {
+    final useBio = await _storage.getUseBiometrics();
+    final token = await _storage.getAuthToken();
+    if (useBio && token != null) {
+      final ok = await BiometricService().authenticate();
+      if (!ok) return;
+
+      state = state.copyWith(loading: true, error: null);
+      try {
+        final user = await _repo.loginWithToken();
+        state = state.copyWith(
+          loading: false,
+          step: AuthStep.authenticated,
+          user: user,
+        );
+      } on Failure catch (f) {
+        state = state.copyWith(loading: false, error: f);
+      }
+    } else {
+      final error = UnexpectedFailure(rawMessage: 'Biometrics not enabled');
+      state = state.copyWith(loading: false, error: error);
+    }
   }
 }
 
-/// The provider for [AuthNotifier].
-///
-/// In your UI you can call:
-/// ```dart
-/// ref.read(authNotifierProvider.notifier).authenticate(email, password);
-/// ref.read(authNotifierProvider.notifier).verifyOtp(code);
-/// ```
-/// And watch:
-/// ```dart
-/// final authState = ref.watch(authNotifierProvider);
-/// ```
+/// Provider for [AuthNotifier] — UI can call its methods and watch [AuthState].
 final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-  (ref) => AuthNotifier(ref.read(authRepositoryProvider)),
+  (ref) => AuthNotifier(
+    ref.read(authRepositoryProvider),
+    ref.read(localStorageProvider),
+  ),
 );
-
-// final auth = ref.watch(authNotifierProvider);
-// final authCtrl = ref.read(authNotifierProvider.notifier);
-
-// if (auth.step == AuthStep.credentials) {
-//   // show LoginScreen, button calls authenticate(...)
-// } else if (auth.step == AuthStep.otp) {
-//   // show OtpScreen, button calls verifyOtp(...)
-// } else if (auth.step == AuthStep.authenticated) {
-//   // navigate to HomeScreen
-// }

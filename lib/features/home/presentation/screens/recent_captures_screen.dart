@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
+import 'package:slts_enforcer_app/ui/widgets/pagination_controls.dart';
 
 class RecentCapturesScreen extends ConsumerStatefulWidget {
   const RecentCapturesScreen({super.key});
@@ -16,142 +19,40 @@ class RecentCapturesScreen extends ConsumerStatefulWidget {
 
 class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
   int _filterIndex = 0; // 0=All,1=Paid,2=Not Paid
+  // final List<Violation> violations = [
+  //   Violation(
+  //     pcnNumber: 'PCN-002452',
+  //     plateNumber: 'ABC-1234XL',
+  //     offence: 'Speeding',
+  //     zone: 'Zone A',
+  //     date: DateTime.now(),
+  //     firstName: 'John',
+  //     surname: 'Doe',
+  //   ),
+  //   Violation(
+  //     pcnNumber: 'PCN-006752',
+  //     plateNumber: 'ABC-9034XJ',
+  //     offence: 'Illegal Parking',
+  //     zone: 'Zone B',
+  //     date: DateTime.now().subtract(Duration(days: 1)),
+  //     firstName: 'Jane',
+  //     surname: 'Smith',
+  //   ),
+  //   // …more sample data…
+  // ];
 
   @override
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
     final headers = [
-      const Text('PCN Number'),
-      const Text('Plate Number'),
-      const Text('Offence'),
-      const Text('Amount'),
-      const Text('Name'),
-      const Text('Age'),
-      const Text('Role'),
-      const Text('Status'),
-    ];
-    final rows = [
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Alice'),
-        const Text('28'),
-        const Text('Admin'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Bob'),
-        const Text('34'),
-        const Text('Director'),
-        const Text('Pending'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Charlie'),
-        const Text('22'),
-        const Text('Nurse'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
+      Text('PCN Number'),
+      Text('Plate Number'),
+      Text('Offence'),
+      Text('Zone'),
+      Text('Date'),
+      Text('First Name'),
+      Text('Surname'),
     ];
 
     return Scaffold(
@@ -210,39 +111,66 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: wp(4)),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(wp(2)),
-                          ),
-                          child: HtmlTable(
-                            headers: headers,
-                            rows: rows,
-                            columnWidths: [
-                              FixedColumnWidth(wp(30)),
-                              FixedColumnWidth(wp(30)),
-                              FixedColumnWidth(wp(30)),
-                              FixedColumnWidth(wp(30)),
-                              IntrinsicColumnWidth(),
-                              FixedColumnWidth(80),
-                              FixedColumnWidth(wp(30)),
-                              FixedColumnWidth(wp(30)),
-                            ],
-                            borderRadius: BorderRadius.circular(12),
-                            outerBorderColor: AppColors.onBackgroundSurface2,
-                            innerBorderColor: AppColors.onBackgroundSurface2,
-                            // cellWidth: 100,
-                            rowHeight: hp(3),
-                            cellPadding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 10,
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(wp(2)),
+                              ),
+                              child: SizedBox(),
+                              // HtmlTable<Violation>(
+                              //   headers: headers,
+                              //   rowData: violations,
+                              //   rowBuilder: (list) => list.map((v) {
+                              //     return [
+                              //       Text(v.pcnNumber),
+                              //       Text(v.plateNumber),
+                              //       Text(v.offence),
+                              //       Text(v.zone),
+                              //       Text(v.date.toLocal().toString().split(' ')[0]),
+                              //       Text(v.firstName),
+                              //       Text(v.surname),
+                              //     ];
+                              //   }).toList(),
+                              //   onRowTap: (v, index) {
+                              //     Navigator.of(context).push(
+                              //       MaterialPageRoute(
+                              //         builder: (_) =>
+                              //             ViolationReportScreen(violation: v),
+                              //       ),
+                              //     );
+                              //   },
+                              //   // Example styling props:
+                              //   columnWidths: List.generate(
+                              //     headers.length,
+                              //     (_) => IntrinsicColumnWidth(),
+                              //   ),
+                              //   borderRadius: BorderRadius.circular(8),
+                              //   outerBorderColor: AppColors.onBackgroundSurface2,
+                              //   innerBorderColor: AppColors.onBackgroundSurface2,
+                              //   rowHeight: hp(3),
+                              //   cellPadding: const EdgeInsets.symmetric(
+                              //     vertical: 10,
+                              //     horizontal: 10,
+                              //   ),
+                              //   maxVisibleRows: _filterIndex == 0
+                              //       ? null
+                              //       : _filterIndex == 1
+                              //       ? (violations.length / 2).ceil()
+                              //       : 5,
+                              // ),
                             ),
-                            maxVisibleRows: _filterIndex == 0
-                                ? null
-                                : _filterIndex == 1
-                                ? (rows.length / 2).ceil()
-                                : 5,
-                          ),
+                            // SizedBox(height: hp(2)),
+                            PaginationControls(
+                              currentPage: 1,
+                              totalPages: 5,
+                              onPageChanged: (page) {
+                                // setState(() => _currentPage = page);
+                                // fetch new page…
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ],

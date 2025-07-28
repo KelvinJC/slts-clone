@@ -57,8 +57,24 @@ class AppTextField extends StatelessWidget {
   /// Whether to validate the border color based on the text.
   final bool validateBorder;
 
+  /// Whether the field is for preview mode.
+  final bool isPreviewMode;
+
+  /// Whether the field is valid.
+  final bool? isValid;
+
+  /// Padding on top and bottom.
+  final double verticalPadding;
+
+  // _focusNode
+  /// Focus node for the text field.
+  final FocusNode? focusNode;
+
+  /// Whether the field is currently processing.
+  final bool isProcessing;
+
   const AppTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.initialValue,
     required this.hintText,
@@ -66,6 +82,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.enabled = true,
     this.maxLines = 1,
+    this.verticalPadding = 1.2,
     this.keyboardType = TextInputType.text,
     this.onTap,
     this.onSubmitted,
@@ -75,33 +92,65 @@ class AppTextField extends StatelessWidget {
     this.suffix,
     this.enabledBorderColor,
     this.validateBorder = false,
+    this.isValid,
+    this.isPreviewMode = false,
+    this.focusNode,
+    this.isProcessing = false,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both a controller and initialValue.',
-       ),
-       super(key: key);
+       );
 
   @override
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
 
+    final previewBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.zero,
+      borderSide: BorderSide(width: 0, color: Colors.transparent),
+      gapPadding: 0,
+    );
+
+    Color borderColor;
+    if (isValid != null) {
+      borderColor = isValid!
+          ? (enabledBorderColor ?? AppColors.primary)
+          : AppColors.error;
+    } else {
+      bool isEmpty = (controller?.text ?? initialValue ?? '').isEmpty;
+      borderColor = (isEmpty && enabled)
+          ? AppColors.error
+          : (!enabled
+                ? AppColors.onBackgroundSurface2
+                : enabledBorderColor ?? AppColors.primary);
+    }
+
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       initialValue: controller == null ? initialValue : null,
       onChanged: onChanged,
+      onTap: onTap,
+      onFieldSubmitted: onSubmitted,
       obscureText: obscureText,
-      enabled: enabled,
+      enabled: enabled || isPreviewMode,
+      readOnly: readOnly || isPreviewMode,
       maxLines: maxLines,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: isPreviewMode
+            ? (controller != null ? controller!.text : initialValue)
+            : hintText,
         hintStyle: TextStyle(
           color:
-              keyboardType == TextInputType.datetime &&
-                  !hintText.toLowerCase().contains('select')
+              (keyboardType == TextInputType.datetime &&
+                      !hintText.toLowerCase().contains('select') ||
+                  isPreviewMode)
               ? AppColors.onBackground
-              : AppColors.onBackgroundSurface2,
+              : (!enabled
+                    ? AppColors.onBackgroundSurface
+                    : AppColors.onBackgroundSurface2),
         ),
         prefixIcon: prefix != null
             ? Padding(
@@ -118,44 +167,70 @@ class AppTextField extends StatelessWidget {
                       ),
                     )
                   : null),
-        suffixIcon: suffix != null
+        suffixIcon: isProcessing
             ? Padding(
-                padding: EdgeInsets.symmetric(vertical: hp(1.5)),
-                child: suffix,
+                padding: EdgeInsets.all(hp(1.5)),
+                child: SizedBox(
+                  height: wp(3),
+                  width: wp(3),
+                  child: const CircularProgressIndicator(strokeWidth: 1.5),
+                ),
               )
-            : null,
-        contentPadding: EdgeInsets.symmetric(
-          vertical: hp(1.2),
-          horizontal: wp(3),
-        ),
+            : (suffix != null && !isPreviewMode
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                      child: suffix,
+                    )
+                  : null),
+        contentPadding: isPreviewMode
+            ? EdgeInsets.zero
+            : EdgeInsets.symmetric(
+                vertical: hp(verticalPadding),
+                horizontal: wp(3),
+              ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
+        fillColor: isPreviewMode
+            ? Colors.transparent
+            : (!enabled
+                  ? AppColors.surface.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surface),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(wp(2)),
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(
-            color: !validateBorder
-                ? AppColors.onBackgroundSurface2
-                : ((controller?.text ?? initialValue) == '' && enabled
-                      ? AppColors.error
-                      : enabledBorderColor ?? AppColors.primary),
-            width: 1.5,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(wp(2)),
-          borderSide: BorderSide(
-            color: !validateBorder
-                ? AppColors.onBackgroundSurface2
-                : ((controller?.text ?? initialValue)!.isEmpty && enabled
-                      ? AppColors.error
-                      : enabledBorderColor ?? AppColors.primary),
-            width: 1.5,
-          ),
-        ),
+        disabledBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(
+                  color: !validateBorder
+                      ? AppColors.onBackgroundSurface2
+                      : borderColor,
+                  width: 1.5,
+                ),
+              ),
+        enabledBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(
+                  color: !validateBorder
+                      ? AppColors.onBackgroundSurface2
+                      : borderColor,
+                  width: 1.5,
+                ),
+              ),
+        focusedBorder: isPreviewMode
+            ? previewBorder
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(wp(2)),
+                borderSide: BorderSide(
+                  color: !validateBorder
+                      ? AppColors.onBackgroundSurface2
+                      : borderColor,
+                  width: 1.5,
+                ),
+              ),
         // focusedBorder: OutlineInputBorder(
         //   borderRadius: BorderRadius.circular(wp(2)),
         //   borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),

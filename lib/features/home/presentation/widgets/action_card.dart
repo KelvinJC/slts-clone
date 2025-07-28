@@ -43,7 +43,7 @@ class ActionCard extends StatelessWidget {
               child: ImageIcon(
                 AssetImage(asset),
                 size: wp(
-                  asset == AppAssets.violation ? 6 : 6.5,
+                  asset == AppAssets.createJob ? 6 : 6.5,
                 ), // adjust as needed
                 color: AppColors.primary,
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:slts_enforcer_app/core/api/network_exceptions.dart';
+import 'package:slts_enforcer_app/core/services/biometric_service.dart';
 import 'package:slts_enforcer_app/features/sync/data/repositories_impl/sync_repository_impl.dart';
 import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/repositories/violation_repository_impl.dart';
@@ -26,10 +27,25 @@ import 'package:slts_enforcer_app/core/api/env.dart';
 /// 1) Dio client with interceptor that embeds Failure into DioException.error
 
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(baseUrl: Env.apiBase));
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: Env.apiBase,
+      headers: {
+        'Accept': 'application/json', // default for all requests
+      },
+    ),
+  );
 
   dio.interceptors.add(
     InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // 1) load the saved token
+        final token = await LocalStorage.instance.getAuthToken();
+        if (token != null) {
+          options.headers['SLTSTrafficAPIToken'] = token;
+        }
+        return handler.next(options);
+      },
       onError: (DioException err, ErrorInterceptorHandler handler) {
         // Map to our Failure
         final failure = FailureFromDio.fromDio(err);
@@ -71,6 +87,10 @@ final violationRepositoryProvider = Provider<ViolationRepository>(
 final syncRepositoryProvider = Provider<SyncRepository>(
   (ref) =>
       SyncRepositoryImpl(ref.read(apiProvider), ref.read(localStorageProvider)),
+);
+
+final biometricProvider = Provider<BiometricService>(
+  (ref) => BiometricService(),
 );
 
 class AppModule {

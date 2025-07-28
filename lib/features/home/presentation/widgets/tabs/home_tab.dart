@@ -1,24 +1,37 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
+// import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
-import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
-import 'package:slts_enforcer_app/ui/widgets/responsive_table.dart';
+// import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 
 import '../action_card.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
 
   @override
+  ConsumerState<HomeTab> createState() => _State();
+}
+
+class _State extends ConsumerState<HomeTab> {
+  var validateEmailBorder = false, validatePasswordBorder = false;
+
+  @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
     final wp = context.wp;
     final hp = context.hp;
     final avatarSize = wp(14);
+    final runState = ref.watch(runPlateProvider);
+    final runCtrl = ref.read(runPlateProvider.notifier);
 
     return Stack(
       children: [
@@ -31,13 +44,39 @@ class HomeTab extends StatelessWidget {
               children: [
                 SizedBox(height: hp(3)),
                 // … reuse your _buildTopBar from earlier or inline …
-                _buildTopBar(context, wp, hp, avatarSize, wp(0.5)),
+                _buildTopBar(context, wp, hp, avatarSize, wp(0.5), authState),
                 SizedBox(height: hp(4)),
                 AppTextField(
+                  focusNode: runCtrl.focusNode,
+                  controller: runCtrl.controller,
                   hintText: 'Run plate number...',
-                  readOnly: true,
                   showSearchIcon: true,
-                  onTap: () => Navigator.pushNamed(context, '/search'),
+                  isProcessing: runState.loading,
+                  // onChanged: (v) => runCtrl.setPlate(v),
+                  onSubmitted: (val) {
+                    FocusScope.of(context).unfocus();
+                    // schedule the search after build is over:
+                    Future.microtask(() {
+                      if (val.trim().isNotEmpty) {
+                        runCtrl.search().then((_) {
+                          // print(runState.results?.length);
+                          if (runState.results == null ||
+                              runState.results!.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('No results found for "$val"'),
+                              ),
+                            );
+                          } else {
+                            Navigator.pushNamed(context, '/search');
+                          }
+                        });
+                      }
+                    });
+                  },
+                  // onTap: () => Navigator.push
+                  //
+                  //Named(context, '/search'),
                 ),
                 SizedBox(height: hp(3.5)),
                 Row(
@@ -52,7 +91,7 @@ class HomeTab extends StatelessWidget {
                     SizedBox(width: wp(5)),
                     Expanded(
                       child: ActionCard(
-                        asset: AppAssets.violation,
+                        asset: AppAssets.createJob,
                         label: 'Create Violation',
                         onTap: () =>
                             Navigator.pushNamed(context, '/createViolation'),
@@ -77,6 +116,7 @@ class HomeTab extends StatelessWidget {
     double Function(double) hp,
     double avatarSize,
     double border,
+    AuthState authState,
   ) {
     int notiSum = 1;
     return Row(
@@ -84,18 +124,21 @@ class HomeTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              width: avatarSize,
-              height: avatarSize,
-              padding: EdgeInsets.all(border),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: CircleAvatar(
-                backgroundColor: AppColors.homeGradient[0],
-                radius: (avatarSize - 2 * border) / 2,
-                backgroundImage: const AssetImage(AppAssets.avatar),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(ctx, '/profile'),
+              child: Container(
+                width: avatarSize,
+                height: avatarSize,
+                padding: EdgeInsets.all(border),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  backgroundColor: AppColors.homeGradient[0],
+                  radius: (avatarSize - 2 * border) / 2,
+                  backgroundImage: const AssetImage(AppAssets.avatar),
+                ),
               ),
             ),
             SizedBox(width: wp(3)),
@@ -109,56 +152,60 @@ class HomeTab extends StatelessWidget {
                     fontSize: 15,
                   ),
                 ),
-                Text(
-                  'Oyewumi Olukunle',
-                  style: Theme.of(ctx).textTheme.headlineSmall!.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: wp(70),
+                  child: Text(
+                    authState.user?.fullName ?? '',
+                    style: Theme.of(ctx).textTheme.headlineSmall!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],
             ),
           ],
         ),
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: Stack(
-              children: [
-                ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
-                Visibility(
-                  visible: true,
-                  child: Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      width: wp(notiSum > 9 ? 4.5 : 3.5),
-                      height: wp(4.2),
-                      decoration: const BoxDecoration(
-                        color: AppColors.notification,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          notiSum > 9 ? '9+' : notiSum.toString(),
-                          style: Theme.of(ctx).textTheme.labelSmall!.copyWith(
-                            fontSize: wp(notiSum > 9 ? 2.5 : 2.2),
-                            color: AppColors.surface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            onPressed: () {},
-          ),
-        ),
+        // Container(
+        //   decoration: const BoxDecoration(
+        //     color: AppColors.surface,
+        //     shape: BoxShape.circle,
+        //   ),
+        //   child: IconButton(
+        //     icon: Stack(
+        //       children: [
+        //         ImageIcon(AssetImage(AppAssets.notification), size: wp(6)),
+        //         Visibility(
+        //           visible: true,
+        //           child: Positioned(
+        //             top: 0,
+        //             right: 0,
+        //             child: Container(
+        //               width: wp(notiSum > 9 ? 4.5 : 3.5),
+        //               height: wp(4.2),
+        //               decoration: const BoxDecoration(
+        //                 color: AppColors.notification,
+        //                 shape: BoxShape.circle,
+        //               ),
+        //               child: Center(
+        //                 child: Text(
+        //                   notiSum > 9 ? '9+' : notiSum.toString(),
+        //                   style: Theme.of(ctx).textTheme.labelSmall!.copyWith(
+        //                     fontSize: wp(notiSum > 9 ? 2.5 : 2.2),
+        //                     color: AppColors.surface,
+        //                     fontWeight: FontWeight.bold,
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //     onPressed: () {},
+        //   ),
+        // ),
       ],
     );
   }
@@ -198,94 +245,106 @@ class HomeTab extends StatelessWidget {
     bool hasData = true;
     // Sample data
     final headers = [
-      const Text('PCN Number'),
-      const Text('Plate Number'),
-      const Text('Offence'),
-      const Text('Amount'),
-      const Text('Name'),
-      const Text('Age'),
-      const Text('Role'),
-      const Text('Status'),
+      Text('PCN Number'),
+      Text('Plate Number'),
+      Text('Offence'),
+      Text('Zone'),
+      Text('Date'),
+      Text('First Name'),
+      Text('Surname'),
     ];
-    final rows = [
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Alice'),
-        const Text('28'),
-        const Text('Admin'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Bob'),
-        const Text('34'),
-        const Text('Director'),
-        const Text('Pending'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Charlie'),
-        const Text('22'),
-        const Text('Nurse'),
-        const Text('Active'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-      [
-        const Text('PCN-002456'),
-        const Text('ABC-12Z246'),
-        const Text('Speeding'),
-        const Text('₦5,000'),
-        const Text('Diana'),
-        const Text('30'),
-        const Text('Biller'),
-        const Text('Inactive'),
-      ],
-    ];
+    // final List<Violation> violations = [
+    //   Violation(
+    //     pcnNumber: 'PCN-002452',
+    //     plateNumber: 'ABC-1234XL',
+    //     offence: 'Speeding',
+    //     zone: 'Zone A',
+    //     date: DateTime.now(),
+    //     firstName: 'John',
+    //     surname: 'Doe',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   // …more sample data…
+    // ];
+
     return Stack(
       children: [
-        hasData
-            ? HtmlTable(
-                headers: headers,
-                rows: rows,
-                columnWidths: [
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                  IntrinsicColumnWidth(),
-                  FixedColumnWidth(80),
-                  FixedColumnWidth(wp(30)),
-                  FixedColumnWidth(wp(30)),
-                ],
-                borderRadius: BorderRadius.circular(12),
-                outerBorderColor: AppColors.onBackgroundSurface2,
-                innerBorderColor: AppColors.onBackgroundSurface2,
-                // cellWidth: 100,
-                rowHeight: hp(3.5),
-                cellPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 10,
-                ),
-                maxVisibleRows: 3,
-              )
+        !hasData
+            ? SizedBox()
+            // HtmlTable<Violation>(
+            //     headers: headers,
+            //     rowData: violations,
+            //     rowBuilder: (list) => list.map((v) {
+            //       return [
+            //         Text(v.pcnNumber),
+            //         Text(v.plateNumber),
+            //         Text(v.offence),
+            //         Text(v.zone),
+            //         Text(v.date.toLocal().toString().split(' ')[0]),
+            //         Text(v.firstName),
+            //         Text(v.surname),
+            //       ];
+            //     }).toList(),
+            //     onRowTap: (v, index) {},
+            //     // Example styling props:
+            //     columnWidths: [
+            //       FixedColumnWidth(wp(27)),
+            //       FixedColumnWidth(wp(27)),
+            //       FixedColumnWidth(wp(30)),
+            //       FixedColumnWidth(wp(18)),
+            //       FixedColumnWidth(wp(26)),
+            //       FixedColumnWidth(wp(25)),
+            //       FixedColumnWidth(wp(25)),
+            //     ],
+            //     // columnWidths: List.generate(
+            //     //   headers.length,
+            //     //   (_) => IntrinsicColumnWidth(),
+            //     // ),
+            //     borderRadius: BorderRadius.circular(12),
+            //     outerBorderColor: AppColors.onBackgroundSurface2,
+            //     innerBorderColor: AppColors.onBackgroundSurface2,
+            //     rowHeight: hp(3.5),
+            //     cellPadding: const EdgeInsets.symmetric(
+            //       vertical: 10,
+            //       horizontal: 10,
+            //     ),
+            //     maxVisibleRows: 3,
+            //   )
             : Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

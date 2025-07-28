@@ -68,8 +68,12 @@ class NavItem extends StatelessWidget {
         // width: wp(asset == null ? 30 : 12),
         child: Column(
           // mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [icon, text],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(height: context.hp(1)),
+            text,
+          ],
         ),
       ),
     );
