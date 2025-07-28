@@ -19,6 +19,7 @@ class CreateViolation {
   final int sltsAmount;
   final int clientAmount;
   final String insertedBy;
+  final List<String>? violationFiles;
 
   CreateViolation({
     required this.zoneId,
@@ -41,5 +42,6 @@ class CreateViolation {
     required this.sltsAmount,
     required this.clientAmount,
     required this.insertedBy,
+    required this.violationFiles,
   });
 }

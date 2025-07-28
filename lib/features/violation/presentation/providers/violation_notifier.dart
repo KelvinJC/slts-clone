@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
+import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/domain/repositories/violation_repository.dart';
@@ -12,12 +16,13 @@ import '../../../../core/errors/failures.dart';
 /// Manages form state + all dropdown loading + media + submission.
 class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final ViolationRepository _repo;
+  final SyncRepository _syncRepo;
   final TextEditingController plateNoController;
   final FocusNode plateNoFocusNode;
   List<Violation> list = [];
   final LocalStorage _storage;
 
-  ViolationNotifier(this._repo, this._storage)
+  ViolationNotifier(this._repo, this._syncRepo, this._storage)
     : plateNoController = TextEditingController(),
       plateNoFocusNode = FocusNode(),
       super(ViolationFormState.initial()) {
@@ -43,20 +48,23 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       list = await _repo.runPlateNumber(plate);
       if (list.isNotEmpty) {
         await loadSettings(v: list.first, skipLoading: true);
+        state = state.copyWith(plateNoLoading: false);
       } else {
         // clear state
         resetFormFields();
+        state = state.copyWith(
+          plateNoLoading: false,
+          error: UnexpectedFailure(
+            rawMessage: 'No violations found for $plate',
+          ),
+        );
       }
-      state = state.copyWith(plateNoLoading: false);
     } on Failure catch (f) {
       if (isNext) {
         // clear state
         resetFormFields();
       }
-      state = state.copyWith(
-        plateNoLoading: false,
-        // error: f
-      );
+      state = state.copyWith(plateNoLoading: false, error: f);
     }
   }
 
@@ -297,50 +305,81 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   }
 
   /// Submit the full violation.
-  Future<void> submit() async {
+  Future<bool?> submit() async {
     final form = state;
-
-    // state = AsyncValue.loading();
     state = state.copyWith(loading: true, error: null);
+    // 1️⃣ Convert each local file path into a Base64‐encoded string
+    final violationFiles = await Future.wait(
+      state.mediaPaths.map((path) async {
+        final bytes = await File(path).readAsBytes();
+        return base64Encode(bytes);
+      }),
+    );
+
+    final req = CreateViolationRequest(
+      zoneId: form.zone!.id.toString(),
+      commandId: form.command!.id.toString(),
+      offenceId: form.offence!.id.toString(),
+      firstName: form.firstName,
+      surname: form.surname,
+      phoneNumber: form.phone,
+      emailAddress: form.email,
+      plateColorId: form.plateColor!.id.toString(),
+      plateTypeId: form.plateType!.id.toString(),
+      eventTypeId: form.eventType!.id.toString(),
+      vehicleBrandId: form.brand!.id.toString(),
+      vehicleColorId: form.vehicleColor!.id.toString(),
+      vehicleTypeId: form.vehicleType!.id.toString(),
+      pcn: list.isNotEmpty ? list.first.pcnNumber : '',
+      plateNo: form.plate,
+      violationDate: form.date,
+      paymentAmount: list.isNotEmpty ? list.first.amount.toString() : '0.0',
+      sltsAmount: list.isNotEmpty ? list.first.sltsAmount.toString() : '0.0',
+      clientAmount: list.isNotEmpty
+          ? list.first.clientAmount.toString()
+          : '0.0',
+      insertedBy: await _storage.getAuthToken() ?? '',
+      violationFiles: violationFiles,
+    );
+
     try {
-      final req = CreateViolationRequest(
-        zoneId: form.zone!.id.toString(),
-        commandId: form.command!.id.toString(),
-        offenceId: form.offence!.id.toString(),
-        firstName: form.firstName,
-        surname: form.surname,
-        phoneNumber: form.phone,
-        emailAddress: 'form.email',
-        plateColorId: form.plateColor!.id.toString(),
-        plateTypeId: form.plateType!.id.toString(),
-        eventTypeId: form.eventType!.id.toString(),
-        vehicleBrandId: form.brand!.id.toString(),
-        vehicleColorId: form.vehicleColor!.id.toString(),
-        vehicleTypeId: form.vehicleType!.id.toString(),
-        pcn: 'form.pcn',
-        plateNo: form.plate,
-        violationDate: form.date,
-        paymentAmount: 'form.paymentAmount.toString()',
-        sltsAmount: 'form.sltsAmount.toString()',
-        clientAmount: 'form.clientAmount.toString()',
-        insertedBy: 'form.insertedBy',
-      );
       await _repo.createViolation(req);
       // state = AsyncValue.data(form);
       state = state.copyWith(loading: false, error: null);
-      resetFormFields();
+      resetFormFields(clearController: true);
+
+      return true;
     } on Failure catch (f) {
-      // state = AsyncValue.error(f, StackTrace.current);
+      if (f is NetworkFailure) {
+        // Cache offline
+        final vHiveModel = req.toViolationHiveModel();
+        await _syncRepo.saveOfflineViolation(vHiveModel);
+
+        state = state.copyWith(loading: false);
+        resetFormFields(clearController: true);
+
+        return false;
+      }
+
       state = state.copyWith(loading: false, error: f);
-      //rethrow;
-      rethrow;
+      return null;
+    } on Exception catch (e) {
+      print('Error submitting violation: $e');
+      state = state.copyWith(
+        loading: false,
+        error: UnexpectedFailure(rawMessage: e.toString()),
+      );
+      return null;
     }
   }
 
   /// Clears *only* the user‐entered fields and media, but preserves all the
   /// pre‐loaded settings lists (offenceOptions, zoneOptions, etc).
-  void resetFormFields() {
-    // plateNoController.clear();
+  void resetFormFields({bool clearController = false}) {
+    if (clearController) {
+      plateNoController.clear();
+    }
+
     list.clear();
     state = state.copyWith(
       plateType: DropdownOption.empty(),
@@ -359,11 +398,12 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       date: '',
       zone: DropdownOption.empty(),
       command: DropdownOption.empty(),
+      mediaPaths: [],
     );
   }
 
   void resetErrors() {
-    print('Resetting errors');
+    // print('Resetting errors');
     state = state.copyWith(error: null, loading: false);
   }
 
@@ -409,6 +449,7 @@ final violationNotifierProvider =
     StateNotifierProvider<ViolationNotifier, ViolationFormState>(
       (ref) => ViolationNotifier(
         ref.read(violationRepositoryProvider),
+        ref.read(syncRepositoryProvider),
         ref.read(localStorageProvider),
       ),
     );

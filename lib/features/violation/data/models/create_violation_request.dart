@@ -45,6 +45,8 @@ class CreateViolationRequest {
   final String clientAmount;
   @JsonKey(name: 'inserted_by')
   final String insertedBy;
+  @JsonKey(name: 'violation_files')
+  final List<String>? violationFiles;
 
   CreateViolationRequest({
     required this.zoneId,
@@ -67,6 +69,7 @@ class CreateViolationRequest {
     required this.sltsAmount,
     required this.clientAmount,
     required this.insertedBy,
+    required this.violationFiles,
   });
 
   /// New: construct from your local ViolationModel
@@ -92,8 +95,35 @@ class CreateViolationRequest {
       sltsAmount: v.sltsAmount.toString(),
       clientAmount: v.clientAmount.toString(),
       insertedBy: v.insertedBy,
+      violationFiles: v.violationFiles,
       // mediaPaths: List<String>.from(v.mediaPaths),
       // mediaPaths: [],
+    );
+  }
+
+  ViolationHiveModel toViolationHiveModel() {
+    return ViolationHiveModel(
+      zoneId: int.parse(zoneId),
+      commandId: int.parse(commandId),
+      offenceId: int.parse(offenceId),
+      firstName: firstName,
+      surname: surname,
+      phoneNumber: phoneNumber,
+      emailAddress: emailAddress,
+      plateColorId: int.parse(plateColorId),
+      plateTypeId: int.parse(plateTypeId),
+      eventTypeId: int.parse(eventTypeId),
+      vehicleBrandId: int.parse(vehicleBrandId),
+      vehicleColorId: int.parse(vehicleColorId),
+      vehicleTypeId: int.parse(vehicleTypeId),
+      pcn: pcn,
+      plateNo: plateNo,
+      violationDate: violationDate,
+      paymentAmount: paymentAmount,
+      sltsAmount: sltsAmount,
+      clientAmount: clientAmount,
+      insertedBy: insertedBy,
+      violationFiles: violationFiles,
     );
   }
 

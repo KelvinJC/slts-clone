@@ -147,21 +147,35 @@ class ViolationFormState {
     ViolationHiveModel? violationModel,
   }) {
     return ViolationFormState(
-      offence: offence ?? this.offence,
-      eventType: eventType ?? this.eventType,
+      offence: offence?.name == '' || offence?.id == 0
+          ? null
+          : offence ?? this.offence,
+      eventType: eventType?.name == '' || eventType?.id == 0
+          ? null
+          : eventType ?? this.eventType,
       date: date ?? this.date,
-      zone: zone ?? this.zone,
-      command: command ?? this.command,
+      zone: zone?.name == '' || zone?.id == 0 ? null : zone ?? this.zone,
+      command: command?.name == '' || command?.id == 0
+          ? null
+          : command ?? this.command,
       firstName: firstName ?? this.firstName,
       surname: surname ?? this.surname,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       plate: plate ?? this.plate,
-      plateType: plateType ?? this.plateType,
-      plateColor: plateColor ?? this.plateColor,
-      brand: brand ?? this.brand,
-      vehicleType: vehicleType ?? this.vehicleType,
-      vehicleColor: vehicleColor ?? this.vehicleColor,
+      plateType: plateType?.name == '' || plateType?.id == 0
+          ? null
+          : plateType ?? this.plateType,
+      plateColor: plateColor?.name == '' || plateColor?.id == 0
+          ? null
+          : plateColor ?? this.plateColor,
+      brand: brand?.name == '' || brand?.id == 0 ? null : brand ?? this.brand,
+      vehicleType: vehicleType?.name == '' || vehicleType?.id == 0
+          ? null
+          : vehicleType ?? this.vehicleType,
+      vehicleColor: vehicleColor?.name == '' || vehicleColor?.id == 0
+          ? null
+          : vehicleColor ?? this.vehicleColor,
       mediaPaths: mediaPaths ?? this.mediaPaths,
       offenceOptions: offenceOptions ?? this.offenceOptions,
       eventTypeOptions: eventTypeOptions ?? this.eventTypeOptions,
@@ -173,7 +187,9 @@ class ViolationFormState {
       plateColorOptions: plateColorOptions ?? this.plateColorOptions,
       plateTypeOptions: plateTypeOptions ?? this.plateTypeOptions,
       isCommandLoading: isCommandLoading ?? this.isCommandLoading,
-      plateNoLoading: plateNoLoading ?? this.plateNoLoading,
+      plateNoLoading: plateNoLoading == true
+          ? true
+          : (loading == false ? false : plateNoLoading ?? this.plateNoLoading),
       // error: error ?? this.error,
       error: error,
       loading: loading ?? this.loading,

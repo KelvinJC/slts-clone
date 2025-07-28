@@ -29,6 +29,9 @@ CreateViolationRequest _$CreateViolationRequestFromJson(
       sltsAmount: json['slts_amount'] as String,
       clientAmount: json['client_amount'] as String,
       insertedBy: json['inserted_by'] as String,
+      violationFiles: (json['violation_files'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$CreateViolationRequestToJson(
@@ -54,4 +57,5 @@ Map<String, dynamic> _$CreateViolationRequestToJson(
       'slts_amount': instance.sltsAmount,
       'client_amount': instance.clientAmount,
       'inserted_by': instance.insertedBy,
+      'violation_files': instance.violationFiles,
     };

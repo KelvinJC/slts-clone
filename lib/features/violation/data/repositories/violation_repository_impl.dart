@@ -60,176 +60,194 @@ class ViolationRepositoryImpl implements ViolationRepository {
   @override
   Future<List<DropdownOption>> fetchVehicleBrandList() async {
     await ensureConnected();
-    final resp = await _api.getVehicleBrandList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getVehicleBrandList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.vehicleBrandId!,
-      name: (m) => m.vehicleBrandName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.vehicleBrandId!,
+        name: (m) => m.vehicleBrandName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchVehicleColorList() async {
     await ensureConnected();
-    final resp = await _api.getVehicleColorList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getVehicleColorList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.vehicleColorId!,
-      name: (m) => m.vehicleColorName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.vehicleColorId!,
+        name: (m) => m.vehicleColorName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchVehicleTypeList() async {
     await ensureConnected();
-    final resp = await _api.getVehicleTypeList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getVehicleTypeList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.vehicleTypeId!,
-      name: (m) => m.vehicleTypeName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.vehicleTypeId!,
+        name: (m) => m.vehicleTypeName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchPlateTypeList() async {
     await ensureConnected();
-    final resp = await _api.getPlateTypeList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getPlateTypeList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.plateTypeId!,
-      name: (m) => m.plateTypeName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.plateTypeId!,
+        name: (m) => m.plateTypeName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchPlateColorList() async {
     await ensureConnected();
-    final resp = await _api.getPlateColorList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getPlateColorList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.plateColorId!,
-      name: (m) => m.plateColorName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.plateColorId!,
+        name: (m) => m.plateColorName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchOffenceList() async {
     await ensureConnected();
-    final resp = await _api.getOffenceList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getOffenceList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.offenceId!,
-      name: (m) => m.offenceName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.offenceId!,
+        name: (m) => m.offenceName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchEventTypeList() async {
     await ensureConnected();
-    final resp = await _api.getEventTypeList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getEventTypeList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.eventTypeId!,
-      name: (m) => m.eventTypeName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.eventTypeId!,
+        name: (m) => m.eventTypeName!,
+      );
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchZoneList() async {
     await ensureConnected();
-    final resp = await _api.getZoneList();
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getZoneList();
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(models, id: (m) => m.zoneId!, name: (m) => m.zoneName!);
+      return _toOptions(models, id: (m) => m.zoneId!, name: (m) => m.zoneName!);
+    });
   }
 
   @override
   Future<List<DropdownOption>> fetchCommandListForZone(int zoneId) async {
     await ensureConnected();
-    final resp = await _api.getCommandList(zoneId);
-    if (resp.message.toLowerCase() != 'success') {
-      throw UnexpectedFailure(rawMessage: resp.message);
-    }
+    return await retry<List<DropdownOption>>(() async {
+      final resp = await _api.getCommandList(zoneId);
+      if (resp.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
 
-    final raw = resp.data as List<dynamic>;
-    final models = raw
-        .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final raw = resp.data as List<dynamic>;
+      final models = raw
+          .map((e) => ListItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-    return _toOptions(
-      models,
-      id: (m) => m.commandId!,
-      name: (m) => m.commandName!,
-    );
+      return _toOptions(
+        models,
+        id: (m) => m.commandId!,
+        name: (m) => m.commandName!,
+      );
+    });
   }
 }

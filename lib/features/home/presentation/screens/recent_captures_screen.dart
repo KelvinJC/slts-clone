@@ -7,6 +7,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
+import 'package:slts_enforcer_app/ui/widgets/pagination_controls.dart';
 
 class RecentCapturesScreen extends ConsumerStatefulWidget {
   const RecentCapturesScreen({super.key});
@@ -110,53 +111,66 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: wp(4)),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(wp(2)),
-                          ),
-                          child: SizedBox(),
-                          // HtmlTable<Violation>(
-                          //   headers: headers,
-                          //   rowData: violations,
-                          //   rowBuilder: (list) => list.map((v) {
-                          //     return [
-                          //       Text(v.pcnNumber),
-                          //       Text(v.plateNumber),
-                          //       Text(v.offence),
-                          //       Text(v.zone),
-                          //       Text(v.date.toLocal().toString().split(' ')[0]),
-                          //       Text(v.firstName),
-                          //       Text(v.surname),
-                          //     ];
-                          //   }).toList(),
-                          //   onRowTap: (v, index) {
-                          //     Navigator.of(context).push(
-                          //       MaterialPageRoute(
-                          //         builder: (_) =>
-                          //             ViolationReportScreen(violation: v),
-                          //       ),
-                          //     );
-                          //   },
-                          //   // Example styling props:
-                          //   columnWidths: List.generate(
-                          //     headers.length,
-                          //     (_) => IntrinsicColumnWidth(),
-                          //   ),
-                          //   borderRadius: BorderRadius.circular(8),
-                          //   outerBorderColor: AppColors.onBackgroundSurface2,
-                          //   innerBorderColor: AppColors.onBackgroundSurface2,
-                          //   rowHeight: hp(3),
-                          //   cellPadding: const EdgeInsets.symmetric(
-                          //     vertical: 10,
-                          //     horizontal: 10,
-                          //   ),
-                          //   maxVisibleRows: _filterIndex == 0
-                          //       ? null
-                          //       : _filterIndex == 1
-                          //       ? (violations.length / 2).ceil()
-                          //       : 5,
-                          // ),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surface,
+                                borderRadius: BorderRadius.circular(wp(2)),
+                              ),
+                              child: SizedBox(),
+                              // HtmlTable<Violation>(
+                              //   headers: headers,
+                              //   rowData: violations,
+                              //   rowBuilder: (list) => list.map((v) {
+                              //     return [
+                              //       Text(v.pcnNumber),
+                              //       Text(v.plateNumber),
+                              //       Text(v.offence),
+                              //       Text(v.zone),
+                              //       Text(v.date.toLocal().toString().split(' ')[0]),
+                              //       Text(v.firstName),
+                              //       Text(v.surname),
+                              //     ];
+                              //   }).toList(),
+                              //   onRowTap: (v, index) {
+                              //     Navigator.of(context).push(
+                              //       MaterialPageRoute(
+                              //         builder: (_) =>
+                              //             ViolationReportScreen(violation: v),
+                              //       ),
+                              //     );
+                              //   },
+                              //   // Example styling props:
+                              //   columnWidths: List.generate(
+                              //     headers.length,
+                              //     (_) => IntrinsicColumnWidth(),
+                              //   ),
+                              //   borderRadius: BorderRadius.circular(8),
+                              //   outerBorderColor: AppColors.onBackgroundSurface2,
+                              //   innerBorderColor: AppColors.onBackgroundSurface2,
+                              //   rowHeight: hp(3),
+                              //   cellPadding: const EdgeInsets.symmetric(
+                              //     vertical: 10,
+                              //     horizontal: 10,
+                              //   ),
+                              //   maxVisibleRows: _filterIndex == 0
+                              //       ? null
+                              //       : _filterIndex == 1
+                              //       ? (violations.length / 2).ceil()
+                              //       : 5,
+                              // ),
+                            ),
+                            // SizedBox(height: hp(2)),
+                            PaginationControls(
+                              currentPage: 1,
+                              totalPages: 5,
+                              onPageChanged: (page) {
+                                // setState(() => _currentPage = page);
+                                // fetch new page…
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ],

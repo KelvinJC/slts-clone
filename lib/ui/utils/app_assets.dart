@@ -27,4 +27,5 @@ class AppAssets {
   static const mail = 'assets/icons/mage_email.png';
   static const phone = 'assets/icons/phone.png';
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
+  static const error = 'assets/icons/error.png';
 }

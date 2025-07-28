@@ -45,6 +45,8 @@ class ViolationHiveModel {
   final String clientAmount;
   @HiveField(19)
   final String insertedBy;
+  @HiveField(20)
+  final List<String>? violationFiles;
 
   ViolationHiveModel({
     required this.zoneId,
@@ -67,6 +69,7 @@ class ViolationHiveModel {
     required this.sltsAmount,
     required this.clientAmount,
     required this.insertedBy,
+    required this.violationFiles,
   });
 
   /// From domain → Hive
@@ -92,6 +95,7 @@ class ViolationHiveModel {
         sltsAmount: v.sltsAmount.toString(),
         clientAmount: v.clientAmount.toString(),
         insertedBy: v.insertedBy,
+        violationFiles: v.violationFiles,
       );
 
   /// From Hive → domain
@@ -116,5 +120,6 @@ class ViolationHiveModel {
     sltsAmount: int.parse(sltsAmount),
     clientAmount: int.parse(clientAmount),
     insertedBy: insertedBy,
+    violationFiles: violationFiles,
   );
 }

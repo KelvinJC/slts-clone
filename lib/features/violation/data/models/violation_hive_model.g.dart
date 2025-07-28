@@ -37,13 +37,14 @@ class ViolationHiveModelAdapter extends TypeAdapter<ViolationHiveModel> {
       sltsAmount: fields[17] as String,
       clientAmount: fields[18] as String,
       insertedBy: fields[19] as String,
+      violationFiles: (fields[20] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ViolationHiveModel obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.zoneId)
       ..writeByte(1)
@@ -83,7 +84,9 @@ class ViolationHiveModelAdapter extends TypeAdapter<ViolationHiveModel> {
       ..writeByte(18)
       ..write(obj.clientAmount)
       ..writeByte(19)
-      ..write(obj.insertedBy);
+      ..write(obj.insertedBy)
+      ..writeByte(20)
+      ..write(obj.violationFiles);
   }
 
   @override

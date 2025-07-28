@@ -220,50 +220,16 @@ class _State extends ConsumerState<CreateViolationScreen> {
     }
 
     final notifier = ref.read(violationNotifierProvider.notifier);
-    try {
-      // Attempt online submit
-      await notifier.submit();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Violation submitted')));
-    } on Failure catch (f) {
-      if (f is NetworkFailure) {
-        // Cache offline
-        // final form = ref.read(violationNotifierProvider);
-        // final vModel = ViolationHiveModel(
-        //   zoneId: form.zone!.id,
-        //   commandId: form.command!.id,
-        //   offenceId: form.offence!.id,
-        //   firstName: form.firstName,
-        //   surname: form.surname,
-        //   phoneNumber: form.phone,
-        //   emailAddress: 'form.email',
-        //   plateColorId: form.plateColor!.id,
-        //   plateTypeId: form.plateType!.id,
-        //   eventTypeId: form.eventType!.id,
-        //   vehicleBrandId: form.brand!.id,
-        //   vehicleColorId: form.vehicleColor!.id,
-        //   vehicleTypeId: form.vehicleType!.id,
-        //   pcn: 'form.pcn',
-        //   plateNo: form.plate,
-        //   violationDate: form.date,
-        //   paymentAmount: 'form.paymentAmount.toString()',
-        //   sltsAmount: 'form.sltsAmount.toString()',
-        //   clientAmount: 'form.clientAmount.toString()',
-        //   insertedBy: 'form.insertedBy',
-        // );
-        // await ref.read(syncOfflineDataProvider)();
-        // // // Note: syncOfflineData does the actual save via repository
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No connection—saved offline')),
-        );
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(f.displayMessage)));
-      }
-    }
-    Navigator.of(context).pop();
+    final submitted = await notifier.submit();
+
+    String message = submitted == true
+        ? 'Violation submitted successfully'
+        : submitted == null
+        ? 'Failed to submit'
+        : 'Violation saved offline';
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -428,30 +394,34 @@ class _State extends ConsumerState<CreateViolationScreen> {
                         ),
                       ),
 
-                      // Image.asset(
-                      //   AppAssets.passwordReset,
-                      //   width: wp(24),
-                      //   height: hp(12),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: hp(3)),
+                        child: Image.asset(
+                          AppAssets.error,
+                          width: wp(20),
+                          // height: hp(12),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+
+                      // SizedBox(height: hp(2)),
+                      // Text(
+                      //   'Error!',
+                      //   style: Theme.of(context).textTheme.titleMedium
+                      //       ?.copyWith(fontWeight: FontWeight.bold),
                       // ),
-                      Icon(
-                        Icons.error,
-                        size: wp(20),
-                        color: AppColors.notification,
-                      ),
-
-                      SizedBox(height: hp(2)),
-                      Text(
-                        'Error!',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-
-                      SizedBox(height: hp(3)),
-                      Text(
-                        formValue.error?.displayMessage ?? '',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.onBackgroundSurface,
-                          fontSize: 12,
+                      Container(
+                        margin: EdgeInsets.only(top: hp(3)),
+                        padding: EdgeInsets.only(bottom: hp(2)),
+                        child: Text(
+                          formValue.error?.displayMessage ??
+                              'An unexpected error occurred.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: AppColors.onBackground,
+                                // fontSize: 12,
+                              ),
                         ),
                       ),
                     ],
