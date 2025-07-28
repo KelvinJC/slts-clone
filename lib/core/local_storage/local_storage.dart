@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:slts_enforcer_app/features/sync/data/models/violation_model.dart';
@@ -20,6 +22,7 @@ class LocalStorage {
     await Hive.initFlutter();
     // Register adapters:
     Hive.registerAdapter(ViolationModelAdapter());
+    // await Hive.openBox<ViolationHiveModel>('pendingViolations');
   }
 
   /// Write a string [value] under [key].
@@ -40,10 +43,41 @@ class LocalStorage {
 
   /// Convenience: clear your auth token (e.g. on logout).
   Future<void> clearAuthToken() => delete(_Keys.authToken);
+
+  /// Convenience: persist your auth token.
+  Future<void> saveUseBiometrics(bool useBiometrics) =>
+      write(_Keys.useBiometrics, useBiometrics.toString());
+
+  /// Convenience: read your auth token.
+  Future<bool> getUseBiometrics() async {
+    final result = await read(_Keys.useBiometrics);
+    if (result == null) return false;
+
+    return Future.value(result.toString() == 'true');
+  }
+
+  /// Write a JSON-encodable list under [key].
+  Future<void> writeJsonList(String key, List<Map<String, dynamic>> list) {
+    final encoded = jsonEncode(list);
+    return _secure.write(key: key, value: encoded);
+  }
+
+  /// Read back a List<dynamic> (i.e. a JSON array) from [key],
+  /// or null if missing.
+  Future<List<dynamic>?> readJsonList(String key) async {
+    final str = await read(key);
+    if (str == null) return null;
+    try {
+      return jsonDecode(str) as List<dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Private keys used in secure storage.
 class _Keys {
   static const authToken = 'auth_token';
+  static const useBiometrics = 'use_biometrics';
   // add more keys here as needed
 }

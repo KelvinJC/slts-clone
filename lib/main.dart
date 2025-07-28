@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/ui/themes/app_theme.dart';
 import 'features/theme/presentation/providers/theme_notifier.dart';
 
@@ -35,6 +36,7 @@ void _onBackgroundFetch(String taskId) async {
   }
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,9 +46,7 @@ Future<void> main() async {
   // 2) Initialize secure storage / Hive etc.
   await LocalStorage.instance.init();
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // 3) Register headless handler before runApp
   BackgroundFetch.registerHeadlessTask(_onBackgroundFetch);
@@ -92,8 +92,46 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeNotifierProvider);
+    // final auth = ref.watch(authNotifierProvider);
+
+    // ref.listen<AuthState>(authNotifierProvider, (prev, next) {
+    //   if (next.step == AuthStep.otp) {
+    //     Navigator.pushReplacementNamed(context, '/2fa');
+    //   } else if (next.step == AuthStep.authenticated) {
+    //     Navigator.pushReplacementNamed(context, '/home');
+    //   }
+    // });
+
+    // Listen to auth changes once at app startup
+    ref.listen<AuthState>(authNotifierProvider, (prev, next) {
+      // avoid calling on first build
+      if (prev?.step != next.step) {
+        switch (next.step) {
+          case AuthStep.credentials:
+            // when logging out or fresh start
+            navigatorKey.currentState!.pushNamedAndRemoveUntil(
+              '/login',
+              (r) => false,
+            );
+            break;
+          case AuthStep.otp:
+            navigatorKey.currentState!.pushNamedAndRemoveUntil(
+              '/2fa',
+              (r) => false,
+            );
+            break;
+          case AuthStep.authenticated:
+            navigatorKey.currentState!.pushNamedAndRemoveUntil(
+              '/home',
+              (r) => false,
+            );
+            break;
+        }
+      }
+    });
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'SLTS Enforcer',
       theme: lightTheme,
       darkTheme: darkTheme,
