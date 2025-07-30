@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
+import 'package:slts_enforcer_app/ui/widgets/custom_toggle_switch.dart';
 
 /// Simple data class for each setting row.
 class SettingItemData {
   final String icon; // path from AppAssets
   final String label;
   final VoidCallback onTap;
+  final void Function(bool)? onSwitchChanged;
+  final bool? isSwitchOn;
 
   SettingItemData({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.onSwitchChanged,
+    this.isSwitchOn,
   });
 }
 
@@ -47,7 +52,14 @@ class SettingItem extends StatelessWidget {
                 ).textTheme.bodyLarge!.copyWith(color: AppColors.onBackground),
               ),
             ),
-            // Icon(Icons.chevron_right, color: AppColors.onBackground),
+            if (data.label == '2FA' &&
+                data.onSwitchChanged != null &&
+                data.isSwitchOn != null)
+              // Switch(value: data.isSwitchOn!, onChanged: data.onSwitchChanged!),
+              CustomToggleSwitch(
+                value: data.isSwitchOn!,
+                onChanged: data.onSwitchChanged!,
+              ),
           ],
         ),
       ),
