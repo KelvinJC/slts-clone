@@ -28,4 +28,6 @@ class AppAssets {
   static const phone = 'assets/icons/phone.png';
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
   static const error = 'assets/icons/error.png';
+  static const successBgGif = 'assets/gifs/success_bg.gif';
+  static const tick = 'assets/icons/teenyicons_tick-circle-solid.png';
 }
