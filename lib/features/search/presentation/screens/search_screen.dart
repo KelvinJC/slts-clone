@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
 // import 'package:slts_enforcer_app/features/search/presentation/screens/search_result_screen.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
@@ -37,7 +38,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   bool iDCollected = false,
       vehicleImpounded = false,
-      resetLink = false,
+      resendLink = false,
       share = false;
 
   /// Track which violation IDs are expanded
@@ -49,13 +50,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void toggleCard({
     bool iDCollected = false,
     bool vehicleImpounded = false,
-    bool resetLink = false,
+    bool resendLink = false,
     bool share = false,
   }) {
     setState(() {
       this.iDCollected = iDCollected;
       this.vehicleImpounded = vehicleImpounded;
-      this.resetLink = resetLink;
+      this.resendLink = resendLink;
       this.share = share;
     });
   }
@@ -208,10 +209,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           toggleCard(vehicleImpounded: true);
                         }),
                         _buildPopUpRow('Reset Link', () {
-                          toggleCard(resetLink: true);
+                          toggleCard(resendLink: true);
                         }),
                         _buildPopUpRow('Share', () {
-                          toggleCard(share: true);
+                          // toggleCard(share: true);
+                          SharePlus.instance.share(
+                            ShareParams(
+                              text: 'check out my website https://example.com',
+                            ),
+                          );
                         }),
                         SizedBox(height: hp(2)),
                       ],
@@ -439,7 +445,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ))
                 : SizedBox.shrink(),
 
-            !resetLink
+            resendLink
                 ? (resendLinkState.error != null
                       ? ErrorPopupWidget(
                           onClose: () {
