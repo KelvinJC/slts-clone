@@ -55,6 +55,7 @@ dependencies:
   intl: ^0.20.2
   image_cropper: ^9.1.0
   google_mlkit_text_recognition: ^0.15.0
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +90,7 @@ flutter:
   - assets/
   - assets/icons/
   - assets/images/
+  - assets/gifs/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

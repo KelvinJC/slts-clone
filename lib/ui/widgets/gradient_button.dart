@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
+import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 
 class GradientButton extends StatelessWidget {
   final Widget child;
   final VoidCallback onPressed;
   final bool isGradient;
   final bool isLoading;
+  final double height;
 
   const GradientButton({
     super.key,
@@ -13,6 +15,7 @@ class GradientButton extends StatelessWidget {
     required this.onPressed,
     this.isGradient = true,
     this.isLoading = false,
+    this.height = 6,
   });
 
   @override
@@ -24,7 +27,8 @@ class GradientButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        // padding: const EdgeInsets.symmetric(vertical: 16),
+        height: context.hp(height),
         decoration: BoxDecoration(
           gradient: isGradient
               ? LinearGradient(

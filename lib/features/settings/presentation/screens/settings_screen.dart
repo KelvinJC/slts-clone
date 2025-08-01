@@ -7,11 +7,18 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import '../widgets/setting_item.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _State();
+}
+
+class _State extends ConsumerState<SettingsScreen> {
+  bool isSwitchOn = false;
+
+  @override
+  Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
 
@@ -82,6 +89,19 @@ class SettingsScreen extends ConsumerWidget {
                               label: 'Privacy Policy',
                               onTap: () {
                                 // Navigator.pushNamed(context, '/privacyPolicy');
+                              },
+                            ),
+                            SettingItemData(
+                              icon: AppAssets.shield,
+                              label: '2FA',
+                              onTap: () {
+                                // Navigator.pushNamed(context, '/privacyPolicy');
+                              },
+                              isSwitchOn: isSwitchOn,
+                              onSwitchChanged: (value) {
+                                setState(() {
+                                  isSwitchOn = !isSwitchOn;
+                                });
                               },
                             ),
                             SettingItemData(
