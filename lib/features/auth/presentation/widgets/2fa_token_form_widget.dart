@@ -1,154 +1,168 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pinput/pinput.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
-import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
-import 'package:slts_enforcer_app/ui/widgets/blank_button_widget.dart';
-import '../providers/2fa_token_form_notifier.dart';
 
-class TwoFactorAuthForm extends ConsumerWidget {
+class TwoFactorAuthForm extends ConsumerStatefulWidget {
   const TwoFactorAuthForm({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pinController = ref.watch(pinControllerProvider);
-    final focusNode = ref.watch(focusNodeProvider);
-    final formKey = ref.watch(formKeyProvider);
-    final buttonState = ref.watch(buttonStateProvider);
+  ConsumerState<TwoFactorAuthForm> createState() => _TwoFactorAuthFormState();
+}
 
-    final hp = context.hp;
+class _TwoFactorAuthFormState extends ConsumerState<TwoFactorAuthForm> {
+  late final TextEditingController _pinController;
+  late final FocusNode _focusNode;
+  final _formKey = GlobalKey<FormState>();
+  bool _buttonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pinController = TextEditingController();
+    _focusNode = FocusNode();
+
+    // add focus to input
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final pin = _pinController.text.trim();
+    // call verifyOtp on your AuthNotifier
+    await ref.read(authNotifierProvider.notifier).verifyOtp(pin);
+    // AuthState listener in main.dart will navigate when authenticated
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = ref.watch(authNotifierProvider);
     final wp = context.wp;
+    final hp = context.hp;
 
-    // placeholder value to simulate correct entry of 2FA token
-    // TODO: replace with actual 2FA token
-    final expected = '222222';
-
-    final defaultPinTheme = PinTheme(
+    final pinTheme = PinTheme(
       width: wp(13),
       height: hp(6.5),
-      textStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-        fontSize: 22,
-      ),
+      textStyle: Theme.of(
+        context,
+      ).textTheme.displaySmall?.copyWith(fontSize: wp(5)),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(wp(2)),
         border: Border.all(
-            color: AppColors.onBackgroundSurface2,
-            width: wp(0.4)
+          color: AppColors.onBackgroundSurface2,
+          width: wp(0.4),
         ),
       ),
     );
 
     return Form(
-      key: formKey,
+      key: _formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Directionality(
             textDirection: TextDirection.ltr,
             child: Pinput(
-              length: expected.length,
-              controller: pinController,
-              focusNode: focusNode,
-              defaultPinTheme: defaultPinTheme,
-              separatorBuilder: (index) => SizedBox(width: wp(1.6)),
-              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-              validator: (value) => value == expected ? null : 'Pin is incorrect',
-              hapticFeedbackType: HapticFeedbackType.lightImpact,
-              onCompleted: (pin) {
-                if (pin == expected) {
-                  ref.read(buttonStateProvider.notifier).setBtnColorToGradient();
-                }
-                debugPrint('onCompleted: $pin');
-              },
-              onChanged: (value) {
-                if (value == expected) {
-                  ref.read(buttonStateProvider.notifier).setBtnColorToGradient();
-                }
-                else {
-                  ref.read(buttonStateProvider.notifier).clear();
-                }
-                debugPrint('onChanged: $value');
-              },
-              cursor: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(bottom: hp(1)),
-                    width: wp(6),
-                    height: hp(0.2),
-                    color: AppColors.secondary,
-                  ),
-                ],
-              ),
-              focusedPinTheme: defaultPinTheme.copyWith(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(wp(2)),
-                  border: Border.all(
-                      color: AppColors.primary ,
-                      width: wp(0.4)
-                  ),
+              length: 6,
+              controller: _pinController,
+              focusNode: _focusNode,
+              defaultPinTheme: pinTheme,
+              focusedPinTheme: pinTheme.copyWith(
+                decoration: pinTheme.decoration!.copyWith(
+                  border: Border.all(color: AppColors.primary, width: wp(0.4)),
                 ),
               ),
-              submittedPinTheme: defaultPinTheme.copyWith(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(wp(2)),
-                  border: Border.all(
-                      color: AppColors.secondary,
-                      width: wp(0.4)
-                  ),
+              submittedPinTheme: pinTheme.copyWith(
+                decoration: pinTheme.decoration!.copyWith(
+                  border: Border.all(color: AppColors.primary, width: wp(0.4)),
                 ),
               ),
-              errorPinTheme: defaultPinTheme.copyBorderWith(
+              errorPinTheme: pinTheme.copyBorderWith(
                 border: Border.all(color: AppColors.error),
               ),
+              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+              validator: (value) {
+                if (value == null || value.trim().length != 6) {
+                  return 'Enter 6‑digit code';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                final ok = value.trim().length == 6;
+                if (ok != _buttonEnabled) {
+                  setState(() {
+                    _buttonEnabled = ok;
+                  });
+                }
+              },
+              onCompleted: (value) => _onSubmit(),
+              // onClipboardFound: (value) {
+              //   if (value.trim().length == 6) {
+              //     _pinController.text = value;
+              //     _onSubmit();
+              //   }
+              // },
             ),
           ),
-          SizedBox(height: hp(6)),
+
+          SizedBox(height: hp(4)),
+
           Padding(
             padding: EdgeInsets.symmetric(horizontal: wp(5)),
-            child: [ButtonStage.gradient, ButtonStage.clicked].contains(buttonState)
-                ? const _GradientButton()
-                : const BlankButton(text: 'Continue'),
-          )
+            child: GradientButton(
+              isLoading: auth.loading,
+              isGradient: _buttonEnabled,
+              onPressed: () =>
+                  _buttonEnabled && !auth.loading ? _onSubmit() : null,
+              child: auth.loading
+                  ? SizedBox(
+                      width: wp(6),
+                      height: wp(6),
+                      child: const CircularProgressIndicator(
+                        color: AppColors.onPrimary,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Text(
+                      'Continue',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: _buttonEnabled
+                            ? AppColors.onPrimary
+                            : AppColors.onBackgroundSurface2,
+                        fontSize: wp(4.5),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+
+          if (auth.error != null) ...[
+            SizedBox(height: hp(2)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: wp(5)),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  auth.error!.displayMessage,
+                  style: TextStyle(color: AppColors.error, fontSize: wp(3.5)),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
-    );
-  }
-}
-
-class _GradientButton extends ConsumerWidget {
-  const _GradientButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = ref.watch(formKeyProvider);
-    final buttonState = ref.watch(buttonStateProvider);
-
-    return GradientButton(
-      child: buttonState == ButtonStage.clicked
-          ? CircularProgressIndicator(color: AppColors.onPrimary)
-          : Text(
-          'Continue',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: AppColors.onPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          )
-      ),
-      onPressed: () async {
-        FocusScope.of(context).unfocus(); // hide keyboard
-
-        if (formKey.currentState!.validate() == true) {
-          ref.read(buttonStateProvider.notifier).markButtonClicked();
-          // simulate a successful 2fa authentication to show home screen
-          await Future.delayed(const Duration(seconds: 1));
-          Navigator.popAndPushNamed(context, '/home');
-          ref.read(buttonStateProvider.notifier).clear();
-        }
-      },
     );
   }
 }

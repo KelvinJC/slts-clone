@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/core/utils/ocr_utils.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:slts_enforcer_app/features/search/presentation/screens/search_screen.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -21,6 +25,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // The three pages
   static const _pages = [HomeTab(), CreateViolationTab(), SettingsTab()];
+
+  @override
+  void initState() {
+    super.initState();
+    // //if not authenticated, navigate to login screen
+    // if (ref.read(authNotifierProvider).step != AuthStep.authenticated) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    //   });
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +61,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildGradientFAB(BuildContext ctx, double Function(double) wp) {
+    final notifier = ref.read(runPlateProvider.notifier);
     return FloatingActionButton(
-      onPressed: () => {},
+      onPressed: () {
+        detectPlateAndNavigate(
+          context,
+          onSelected: (plate) {
+            print(plate);
+            // // navigate to SearchScreen, passing initial value
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (_) => SearchScreen(initialQuery: plate),
+            //   ),
+            // );
+            setState(() {
+              notifier.setPlate(plate);
+            });
+          },
+        );
+      },
       backgroundColor: AppColors.surface,
       splashColor: AppColors.buttonGradient[1].withAlpha(50),
       elevation: 0,
@@ -114,8 +147,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     double Function(double) wp,
     double Function(double) hp,
   ) {
+    final notifier = ref.read(runPlateProvider.notifier);
+
     return BottomAppBar(
-      height: hp(8),
+      height: hp(7),
       color: AppColors.surface,
       elevation: 0,
       shape: const CircularNotchedRectangle(inverted: true),
@@ -138,6 +173,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               selected: _currentIndex == 1,
               onTap: () {
                 // setState(() => _currentIndex = 1);
+                detectPlateAndNavigate(
+                  context,
+                  onSelected: (plate) {
+                    print(plate);
+                    // // navigate to SearchScreen, passing initial value
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (_) => SearchScreen(initialQuery: plate),
+                    //   ),
+                    // );
+                    setState(() {
+                      notifier.setPlate(plate);
+                    });
+                  },
+                );
               },
             ),
             NavItem(

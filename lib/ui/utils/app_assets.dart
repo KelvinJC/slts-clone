@@ -6,7 +6,7 @@ class AppAssets {
   static const home = 'assets/icons/home.png';
   static const patrol = 'assets/icons/patrol_mode.png';
   static const profile = 'assets/icons/profile.png';
-  static const violation = 'assets/icons/violation_report.png';
+  // static const violation = 'assets/icons/violation_report.png';
   static const search = 'assets/icons/search.png';
   static const platePlaceholder = 'assets/images/plate_placeholder.png';
   static const settings = 'assets/icons/settings.png';
@@ -15,7 +15,9 @@ class AppAssets {
   static const appLogo = 'assets/images/slts-logo.png';
   static const trafficScene = 'assets/images/traffic-scene.jpg';
   static const logoAnimation = 'assets/images/slts-animated-logo-transparent.gif';
-  static const passwordReset = 'assets/images/password-reset-img.png';
+  // static const passwordReset = 'assets/images/password-reset-img.png';
+  static const createJob = 'assets/images/oui_ml-create-advanced-job.png';
+  static const passwordResetEmail = 'assets/images/password-reset-email.png';
   static const arrowDown = 'assets/icons/arrow_down.png';
   static const imagePlaceholder = "assets/icons/image-placeholder.png";
   static const lock = 'assets/icons/hugeicons_lock-password.png';
@@ -25,6 +27,7 @@ class AppAssets {
   static const mail = 'assets/icons/mage_email.png';
   static const phone = 'assets/icons/phone.png';
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
+  static const error = 'assets/icons/error.png';
   static const plateNumberPlaceHolder = 'assets/images/plate-number-focus.png';
   static const menu = 'assets/icons/menu-dots.png';
   static const whatsApp = 'assets/icons/whatsapp.png';

@@ -17,117 +17,118 @@ class PatrolModeScreen extends ConsumerWidget {
     final wp = context.wp;
     final hp = context.hp;
     final imagePath = AppAssets.patrolModePlaceholder;
-    final List<Violation> violations = [
-      Violation(
-        pcnNumber: 'PCN-002452',
-        plateNumber: 'ABC-1234XL',
-        offence: 'Speeding',
-        zone: 'Zone A',
-        date: DateTime.now(),
-        firstName: 'John',
-        surname: 'Doe',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      Violation(
-        pcnNumber: 'PCN-006752',
-        plateNumber: 'ABC-9034XJ',
-        offence: 'Illegal Parking',
-        zone: 'Zone B',
-        date: DateTime.now().subtract(Duration(days: 1)),
-        firstName: 'Jane',
-        surname: 'Smith',
-      ),
-      // …more sample data…
-    ];
+    // final List<Violation> violations = [
+    //   Violation(
+    //     pcnNumber: 'PCN-002452',
+    //     plateNumber: 'ABC-1234XL',
+    //     offence: 'Speeding',
+    //     zone: 'Zone A',
+    //     date: DateTime.now(),
+    //     firstName: 'John',
+    //     surname: 'Doe',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   Violation(
+    //     pcnNumber: 'PCN-006752',
+    //     plateNumber: 'ABC-9034XJ',
+    //     offence: 'Illegal Parking',
+    //     zone: 'Zone B',
+    //     date: DateTime.now().subtract(Duration(days: 1)),
+    //     firstName: 'Jane',
+    //     surname: 'Smith',
+    //   ),
+    //   // …more sample data…
+    // ];
+
     final Map<String, String> details = {
       'Owner Full Name': 'Oyewumi Olukunle',
       'Gender': 'Male',
@@ -197,51 +198,52 @@ class PatrolModeScreen extends ConsumerWidget {
                           horizontal: wp(4),
                           vertical: hp(2),
                         ),
-                        child: HtmlTable<Violation>(
-                          headers: headers,
-                          rowData: violations,
-                          rowBuilder: (list) => list.map((v) {
-                            return [
-                              Text(v.plateNumber),
-                              // Text(v.zone),
-                              const Text(
-                                'Not Paid',
-                                style: TextStyle(color: AppColors.danger),
-                              ),
-                              Icon(
-                                Icons.visibility,
-                                color: AppColors.onBackgroundSurface,
-                              ),
-                            ];
-                          }).toList(),
-                          onRowTap: (v, index) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => PatrolModeViewDetailsScreen(
-                                  details: details,
-                                ),
-                              ),
-                            );
-                          },
-                          columnWidths: [
-                            FixedColumnWidth(wp(40)),
-                            FixedColumnWidth(wp(30)),
-                            FixedColumnWidth(wp(20)),
-                          ],
-                          // // Example styling props:
-                          // columnWidths: List.generate(
-                          //   headers.length,
-                          //   (_) => IntrinsicColumnWidth(),
-                          // ),
-                          borderRadius: BorderRadius.circular(12),
-                          outerBorderColor: AppColors.onBackgroundSurface2,
-                          innerBorderColor: AppColors.onBackgroundSurface2,
-                          rowHeight: hp(2.5),
-                          cellPadding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 10,
-                          ),
-                        ),
+                        child: SizedBox(),
+                        // HtmlTable<Violation>(
+                        //   headers: headers,
+                        //   rowData: violations,
+                        //   rowBuilder: (list) => list.map((v) {
+                        //     return [
+                        //       Text(v.plateNumber),
+                        //       // Text(v.zone),
+                        //       const Text(
+                        //         'Not Paid',
+                        //         style: TextStyle(color: AppColors.danger),
+                        //       ),
+                        //       Icon(
+                        //         Icons.visibility,
+                        //         color: AppColors.onBackgroundSurface,
+                        //       ),
+                        //     ];
+                        //   }).toList(),
+                        //   onRowTap: (v, index) {
+                        //     Navigator.of(context).push(
+                        //       MaterialPageRoute(
+                        //         builder: (_) => PatrolModeViewDetailsScreen(
+                        //           details: details,
+                        //         ),
+                        //       ),
+                        //     );
+                        //   },
+                        //   columnWidths: [
+                        //     FixedColumnWidth(wp(40)),
+                        //     FixedColumnWidth(wp(30)),
+                        //     FixedColumnWidth(wp(20)),
+                        //   ],
+                        //   // // Example styling props:
+                        //   // columnWidths: List.generate(
+                        //   //   headers.length,
+                        //   //   (_) => IntrinsicColumnWidth(),
+                        //   // ),
+                        //   borderRadius: BorderRadius.circular(12),
+                        //   outerBorderColor: AppColors.onBackgroundSurface2,
+                        //   innerBorderColor: AppColors.onBackgroundSurface2,
+                        //   rowHeight: hp(2.5),
+                        //   cellPadding: const EdgeInsets.symmetric(
+                        //     vertical: 10,
+                        //     horizontal: 10,
+                        //   ),
+                        // ),
                       ),
                     ],
                   ),

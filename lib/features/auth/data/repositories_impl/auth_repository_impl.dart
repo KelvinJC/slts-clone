@@ -6,6 +6,7 @@ import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 import 'package:slts_enforcer_app/core/utils/retry.dart';
+import 'package:slts_enforcer_app/features/auth/data/models/forgot_password_request.dart';
 // import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 // import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.dart';
@@ -45,16 +46,57 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return await retry<User>(() async {
       final resp = await api.verifyOtp(req);
-      if (resp.message.toLowerCase() != 'success' || resp.userData.isEmpty) {
+      if (resp.message.toLowerCase() != 'success' ||
+          (resp.userData?.isEmpty ?? true)) {
         throw UnexpectedFailure(rawMessage: 'OTP verification failed');
       }
 
-      final userModel = resp.userData.first;
+      final userModel = resp.userData?.first;
       // persist the token
       await storage.saveAuthToken(
-        userModel.token.headers['SLTSTrafficAPIToken']!,
+        userModel!.token.headers['SLTSTrafficAPIToken']!,
       );
+
+      // persist useBiometric
+      await storage.saveUseBiometrics(true);
+
       return userModel.toEntity();
+    });
+  }
+
+  @override
+  Future<User> loginWithToken() async {
+    await ensureConnected();
+    return await retry<User>(() async {
+      final resp = await api.loginWithToken();
+      if (resp.message.toLowerCase() != 'success' ||
+          (resp.userData?.isEmpty ?? true)) {
+        throw UnexpectedFailure(rawMessage: 'Login failed');
+      }
+
+      final userModel = resp.userData?.first;
+      // persist the token
+      await storage.saveAuthToken(
+        userModel!.token.headers['SLTSTrafficAPIToken']!,
+      );
+
+      // persist useBiometric
+      await storage.saveUseBiometrics(true);
+
+      return userModel.toEntity();
+    });
+  }
+
+  @override
+  Future<void> forgotPassword(String email, String token) async {
+    await ensureConnected();
+    final req = ForgotPasswordRequest(email: email, token: token);
+
+    return await retry<void>(() async {
+      final response = await api.requestPasswordReset(req);
+      if (response.message.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: response.message);
+      }
     });
   }
 
