@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/add_payment_card_screen.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/pay_now_screen.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/vehicle_impounded_screen.dart';
 import '../features/auth/presentation/screens/2fa_screen.dart';
 import 'package:slts_enforcer_app/features/profile/presentation/screens/profile_screen.dart';
@@ -39,5 +41,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/idCollectionNotification': (_) => const IdCollectionNotificationScreen(),
   '/vehicleImpounded': (_) => const VehicleImpoundedScreen(),
   '/vehicleImpoundedNotification': (_) => const VehicleImpoundNotificationScreen(),
+  '/payment': (_) => const PaymentScreen(),
+  '/addCard': (_) => const AddPaymentCardScreen(),
   // TODO: Add '/register', '/home', etc.
 };

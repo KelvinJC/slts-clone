@@ -33,6 +33,8 @@ class AppAssets {
   static const twitter = 'assets/icons/twitter.png';
   static const copyLink = 'assets/icons/copy-link.png';
   static const checkMark = 'assets/images/check-mark.png';
-  // static const copyLink = 'assets/icons/check-mark.png';
+  static const mastercard = 'assets/images/mastercard-logo.png';
+  static const visa = 'assets/images/visa-card-logo.png';
+  static const radioButton = 'assets/images/radio-button.png';
 
 }

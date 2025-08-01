@@ -246,11 +246,9 @@ class DetailsCard extends StatelessWidget {
             alignment: Alignment.topLeft,
             child: Text(
                 header,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onBackground,
-                    fontSize: 15
-                )
+                style: Theme.of(context,).textTheme.titleSmall!.copyWith(
+                    fontWeight: FontWeight.bold
+                ),
             ),
           ),
           SizedBox(height: hp(5)),
@@ -329,7 +327,7 @@ class DropDownMenu extends ConsumerWidget {
       {
         'title': 'Pay Now',
         'onClick': () {
-          Navigator.pushNamed(context, '/resendViolationLink');
+          Navigator.pushNamed(context, '/payment');
           ref.read(menuStateProvider.notifier).clear();
         }
       },
