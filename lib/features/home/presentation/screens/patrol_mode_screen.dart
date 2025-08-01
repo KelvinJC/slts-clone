@@ -7,6 +7,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
+import 'package:slts_enforcer_app/ui/widgets/no_record_found.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 
 class PatrolModeScreen extends ConsumerWidget {
@@ -153,6 +154,7 @@ class PatrolModeScreen extends ConsumerWidget {
       const Text('Status'),
       const Text('View'),
     ];
+    bool hasData = false; // Replace with actual data check
 
     return Scaffold(
       body: Stack(
@@ -193,57 +195,62 @@ class PatrolModeScreen extends ConsumerWidget {
                         ),
                       ),
                       // Details card
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: wp(4),
-                          vertical: hp(2),
+                      SizedBox(
+                        height: hp(55),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: wp(4),
+                            vertical: hp(2),
+                          ),
+                          child: hasData
+                              ? SizedBox()
+                              // HtmlTable<Violation>(
+                              //   headers: headers,
+                              //   rowData: violations,
+                              //   rowBuilder: (list) => list.map((v) {
+                              //     return [
+                              //       Text(v.plateNumber),
+                              //       // Text(v.zone),
+                              //       const Text(
+                              //         'Not Paid',
+                              //         style: TextStyle(color: AppColors.danger),
+                              //       ),
+                              //       Icon(
+                              //         Icons.visibility,
+                              //         color: AppColors.onBackgroundSurface,
+                              //       ),
+                              //     ];
+                              //   }).toList(),
+                              //   onRowTap: (v, index) {
+                              //     Navigator.of(context).push(
+                              //       MaterialPageRoute(
+                              //         builder: (_) => PatrolModeViewDetailsScreen(
+                              //           details: details,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   },
+                              //   columnWidths: [
+                              //     FixedColumnWidth(wp(40)),
+                              //     FixedColumnWidth(wp(30)),
+                              //     FixedColumnWidth(wp(20)),
+                              //   ],
+                              //   // // Example styling props:
+                              //   // columnWidths: List.generate(
+                              //   //   headers.length,
+                              //   //   (_) => IntrinsicColumnWidth(),
+                              //   // ),
+                              //   borderRadius: BorderRadius.circular(12),
+                              //   outerBorderColor: AppColors.onBackgroundSurface2,
+                              //   innerBorderColor: AppColors.onBackgroundSurface2,
+                              //   rowHeight: hp(2.5),
+                              //   cellPadding: const EdgeInsets.symmetric(
+                              //     vertical: 10,
+                              //     horizontal: 10,
+                              //   ),
+                              // ),
+                              : NoRecordFound(),
                         ),
-                        child: SizedBox(),
-                        // HtmlTable<Violation>(
-                        //   headers: headers,
-                        //   rowData: violations,
-                        //   rowBuilder: (list) => list.map((v) {
-                        //     return [
-                        //       Text(v.plateNumber),
-                        //       // Text(v.zone),
-                        //       const Text(
-                        //         'Not Paid',
-                        //         style: TextStyle(color: AppColors.danger),
-                        //       ),
-                        //       Icon(
-                        //         Icons.visibility,
-                        //         color: AppColors.onBackgroundSurface,
-                        //       ),
-                        //     ];
-                        //   }).toList(),
-                        //   onRowTap: (v, index) {
-                        //     Navigator.of(context).push(
-                        //       MaterialPageRoute(
-                        //         builder: (_) => PatrolModeViewDetailsScreen(
-                        //           details: details,
-                        //         ),
-                        //       ),
-                        //     );
-                        //   },
-                        //   columnWidths: [
-                        //     FixedColumnWidth(wp(40)),
-                        //     FixedColumnWidth(wp(30)),
-                        //     FixedColumnWidth(wp(20)),
-                        //   ],
-                        //   // // Example styling props:
-                        //   // columnWidths: List.generate(
-                        //   //   headers.length,
-                        //   //   (_) => IntrinsicColumnWidth(),
-                        //   // ),
-                        //   borderRadius: BorderRadius.circular(12),
-                        //   outerBorderColor: AppColors.onBackgroundSurface2,
-                        //   innerBorderColor: AppColors.onBackgroundSurface2,
-                        //   rowHeight: hp(2.5),
-                        //   cellPadding: const EdgeInsets.symmetric(
-                        //     vertical: 10,
-                        //     horizontal: 10,
-                        //   ),
-                        // ),
                       ),
                     ],
                   ),

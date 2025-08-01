@@ -1090,7 +1090,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               height: 6.5,
               isGradient: !allowProceed,
               child: childWidget(title1, !allowProceed),
-              onPressed: () => !allowProceed ? onTapBtnOne : null,
+              onPressed: () =>
+                  !allowProceed && onTapBtnOne != null ? onTapBtnOne() : null,
             ),
           ),
           SizedBox(width: wp(4)),
@@ -1100,7 +1101,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               isLoading: isLoading,
               isGradient: allowProceed,
               child: childWidget(title2, allowProceed, loading: isLoading),
-              onPressed: () => allowProceed ? onTapBtnTwo : null,
+              onPressed: () =>
+                  allowProceed && onTapBtnTwo != null ? onTapBtnTwo() : null,
             ),
           ),
         ],

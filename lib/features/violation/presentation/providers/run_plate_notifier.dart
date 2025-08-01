@@ -20,8 +20,8 @@ class RunPlateState {
   }) {
     return RunPlateState(
       loading: loading ?? this.loading,
-      results: results ?? this.results,
-      error: error ?? this.error,
+      results: loading == true ? null : results ?? this.results,
+      error: error,
     );
   }
 }
@@ -63,6 +63,11 @@ class RunPlateNotifier extends StateNotifier<RunPlateState> {
     state = const RunPlateState();
     controller.clear();
     focusNode.unfocus();
+  }
+
+  /// Reset any error state
+  void resetError() {
+    state = state.copyWith(error: null);
   }
 
   @override

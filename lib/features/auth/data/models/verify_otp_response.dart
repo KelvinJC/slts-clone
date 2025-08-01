@@ -5,7 +5,7 @@ part 'verify_otp_response.g.dart';
 
 @JsonSerializable()
 class VerifyOtpResponse {
-  final String message;
+  final String? message;
   @JsonKey(name: 'userData')
   final List<UserModel>? userData;
 

@@ -31,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
     // 3) retry the whole call on transient errors
     await retry<void>(() async {
       final resp = await api.authenticate(req);
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(
           rawMessage: 'Authentication failed: ${resp.message}',
         );
@@ -46,7 +46,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return await retry<User>(() async {
       final resp = await api.verifyOtp(req);
-      if (resp.message.toLowerCase() != 'success' ||
+      if (resp.message?.toLowerCase() != 'success' ||
           (resp.userData?.isEmpty ?? true)) {
         throw UnexpectedFailure(rawMessage: 'OTP verification failed');
       }
@@ -69,7 +69,7 @@ class AuthRepositoryImpl implements AuthRepository {
     await ensureConnected();
     return await retry<User>(() async {
       final resp = await api.loginWithToken();
-      if (resp.message.toLowerCase() != 'success' ||
+      if (resp.message?.toLowerCase() != 'success' ||
           (resp.userData?.isEmpty ?? true)) {
         throw UnexpectedFailure(rawMessage: 'Login failed');
       }
@@ -94,7 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return await retry<void>(() async {
       final response = await api.requestPasswordReset(req);
-      if (response.message.toLowerCase() != 'success') {
+      if (response.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: response.message);
       }
     });

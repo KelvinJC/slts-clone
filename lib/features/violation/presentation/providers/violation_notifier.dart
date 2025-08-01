@@ -54,9 +54,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
         resetFormFields();
         state = state.copyWith(
           plateNoLoading: false,
-          error: UnexpectedFailure(
-            rawMessage: 'No violations found for $plate',
-          ),
+          error: UnexpectedFailure(rawMessage: 'No record found for $plate'),
         );
       }
     } on Failure catch (f) {

@@ -5,8 +5,8 @@ part 'run_plate_response.g.dart';
 
 @JsonSerializable()
 class RunPlateResponse {
-  final String message;
-  final List<ViolationModel> data;
+  final String? message;
+  final List<ViolationModel>? data;
   RunPlateResponse({required this.message, required this.data});
   factory RunPlateResponse.fromJson(Map<String, dynamic> json) =>
       _$RunPlateResponseFromJson(json);

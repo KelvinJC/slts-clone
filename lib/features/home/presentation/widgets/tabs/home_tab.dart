@@ -10,6 +10,8 @@ import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
+import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/no_record_found.dart';
 // import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 
 import '../action_card.dart';
@@ -106,6 +108,13 @@ class _State extends ConsumerState<HomeTab> {
             ),
           ),
         ),
+        if (runState.error != null)
+          ErrorPopupWidget(
+            onClose: () {
+              runCtrl.resetError();
+            },
+            errorMessage: runState.error,
+          ),
       ],
     );
   }
@@ -345,24 +354,10 @@ class _State extends ConsumerState<HomeTab> {
             //     ),
             //     maxVisibleRows: 3,
             //   )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'No Media capture yet',
-                      style: Theme.of(ctx).textTheme.titleLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: hp(1)),
-                    Text(
-                      'Once there is capture, we would\nupdate it here...',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(ctx).textTheme.titleMedium,
-                    ),
-                  ],
-                ),
+            : NoRecordFound(
+                title: 'No Media capture yet',
+                sepearatorHeight: 1,
+                subtitle: 'Once there is capture, we would\nupdate it here...',
               ),
         // Positioned(
         //   right: 0,

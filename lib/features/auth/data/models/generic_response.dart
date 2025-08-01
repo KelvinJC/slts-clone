@@ -4,7 +4,7 @@ part 'generic_response.g.dart';
 
 @JsonSerializable()
 class GenericResponse {
-  final String message;
+  final String? message;
   final dynamic data;
 
   GenericResponse({required this.message, this.data});
