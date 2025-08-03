@@ -8,9 +8,9 @@ part of 'run_plate_response.dart';
 
 RunPlateResponse _$RunPlateResponseFromJson(Map<String, dynamic> json) =>
     RunPlateResponse(
-      message: json['message'] as String,
-      data: (json['data'] as List<dynamic>)
-          .map((e) => ViolationModel.fromJson(e as Map<String, dynamic>))
+      message: json['message'] as String?,
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => ViolationModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

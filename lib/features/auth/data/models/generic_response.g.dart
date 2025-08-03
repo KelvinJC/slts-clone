@@ -8,7 +8,7 @@ part of 'generic_response.dart';
 
 GenericResponse _$GenericResponseFromJson(Map<String, dynamic> json) =>
     GenericResponse(
-      message: json['message'] as String,
+      message: json['message'] as String?,
       data: json['data'],
     );
 

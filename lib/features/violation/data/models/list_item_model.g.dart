@@ -10,6 +10,7 @@ ListItemModel _$ListItemModelFromJson(Map<String, dynamic> json) =>
     ListItemModel(
       offenceId: (json['offence_id'] as num?)?.toInt(),
       offenceName: json['offence_name'] as String?,
+      amount: (json['amount'] as num?)?.toDouble(),
       zoneId: (json['zone_id'] as num?)?.toInt(),
       zoneName: json['zone_name'] as String?,
       commandId: (json['command_id'] as num?)?.toInt(),
@@ -45,6 +46,7 @@ Map<String, dynamic> _$ListItemModelToJson(ListItemModel instance) =>
       if (instance.plateColorName case final value?) 'plate_color_name': value,
       if (instance.offenceId case final value?) 'offence_id': value,
       if (instance.offenceName case final value?) 'offence_name': value,
+      if (instance.amount case final value?) 'amount': value,
       if (instance.zoneId case final value?) 'zone_id': value,
       if (instance.zoneName case final value?) 'zone_name': value,
       if (instance.commandId case final value?) 'command_id': value,

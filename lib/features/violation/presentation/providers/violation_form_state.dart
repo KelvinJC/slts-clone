@@ -5,16 +5,28 @@ import 'package:slts_enforcer_app/features/violation/data/models/violation_hive_
 class DropdownOption {
   final int id;
   final String name;
-  const DropdownOption(this.id, this.name);
+  final double? amount;
+  const DropdownOption(this.id, this.name, this.amount);
 
   /// JSON → model
   factory DropdownOption.fromJson(Map<String, dynamic> json) {
-    return DropdownOption(json['id'] as int, json['name'] as String);
+    final amountValue = json['amount'];
+    double? amount;
+
+    if (amountValue is int) {
+      amount = amountValue.toDouble();
+    } else if (amountValue is double) {
+      amount = amountValue;
+    } else {
+      amount = null;
+    }
+
+    return DropdownOption(json['id'] as int, json['name'] as String, amount);
   }
 
   /// model → JSON
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name};
+    return {'id': id, 'name': name, 'amount': amount};
   }
 
   @override
@@ -25,9 +37,9 @@ class DropdownOption {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'DropdownOption(id: $id, name: $name)';
+  String toString() => 'DropdownOption(id: $id, name: $name, amount: $amount)';
 
-  static empty() => const DropdownOption(0, '');
+  static empty() => const DropdownOption(0, '', null);
 }
 
 /// Holds the in‑progress form data.
@@ -52,6 +64,7 @@ class ViolationFormState {
   final String surname;
   final String phone;
   final String email;
+  final String? offenderId;
   final String plate;
   final DropdownOption? plateType;
   // final String? plateTypeId;
@@ -88,6 +101,7 @@ class ViolationFormState {
     this.surname = '',
     this.phone = '',
     this.email = '',
+    this.offenderId,
     this.plate = '',
     this.plateType,
     this.plateColor,
@@ -124,6 +138,7 @@ class ViolationFormState {
     String? surname,
     String? phone,
     String? email,
+    String? offenderId,
     String? plate,
     DropdownOption? plateType,
     DropdownOption? plateColor,
@@ -162,6 +177,7 @@ class ViolationFormState {
       surname: surname ?? this.surname,
       phone: phone ?? this.phone,
       email: email ?? this.email,
+      offenderId: offenderId == '' ? null : offenderId ?? this.offenderId,
       plate: plate ?? this.plate,
       plateType: plateType?.name == '' || plateType?.id == 0
           ? null

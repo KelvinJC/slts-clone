@@ -69,7 +69,7 @@ class ResendLinkNotifier extends StateNotifier<ResendLinkState> {
       // example request object:
       final req = ResendLinkRequest.fromState(state);
 
-      // await _repo.submitResendLink(req);
+      await _repo.submitResendLink(req);
       isSubmitted = true;
 
       // success → close popup, reset or navigate:

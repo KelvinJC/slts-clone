@@ -12,6 +12,7 @@ CreateViolationRequest _$CreateViolationRequestFromJson(
       zoneId: json['zone_id'] as String,
       commandId: json['command_id'] as String,
       offenceId: json['offence_id'] as String,
+      offenderId: json['offender_id'] as String,
       firstName: json['first_name'] as String,
       surname: json['surname'] as String,
       phoneNumber: json['phone_number'] as String,
@@ -26,12 +27,9 @@ CreateViolationRequest _$CreateViolationRequestFromJson(
       plateNo: json['plate_no'] as String,
       violationDate: json['violation_date'] as String,
       paymentAmount: json['payment_amount'] as String,
-      sltsAmount: json['slts_amount'] as String,
-      clientAmount: json['client_amount'] as String,
       insertedBy: json['inserted_by'] as String,
-      violationFiles: (json['violation_files'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      files:
+          (json['files'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$CreateViolationRequestToJson(
@@ -40,6 +38,7 @@ Map<String, dynamic> _$CreateViolationRequestToJson(
       'zone_id': instance.zoneId,
       'command_id': instance.commandId,
       'offence_id': instance.offenceId,
+      'offender_id': instance.offenderId,
       'first_name': instance.firstName,
       'surname': instance.surname,
       'phone_number': instance.phoneNumber,
@@ -54,8 +53,6 @@ Map<String, dynamic> _$CreateViolationRequestToJson(
       'plate_no': instance.plateNo,
       'violation_date': instance.violationDate,
       'payment_amount': instance.paymentAmount,
-      'slts_amount': instance.sltsAmount,
-      'client_amount': instance.clientAmount,
       'inserted_by': instance.insertedBy,
-      'violation_files': instance.violationFiles,
+      'files': instance.files,
     };

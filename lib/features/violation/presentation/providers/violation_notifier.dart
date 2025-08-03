@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
@@ -21,8 +22,9 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final FocusNode plateNoFocusNode;
   List<Violation> list = [];
   final LocalStorage _storage;
+  final AuthState _authState;
 
-  ViolationNotifier(this._repo, this._syncRepo, this._storage)
+  ViolationNotifier(this._repo, this._syncRepo, this._storage, this._authState)
     : plateNoController = TextEditingController(),
       plateNoFocusNode = FocusNode(),
       super(ViolationFormState.initial()) {
@@ -307,7 +309,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
     final form = state;
     state = state.copyWith(loading: true, error: null);
     // 1️⃣ Convert each local file path into a Base64‐encoded string
-    final violationFiles = await Future.wait(
+    final files = await Future.wait(
       state.mediaPaths.map((path) async {
         final bytes = await File(path).readAsBytes();
         return base64Encode(bytes);
@@ -318,6 +320,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       zoneId: form.zone!.id.toString(),
       commandId: form.command!.id.toString(),
       offenceId: form.offence!.id.toString(),
+      offenderId: form.offenderId ?? '',
       firstName: form.firstName,
       surname: form.surname,
       phoneNumber: form.phone,
@@ -331,13 +334,13 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       pcn: list.isNotEmpty ? list.first.pcnNumber : '',
       plateNo: form.plate,
       violationDate: form.date,
-      paymentAmount: list.isNotEmpty ? list.first.amount.toString() : '0.0',
-      sltsAmount: list.isNotEmpty ? list.first.sltsAmount.toString() : '0.0',
-      clientAmount: list.isNotEmpty
-          ? list.first.clientAmount.toString()
-          : '0.0',
-      insertedBy: await _storage.getAuthToken() ?? '',
-      violationFiles: violationFiles,
+      paymentAmount: form.offence?.amount.toString() ?? '0',
+      // sltsAmount: list.isNotEmpty ? list.first.sltsAmount.toString() : '0.0',
+      // clientAmount: list.isNotEmpty
+      //     ? list.first.clientAmount.toString()
+      //     : '0.0',
+      insertedBy: _authState.user?.id.toString() ?? '0',
+      files: files,
     );
 
     try {
@@ -390,7 +393,8 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       surname: '',
       phone: '',
       email: '',
-      // OBSOLETE
+      //
+      offenderId: '',
       offence: DropdownOption.empty(),
       eventType: DropdownOption.empty(),
       date: '',
@@ -418,22 +422,31 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
 
       state = state.copyWith(
         plate: v.plateNumber,
-        plateType: DropdownOption(v.plateTypeId, v.plateTypeName),
-        plateColor: DropdownOption(v.plateColorId, v.plateColorName),
-        brand: DropdownOption(v.vehicleBrandId, v.vehicleBrandName),
-        vehicleType: DropdownOption(v.vehicleTypeId, v.vehicleTypeName),
-        vehicleColor: DropdownOption(v.vehicleColorId, v.vehicleColorName),
+        plateType: DropdownOption(v.plateTypeId, v.plateTypeName, null),
+        plateColor: DropdownOption(v.plateColorId, v.plateColorName, null),
+        brand: DropdownOption(v.vehicleBrandId, v.vehicleBrandName, null),
+        vehicleType: DropdownOption(v.vehicleTypeId, v.vehicleTypeName, null),
+        vehicleColor: DropdownOption(
+          v.vehicleColorId,
+          v.vehicleColorName,
+          null,
+        ),
         //
         firstName: v.firstName,
         surname: v.surname,
         phone: v.phoneNumber,
         email: v.emailAddress,
-        // OBSOLETE
-        offence: DropdownOption(v.offenceId, v.offenceName),
-        eventType: DropdownOption(v.eventTypeId, v.eventTypeName),
-        date: v.violationDate.toIso8601String(),
-        zone: DropdownOption(v.zoneId, v.zoneName),
-        command: DropdownOption(v.commandId, v.commandName),
+        //
+        offenderId: v.offenderId.toString(),
+        // offence: DropdownOption(
+        //   v.offenceId,
+        //   v.offenceName,
+        //   v.amount.toDouble(),
+        // ),
+        // eventType: DropdownOption(v.eventTypeId, v.eventTypeName, null),
+        // date: v.violationDate.toIso8601String(),
+        // zone: DropdownOption(v.zoneId, v.zoneName, null),
+        // command: DropdownOption(v.commandId, v.commandName, null),
       );
     } else {
       await _loadAllSettings();
@@ -449,5 +462,6 @@ final violationNotifierProvider =
         ref.read(violationRepositoryProvider),
         ref.read(syncRepositoryProvider),
         ref.read(localStorageProvider),
+        ref.read(authNotifierProvider),
       ),
     );

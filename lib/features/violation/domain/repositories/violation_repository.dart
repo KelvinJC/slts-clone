@@ -1,4 +1,7 @@
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/id_capture_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/vehicle_impounded_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 
@@ -21,4 +24,13 @@ abstract class ViolationRepository {
 
   /// Runs a plate number search; returns list of matches.
   Future<List<Violation>> runPlateNumber(String plate);
+
+  /// submit resend link
+  Future<void> submitResendLink(ResendLinkRequest req);
+
+  /// submit id capture
+  Future<void> submitIdCapture(IdCaptureRequest req);
+
+  /// submit vehicle impounded
+  Future<void> submitVehicleImpounded(VehicleImpoundedRequest req);
 }

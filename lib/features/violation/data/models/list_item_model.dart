@@ -33,6 +33,8 @@ class ListItemModel {
   final int? offenceId;
   @JsonKey(name: 'offence_name', includeIfNull: false)
   final String? offenceName;
+  @JsonKey(name: 'amount', includeIfNull: false)
+  final double? amount;
 
   @JsonKey(name: 'zone_id', includeIfNull: false)
   final int? zoneId;
@@ -54,6 +56,7 @@ class ListItemModel {
   ListItemModel({
     this.offenceId,
     this.offenceName,
+    this.amount,
     this.zoneId,
     this.zoneName,
     this.commandId,

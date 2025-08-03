@@ -69,7 +69,7 @@ class VehicleImpoundedNotifier extends StateNotifier<VehicleImpoundedState> {
       // example request object:
       final req = VehicleImpoundedRequest.fromState(state);
 
-      // await _repo.submitVehicleImpounded(req);
+      await _repo.submitVehicleImpounded(req);
       isSubmitted = true;
 
       // success → close popup, reset or navigate:

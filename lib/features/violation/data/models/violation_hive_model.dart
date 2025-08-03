@@ -39,19 +39,22 @@ class ViolationHiveModel {
   final String violationDate;
   @HiveField(16)
   final String paymentAmount;
+  // @HiveField(17)
+  // final String sltsAmount;
+  // @HiveField(18)
+  // final String clientAmount;
   @HiveField(17)
-  final String sltsAmount;
-  @HiveField(18)
-  final String clientAmount;
-  @HiveField(19)
   final String insertedBy;
-  @HiveField(20)
-  final List<String>? violationFiles;
+  @HiveField(18)
+  final List<String>? files;
+  @HiveField(19)
+  final int offenderId;
 
   ViolationHiveModel({
     required this.zoneId,
     required this.commandId,
     required this.offenceId,
+    required this.offenderId,
     required this.firstName,
     required this.surname,
     required this.phoneNumber,
@@ -66,10 +69,10 @@ class ViolationHiveModel {
     required this.plateNo,
     required this.violationDate,
     required this.paymentAmount,
-    required this.sltsAmount,
-    required this.clientAmount,
+    // required this.sltsAmount,
+    // required this.clientAmount,
     required this.insertedBy,
-    required this.violationFiles,
+    required this.files,
   });
 
   /// From domain → Hive
@@ -78,6 +81,7 @@ class ViolationHiveModel {
         zoneId: v.zoneId,
         commandId: v.commandId,
         offenceId: v.offenceId,
+        offenderId: v.offenderId,
         firstName: v.firstName,
         surname: v.surname,
         phoneNumber: v.phoneNumber,
@@ -92,10 +96,10 @@ class ViolationHiveModel {
         plateNo: v.plateNo,
         violationDate: v.violationDate.toIso8601String(),
         paymentAmount: v.paymentAmount.toString(),
-        sltsAmount: v.sltsAmount.toString(),
-        clientAmount: v.clientAmount.toString(),
+        // sltsAmount: v.sltsAmount.toString(),
+        // clientAmount: v.clientAmount.toString(),
         insertedBy: v.insertedBy,
-        violationFiles: v.violationFiles,
+        files: v.files,
       );
 
   /// From Hive → domain
@@ -103,6 +107,7 @@ class ViolationHiveModel {
     zoneId: zoneId,
     commandId: commandId,
     offenceId: offenceId,
+    offenderId: offenderId,
     firstName: firstName,
     surname: surname,
     phoneNumber: phoneNumber,
@@ -117,9 +122,9 @@ class ViolationHiveModel {
     plateNo: plateNo,
     violationDate: DateTime.parse(violationDate),
     paymentAmount: int.parse(paymentAmount),
-    sltsAmount: int.parse(sltsAmount),
-    clientAmount: int.parse(clientAmount),
+    // sltsAmount: int.parse(sltsAmount),
+    // clientAmount: int.parse(clientAmount),
     insertedBy: insertedBy,
-    violationFiles: violationFiles,
+    files: files,
   );
 }

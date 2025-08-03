@@ -87,7 +87,7 @@ class IdCaptureNotifier extends StateNotifier<IdCaptureState> {
       // example request object:
       final req = IdCaptureRequest.fromState(state);
 
-      // await _repo.submitIdCapture(req);
+      await _repo.submitIdCapture(req);
       isSubmitted = true;
 
       // success → close popup, reset or navigate:

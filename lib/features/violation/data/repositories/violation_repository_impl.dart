@@ -3,8 +3,11 @@ import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/id_capture_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/list_item_model.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/vehicle_impounded_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 // import 'package:slts_enforcer_app/core/errors/failures.dart';
@@ -53,8 +56,14 @@ class ViolationRepositoryImpl implements ViolationRepository {
     List<ListItemModel> data, {
     required int Function(ListItemModel) id,
     required String Function(ListItemModel) name,
+    double Function(ListItemModel)? amount,
   }) {
-    return data.map((m) => DropdownOption(id(m), name(m))).toList();
+    return data
+        .map(
+          (m) =>
+              DropdownOption(id(m), name(m), amount == null ? null : amount(m)),
+        )
+        .toList();
   }
 
   @override
@@ -185,6 +194,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
         models,
         id: (m) => m.offenceId!,
         name: (m) => m.offenceName!,
+        amount: (m) => m.amount!,
       );
     });
   }
@@ -248,6 +258,54 @@ class ViolationRepositoryImpl implements ViolationRepository {
         id: (m) => m.commandId!,
         name: (m) => m.commandName!,
       );
+    });
+  }
+
+  @override
+  Future<void> submitResendLink(ResendLinkRequest req) async {
+    // 1) ensure we have connectivity
+    await ensureConnected();
+
+    // 3) retry the whole call on transient errors
+    await retry<void>(() async {
+      final resp = await _api.resendLink(req);
+      if (resp.message?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(
+          rawMessage: 'Resend link failed: ${resp.message}',
+        );
+      }
+    });
+  }
+
+  @override
+  Future<void> submitIdCapture(IdCaptureRequest req) async {
+    // 1) ensure we have connectivity
+    await ensureConnected();
+
+    // 3) retry the whole call on transient errors
+    await retry<void>(() async {
+      final resp = await _api.idCapture(req);
+      if (resp.message?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(
+          rawMessage: 'ID capture failed: ${resp.message}',
+        );
+      }
+    });
+  }
+
+  @override
+  Future<void> submitVehicleImpounded(VehicleImpoundedRequest req) async {
+    // 1) ensure we have connectivity
+    await ensureConnected();
+
+    // 3) retry the whole call on transient errors
+    await retry<void>(() async {
+      final resp = await _api.vehicleImpounded(req);
+      if (resp.message?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(
+          rawMessage: 'ID capture failed: ${resp.message}',
+        );
+      }
     });
   }
 }

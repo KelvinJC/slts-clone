@@ -38,7 +38,9 @@ Future<T> retry<T>(
       final status = dioErr.response?.statusCode ?? 0;
       final isServerError = status >= 500 && status < 600;
 
-      if (isTimeout || isServerError) {
+      if (isTimeout ||
+          isServerError ||
+          dioErr.type == DioExceptionType.unknown) {
         // safe to retry
         lastFailure = failure;
       } else {
