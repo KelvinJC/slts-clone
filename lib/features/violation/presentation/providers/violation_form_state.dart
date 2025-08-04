@@ -46,6 +46,7 @@ class DropdownOption {
 class ViolationFormState {
   final Failure? error;
   final bool loading;
+  final bool isSubmitting;
   final ViolationHiveModel? violationModel;
   final bool isCommandLoading;
   final bool plateNoLoading;
@@ -122,6 +123,7 @@ class ViolationFormState {
     this.plateNoLoading = false,
     this.error,
     this.loading = false,
+    this.isSubmitting = false,
     this.violationModel,
   });
 
@@ -159,6 +161,7 @@ class ViolationFormState {
     bool? plateNoLoading,
     Failure? error,
     bool? loading,
+    bool? isSubmitting,
     ViolationHiveModel? violationModel,
   }) {
     return ViolationFormState(
@@ -209,6 +212,7 @@ class ViolationFormState {
       // error: error ?? this.error,
       error: error,
       loading: loading ?? this.loading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
       violationModel: violationModel ?? this.violationModel,
     );
   }

@@ -60,10 +60,9 @@ class _State extends ConsumerState<HomeTab> {
                     // schedule the search after build is over:
                     Future.microtask(() {
                       if (val.trim().isNotEmpty) {
-                        runCtrl.search().then((_) {
+                        runCtrl.search().then((v) {
                           // print(runState.results?.length);
-                          if (runState.results == null ||
-                              runState.results!.isEmpty) {
+                          if (v == null || v.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('No results found for "$val"'),

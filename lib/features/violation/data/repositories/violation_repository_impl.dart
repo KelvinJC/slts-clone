@@ -25,7 +25,8 @@ class ViolationRepositoryImpl implements ViolationRepository {
     // 3) retry the whole call on transient errors
     await retry<void>(() async {
       final resp = await _api.createViolation(req);
-      if (resp.message?.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
         throw UnexpectedFailure(
           rawMessage: 'Create violation failed: ${resp.message}',
         );

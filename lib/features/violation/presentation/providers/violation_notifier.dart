@@ -307,7 +307,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   /// Submit the full violation.
   Future<bool?> submit() async {
     final form = state;
-    state = state.copyWith(loading: true, error: null);
+    state = state.copyWith(isSubmitting: true, error: null);
     // 1️⃣ Convert each local file path into a Base64‐encoded string
     final files = await Future.wait(
       state.mediaPaths.map((path) async {
@@ -346,7 +346,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
     try {
       await _repo.createViolation(req);
       // state = AsyncValue.data(form);
-      state = state.copyWith(loading: false, error: null);
+      state = state.copyWith(isSubmitting: false, error: null);
       resetFormFields(clearController: true);
 
       return true;
@@ -356,18 +356,18 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
         final vHiveModel = req.toViolationHiveModel();
         await _syncRepo.saveOfflineViolation(vHiveModel);
 
-        state = state.copyWith(loading: false);
+        state = state.copyWith(isSubmitting: false);
         resetFormFields(clearController: true);
 
         return false;
       }
 
-      state = state.copyWith(loading: false, error: f);
+      state = state.copyWith(isSubmitting: false, error: f);
       return null;
     } on Exception catch (e) {
       print('Error submitting violation: $e');
       state = state.copyWith(
-        loading: false,
+        isSubmitting: false,
         error: UnexpectedFailure(rawMessage: e.toString()),
       );
       return null;
@@ -448,9 +448,10 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
         // zone: DropdownOption(v.zoneId, v.zoneName, null),
         // command: DropdownOption(v.commandId, v.commandName, null),
       );
-    } else {
-      await _loadAllSettings();
     }
+    //  else {
+    await _loadAllSettings();
+    // }
     state = state.copyWith(loading: false, error: null);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
@@ -16,6 +17,12 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _State extends ConsumerState<SettingsScreen> {
   bool isSwitchOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isSwitchOn = ref.read(authNotifierProvider).user?.is2faEnabled ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {

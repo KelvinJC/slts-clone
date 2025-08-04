@@ -137,7 +137,7 @@ class _AppApi implements AppApi {
     )
         .compose(
           _dio.options,
-          '/authenticate-with-token',
+          '/login/authenticate-with-token',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -502,7 +502,7 @@ class _AppApi implements AppApi {
     )
         .compose(
           _dio.options,
-          '/violation/add',
+          '/violation/add-from-mobile',
           queryParameters: queryParameters,
           data: _data,
         )

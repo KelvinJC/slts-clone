@@ -5,9 +5,10 @@ part 'generic_response.g.dart';
 @JsonSerializable()
 class GenericResponse {
   final String? message;
+  final String? status;
   final dynamic data;
 
-  GenericResponse({required this.message, this.data});
+  GenericResponse({required this.message, this.status, this.data});
 
   factory GenericResponse.fromJson(Map<String, dynamic> json) =>
       _$GenericResponseFromJson(json);

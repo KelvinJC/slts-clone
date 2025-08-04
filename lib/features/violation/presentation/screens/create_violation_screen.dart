@@ -8,6 +8,7 @@ import 'package:slts_enforcer_app/features/violation/presentation/providers/viol
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_dropdown_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
@@ -205,82 +206,104 @@ class _State extends ConsumerState<CreateViolationScreen> {
                   padding: EdgeInsets.symmetric(horizontal: wp(4)),
                   child: Padding(
                     padding: EdgeInsets.only(top: hp(2.5), bottom: hp(0.5)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _step == ViolationStep.vehicleOffender
-                                ? null
-                                : _back,
-                            child: Container(
-                              height: hp(5.5),
-                              // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(wp(2)),
-                                border: Border.all(
-                                  color: AppColors.onBackgroundSurface2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Back',
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontSize: 18,
-                                        color: AppColors.onBackgroundSurface2,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ),
+                    child:
+                        // — Buttons
+                        _buildActionRowForCard(
+                          wp,
+                          hp,
+                          isGradient1: false,
+                          isGradient2: true,
+                          title1: 'Back',
+                          title2: _step == ViolationStep.review
+                              ? 'Save'
+                              : 'Next',
+                          onTapBtnOne: _step == ViolationStep.vehicleOffender
+                              ? null
+                              : _back,
+                          onTapBtnTwo:
+                              formValue.loading || formValue.isSubmitting
+                              ? null
+                              : (_step == ViolationStep.review ? _save : _next),
+                          isLoading:
+                              formValue.loading || formValue.isSubmitting,
                         ),
-                        SizedBox(width: wp(4)),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: formValue.loading
-                                ? null
-                                : (_step == ViolationStep.review
-                                      ? _save
-                                      : _next),
-                            child: Container(
-                              height: hp(5.5),
-                              // padding: EdgeInsets.symmetric(vertical: hp(2)),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: AppColors.buttonGradient,
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                                borderRadius: BorderRadius.circular(wp(2)),
-                              ),
-                              child: Center(
-                                child: formValue.loading
-                                    ? SizedBox(
-                                        height: wp(5),
-                                        width: wp(5),
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        _step == ViolationStep.review
-                                            ? 'Save'
-                                            : 'Next',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          color: AppColors.surface,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: GestureDetector(
+                    //         onTap: _step == ViolationStep.vehicleOffender
+                    //             ? null
+                    //             : _back,
+                    //         child: Container(
+                    //           height: hp(5.5),
+                    //           // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
+                    //           decoration: BoxDecoration(
+                    //             color: AppColors.surface,
+                    //             borderRadius: BorderRadius.circular(wp(2)),
+                    //             border: Border.all(
+                    //               color: AppColors.onBackgroundSurface2,
+                    //             ),
+                    //           ),
+                    //           child: Center(
+                    //             child: Text(
+                    //               'Back',
+                    //               style: Theme.of(context).textTheme.bodyLarge!
+                    //                   .copyWith(
+                    //                     fontSize: 18,
+                    //                     color: AppColors.onBackgroundSurface2,
+                    //                     fontWeight: FontWeight.bold,
+                    //                   ),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     SizedBox(width: wp(4)),
+                    //     Expanded(
+                    //       child: GestureDetector(
+                    //         onTap: formValue.loading || formValue.isSubmitting
+                    //             ? null
+                    //             : (_step == ViolationStep.review
+                    //                   ? _save
+                    //                   : _next),
+                    //         child: Container(
+                    //           height: hp(5.5),
+                    //           // padding: EdgeInsets.symmetric(vertical: hp(2)),
+                    //           decoration: BoxDecoration(
+                    //             gradient: LinearGradient(
+                    //               colors: AppColors.buttonGradient,
+                    //               begin: Alignment.centerLeft,
+                    //               end: Alignment.centerRight,
+                    //             ),
+                    //             borderRadius: BorderRadius.circular(wp(2)),
+                    //           ),
+                    //           child: Center(
+                    //             child:
+                    //                 formValue.loading || formValue.isSubmitting
+                    //                 ? SizedBox(
+                    //                     height: wp(5),
+                    //                     width: wp(5),
+                    //                     child: CircularProgressIndicator(
+                    //                       strokeWidth: 2,
+                    //                       color: Colors.white,
+                    //                     ),
+                    //                   )
+                    //                 : Text(
+                    //                     _step == ViolationStep.review
+                    //                         ? 'Save'
+                    //                         : 'Next',
+                    //                     style: const TextStyle(
+                    //                       fontSize: 18,
+                    //                       color: AppColors.surface,
+                    //                       fontWeight: FontWeight.bold,
+                    //                     ),
+                    //                   ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ),
                 ),
               ),
@@ -366,6 +389,69 @@ class _State extends ConsumerState<CreateViolationScreen> {
     //
   }
 
+  Widget _buildActionRowForCard(
+    double Function(double) wp,
+    double Function(double) hp, {
+    String title1 = 'Cancel',
+    String title2 = 'Proceed',
+    bool isGradient1 = false,
+    bool isGradient2 = false,
+    // bool allowProceed = false,
+    void Function()? onTapBtnOne,
+    void Function()? onTapBtnTwo,
+    bool isLoading = false,
+  }) {
+    Widget childWidget(String text, bool allow, {bool loading = false}) {
+      return loading
+          ? SizedBox(
+              width: wp(6),
+              height: wp(6),
+              child: const CircularProgressIndicator(
+                color: AppColors.onPrimary,
+                strokeWidth: 2.5,
+              ),
+            )
+          : Text(
+              text,
+              // maxLines: 1,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: allow
+                    ? AppColors.onPrimary
+                    : AppColors.onBackgroundSurface2,
+                fontSize: wp(4.5),
+                fontWeight: FontWeight.bold,
+              ),
+            );
+    }
+
+    return Container(
+      color: AppColors.surface,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: GradientButton(
+              height: 6.5,
+              isGradient: isGradient1,
+              child: childWidget(title1, isGradient1),
+              onPressed: () => onTapBtnOne != null ? onTapBtnOne() : null,
+            ),
+          ),
+          SizedBox(width: wp(4)),
+          Expanded(
+            child: GradientButton(
+              height: 6.5,
+              isLoading: isLoading,
+              isGradient: isGradient2,
+              child: childWidget(title2, isGradient2, loading: isLoading),
+              onPressed: () => onTapBtnTwo != null ? onTapBtnTwo() : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<DropdownMenuItem<DropdownOption>> dropdownItemBuilder(
     List<DropdownOption> options,
   ) {
@@ -397,10 +483,16 @@ class _State extends ConsumerState<CreateViolationScreen> {
     Widget _row(String label, String value, double Function(double) wp) => Row(
       children: [
         Text(label, style: Theme.of(context).textTheme.titleSmall),
-        Spacer(),
+        SizedBox(width: context.wp(3)),
         Visibility(
           visible: isPreviewMode,
-          child: Text(value, style: TextStyle(color: AppColors.onBackground)),
+          child: Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(color: AppColors.onBackground),
+            ),
+          ),
         ),
       ],
     );
@@ -988,7 +1080,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Phone
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Offender Email Address *', form.phone, context.wp),
+        child: _row('Offender Email Address *', form.email, context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -1035,13 +1127,19 @@ class _State extends ConsumerState<CreateViolationScreen> {
     ViolationNotifier notifier, {
     bool isPreviewMode = false,
   }) {
-    Widget _row(String label, String value, double Function(double) wp) => Row(
+    Widget row(String label, String value, double Function(double) wp) => Row(
       children: [
         Text(label, style: Theme.of(context).textTheme.titleSmall),
-        Spacer(),
+        SizedBox(width: context.wp(3)),
         Visibility(
           visible: isPreviewMode,
-          child: Text(value, style: TextStyle(color: AppColors.onBackground)),
+          child: Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(color: AppColors.onBackground),
+            ),
+          ),
         ),
       ],
     );
@@ -1087,7 +1185,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Offence dropdown
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Offence *', form.offence?.name ?? '', context.wp),
+        child: row('Offence *', form.offence?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -1096,7 +1194,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.offence,
           items: dropdownItemBuilder(form.offenceOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.offenceOptions),
-          hintText: form.offence?.name ?? 'Choose offence',
+          hintText: 'Choose offence',
           validateBorder: validateOffenderOffenceBorder,
           onChanged: (v) {
             if (!validateOffenderOffenceBorder) {
@@ -1118,7 +1216,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Event type dropdown
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Event Type *', form.eventType?.name ?? '', context.wp),
+        child: row('Event Type *', form.eventType?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -1127,7 +1225,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.eventType,
           items: dropdownItemBuilder(form.eventTypeOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.eventTypeOptions),
-          hintText: form.eventType?.name ?? 'Choose event type',
+          hintText: 'Choose event type',
           validateBorder: validateOffenderEventTypeBorder,
           onChanged: (v) {
             if (!validateOffenderEventTypeBorder) {
@@ -1149,7 +1247,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Violation date picker
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row(
+        child: row(
           'Violation Date *',
           form.date.isNotEmpty
               ? formatDateShort(
@@ -1211,7 +1309,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Zone dropdown
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Zone *', form.zone?.name ?? '', context.wp),
+        child: row('Zone *', form.zone?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -1220,7 +1318,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.zone,
           items: dropdownItemBuilder(form.zoneOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.zoneOptions),
-          hintText: form.zone?.name ?? 'Choose zone',
+          hintText: 'Choose zone',
           validateBorder: validateOffenderZoneBorder,
           onChanged: (v) async {
             if (!validateOffenderZoneBorder) {
@@ -1243,7 +1341,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
       // — Command dropdown
       Padding(
         padding: EdgeInsets.only(top: context.hp(2), bottom: context.hp(0.5)),
-        child: _row('Command *', form.command?.name ?? '', context.wp),
+        child: row('Command *', form.command?.name ?? '', context.wp),
       ),
       Visibility(
         visible: !isPreviewMode,
@@ -1253,7 +1351,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
           value: form.command,
           items: dropdownItemBuilder(form.commandOptions),
           selectedItemBuilder: (_) => selectedBuilder(form.commandOptions),
-          hintText: form.command?.name ?? 'Choose command',
+          hintText: 'Choose command',
           validateBorder: validateOffenderCommandBorder,
           onChanged: (v) {
             if (!validateOffenderCommandBorder) {

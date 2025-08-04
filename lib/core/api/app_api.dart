@@ -34,7 +34,7 @@ abstract class AppApi {
     @Body() ForgotPasswordRequest body,
   );
 
-  @POST('/authenticate-with-token')
+  @POST('/login/authenticate-with-token')
   Future<VerifyOtpResponse> loginWithToken();
 
   @POST('/violation/run-plate-number')
@@ -67,7 +67,7 @@ abstract class AppApi {
   @GET('/settings/command/list/{zoneId}')
   Future<GenericResponse> getCommandList(@Path() int zoneId);
 
-  @POST('/violation/add')
+  @POST('/violation/add-from-mobile')
   Future<GenericResponse> createViolation(@Body() CreateViolationRequest req);
 
   @POST('/violation/resend-link')

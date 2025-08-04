@@ -38,14 +38,15 @@ class RunPlateNotifier extends StateNotifier<RunPlateState> {
   final FocusNode focusNode;
 
   /// Kick off a search based on current controller.text
-  Future<void> search() async {
+  Future<List<Violation>?> search() async {
     final plate = controller.text.trim();
-    if (plate.isEmpty) return;
+    if (plate.isEmpty) return null;
 
     state = state.copyWith(loading: true, error: null);
     try {
       final list = await _repo.runPlateNumber(plate);
       state = state.copyWith(loading: false, results: list);
+      return list;
     } on Failure catch (f) {
       state = state.copyWith(loading: false, error: f.displayMessage);
     }

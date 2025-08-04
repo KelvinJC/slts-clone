@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
@@ -17,6 +18,7 @@ enum AuthStep {
 class AuthState {
   final AuthStep step;
   final bool loading;
+  final bool biometricsLoading;
   final Failure? error;
   final User? user;
 
@@ -28,6 +30,7 @@ class AuthState {
   const AuthState({
     this.step = AuthStep.credentials,
     this.loading = false,
+    this.biometricsLoading = false,
     this.error,
     this.user,
     this.email = '',
@@ -46,6 +49,7 @@ class AuthState {
   AuthState copyWith({
     AuthStep? step,
     bool? loading,
+    bool? biometricsLoading,
     Failure? error,
     User? user,
     String? email,
@@ -55,7 +59,8 @@ class AuthState {
   }) {
     return AuthState(
       step: step ?? this.step,
-      loading: loading ?? this.loading,
+      loading: biometricsLoading ?? loading ?? this.loading,
+      biometricsLoading: biometricsLoading ?? this.biometricsLoading,
       error: error,
       user: user ?? this.user,
       email: email ?? this.email,
@@ -123,26 +128,41 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> loginWithBiometrics() async {
-    final useBio = await _storage.getUseBiometrics();
-    final token = await _storage.getAuthToken();
-    if (useBio && token != null) {
-      final ok = await BiometricService().authenticate();
-      if (!ok) return;
+    state = state.copyWith(biometricsLoading: true, error: null);
+    try {
+      final useBio = await _storage.getUseBiometrics();
+      final token = await _storage.getAuthToken();
+      if (useBio && token != null) {
+        final ok = await BiometricService().authenticate();
+        if (!ok) return;
 
-      state = state.copyWith(loading: true, error: null);
-      try {
-        final user = await _repo.loginWithToken();
-        state = state.copyWith(
-          loading: false,
-          step: AuthStep.authenticated,
-          user: user,
-        );
-      } on Failure catch (f) {
-        state = state.copyWith(loading: false, error: f);
+        state = state.copyWith(loading: true, error: null);
+        try {
+          final user = await _repo.loginWithToken();
+          state = state.copyWith(
+            biometricsLoading: false,
+            step: AuthStep.authenticated,
+            user: user,
+          );
+        } on Failure catch (f) {
+          state = state.copyWith(biometricsLoading: false, error: f);
+        }
+      } else {
+        final error = UnexpectedFailure(rawMessage: 'Biometrics not enabled');
+        state = state.copyWith(biometricsLoading: false, error: error);
       }
-    } else {
-      final error = UnexpectedFailure(rawMessage: 'Biometrics not enabled');
-      state = state.copyWith(loading: false, error: error);
+    } catch (f) {
+      late UnexpectedFailure error;
+      // check if its PlatformException
+      if (f is PlatformException) {
+        error = UnexpectedFailure(rawMessage: f.message!);
+      } else {
+        print('Failed to login with biometrics: $f');
+        error = UnexpectedFailure(
+          rawMessage: 'Failed to login with biometrics',
+        );
+      }
+      state = state.copyWith(biometricsLoading: false, error: error);
     }
   }
 }
