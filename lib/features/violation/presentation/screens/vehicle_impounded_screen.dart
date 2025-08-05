@@ -104,17 +104,7 @@ class VehicleImpoundedScreen extends StatelessWidget {
                                           SizedBox(height: wp(2)),
                                           TextFormField(
                                             maxLines: 4,
-                                            onChanged: (String val) {
-                                              // if (val.trim() != '') {
-                                              //   ref
-                                              //       .read(loginFormProvider.notifier)
-                                              //       .setFieldToFilled('password', emailValue: '');
-                                              // } else {
-                                              //   ref
-                                              //       .read(loginFormProvider.notifier)
-                                              //       .setFieldToUnfilled('password');
-                                              // }
-                                            },
+                                            onChanged: (String val) {},
                                             decoration: InputDecoration(
                                               hintText: 'Write here...',
                                               hintStyle: TextStyle(
