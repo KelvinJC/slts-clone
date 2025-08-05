@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/screens/add_payment_card_screen.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/screens/pay_now_screen.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/resend_link_notification_screen.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/resend_link_screen.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/vehicle_impounded_screen.dart';
@@ -36,8 +34,6 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/idCollected': (_) => const IdCollectedScreen(),
   '/vehicleImpounded': (_) => const VehicleImpoundedScreen(),
   '/enforcementNotification': (_) => const EnforcementNotificationScreen(),
-  '/payment': (_) => const PaymentScreen(),
-  '/addCard': (_) => const AddPaymentCardScreen(),
   '/reportViolation': (_) => const ViolationReportScreen(),
   '/resendViolationLink': (_) => const ResendLinkScreen(),
   '/violationLinkNotification': (_) => const ResendLinkNotificationScreen(),
