@@ -6,9 +6,9 @@ import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 
-class IdCollectionNotificationScreen extends StatelessWidget {
+class EnforcementNotificationScreen extends StatelessWidget {
   // final Violation violation;
-  const IdCollectionNotificationScreen({super.key});
+  const EnforcementNotificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -99,21 +99,20 @@ class IdCollectionNotificationScreen extends StatelessWidget {
                                       Column(
                                           children: [
                                             Text(
-                                              'The driver’s identification has been verified',
+                                              'Vehicle ${vehicleInfo['License plate']} has been impounded',
+                                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                                  color: AppColors.onBackgroundSurface,
+                                                  fontSize: 12
+                                              ),
+                                            ),Text(
+                                              'due to multiple unpaid violations.',
                                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                                   color: AppColors.onBackgroundSurface,
                                                   fontSize: 12
                                               ),
                                             ),
                                             Text(
-                                              'and the violation has been successfully recorded.',
-                                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                                  color: AppColors.onBackgroundSurface,
-                                                  fontSize: 12
-                                              ),
-                                            ),
-                                            Text(
-                                              'All data has been updated to the system.',
+                                              'Enforcement action has been recorded successfully.',
                                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                                   color: AppColors.onBackgroundSurface,
                                                   fontSize: 12
