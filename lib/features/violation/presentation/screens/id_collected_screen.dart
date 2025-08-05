@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/id_selection_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
@@ -8,14 +10,15 @@ import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 
-class IdCollectedScreen extends StatelessWidget {
+class IdCollectedScreen extends ConsumerWidget {
   // final Violation violation;
   const IdCollectedScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hp = context.hp;
     final wp = context.wp;
+    final radioButtonState = ref.watch(idSelectionProvider);
 
     return Scaffold(
         body: GestureDetector(
@@ -121,8 +124,10 @@ class IdCollectedScreen extends StatelessWidget {
                                                     fontSize: 14,
                                                   ),
                                                 ),
-                                                value: false,
-                                                onChanged: (bool? newValue) {},
+                                                value: radioButtonState == IdSelected.driversLicense,
+                                                onChanged: (bool? newValue) {
+                                                  ref.watch(idSelectionProvider.notifier).selectId(IdSelected.driversLicense);
+                                                },
                                                 controlAffinity:
                                                 ListTileControlAffinity.leading,
                                                 checkboxShape: RoundedRectangleBorder(
@@ -145,8 +150,10 @@ class IdCollectedScreen extends StatelessWidget {
                                                     fontSize: 14,
                                                   ),
                                                 ),
-                                                value: true,
-                                                onChanged: (bool? newValue) {},
+                                                value: radioButtonState == IdSelected.vehicleParticulars,
+                                                onChanged: (bool? newValue) {
+                                                  ref.watch(idSelectionProvider.notifier).selectId(IdSelected.vehicleParticulars);
+                                                },
                                                 controlAffinity:
                                                 ListTileControlAffinity.leading,
                                                 checkboxShape: RoundedRectangleBorder(
@@ -205,7 +212,10 @@ class IdCollectedScreen extends StatelessWidget {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   GestureDetector(
-                                                    onTap: () => Navigator.pop(context),
+                                                    onTap: () {
+                                                      ref.watch(idSelectionProvider.notifier).clear();
+                                                      Navigator.pop(context);
+                                                    },
                                                     child: SizedBox(
                                                       width: wp(35),
                                                       child: BlankButton(text: 'Cancel'),
@@ -214,7 +224,10 @@ class IdCollectedScreen extends StatelessWidget {
                                                   SizedBox(
                                                     width: wp(35),
                                                     child: GradientButton(
-                                                      onPressed: () => Navigator.popAndPushNamed(context, '/enforcementNotification'),
+                                                      onPressed: () {
+                                                        ref.watch(idSelectionProvider.notifier).clear();
+                                                        Navigator.popAndPushNamed(context, '/enforcementNotification');
+                                                      },
                                                       child: Text(
                                                         'Proceed',
                                                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
