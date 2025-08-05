@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
+import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -83,7 +84,9 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                         title: 'Recent Capture',
                         onBack: () => Navigator.of(context).pop(),
                         opacity: 0,
-                        showSearchIcon: true,
+                        rightIcon: AppAssets.search,
+                        onRightIconTap: () => Navigator.pushNamed(context, '/search'),
+                        toolTip: MaterialLocalizations.of(context).searchFieldLabel,
                       ),
 
                       SizedBox(height: hp(2)),

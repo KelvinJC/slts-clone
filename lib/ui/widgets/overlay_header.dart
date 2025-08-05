@@ -8,7 +8,7 @@ import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 /// A flexible, semi‑transparent header bar with:
 ///  • a circular back button
 ///  • a title
-///  • optionally, a search icon on the right
+///  • optionally, an extra clickable icon on the right
 ///
 /// All sizing & padding is responsive via [SizeConfig] extensions.
 class OverlayHeader extends StatelessWidget {
@@ -18,11 +18,14 @@ class OverlayHeader extends StatelessWidget {
   /// Called when the back button is tapped.
   final VoidCallback onBack;
 
-  /// If true, shows a search icon on the right.
-  final bool showSearchIcon;
+  /// If provided, shows the icon on the right.
+  final String? rightIcon;
 
-  /// Called when the search icon is tapped.
-  final VoidCallback? onSearchTap;
+  /// Called when the right placed icon is tapped.
+  final VoidCallback? onRightIconTap;
+
+  /// If provided, configures tooltip for the icon on the right.
+  final String? toolTip;
 
   /// The background color of the bar (default white).
   final Color backgroundColor;
@@ -46,14 +49,15 @@ class OverlayHeader extends StatelessWidget {
     Key? key,
     required this.title,
     required this.onBack,
-    this.showSearchIcon = false,
-    this.onSearchTap,
+    this.rightIcon,
+    this.onRightIconTap,
     this.backgroundColor = Colors.white,
     this.backIconBackgroundColor = Colors.white,
     this.opacity = 0.5,
     this.topPadding = 6,
     this.height = 12.5,
     this.horizontalInset = 4,
+    this.toolTip,
   }) : super(key: key);
 
   @override
@@ -86,15 +90,13 @@ class OverlayHeader extends StatelessWidget {
               icon: Icon(
                 Icons.chevron_left,
                 size: wp(7),
-                color: AppColors.onBackground,
+                color: AppColors.onSurface,
               ),
               onPressed: onBack,
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             ),
           ),
-
           SizedBox(width: wp(3)),
-
           // Title
           Text(
             title,
@@ -104,9 +106,8 @@ class OverlayHeader extends StatelessWidget {
               color: AppColors.onSurface,
             ),
           ),
-
-          // Optional search icon
-          if (showSearchIcon) ...[
+          // Optional right placed icon
+          if (rightIcon != null) ...[
             Spacer(),
             Container(
               height: wp(11),
@@ -117,14 +118,13 @@ class OverlayHeader extends StatelessWidget {
               ),
               child: IconButton(
                 icon: ImageIcon(
-                  const AssetImage(AppAssets.search),
+                  AssetImage(rightIcon!),
+                  // Icons.,
                   size: wp(4.5),
                   color: AppColors.onBackground,
                 ),
-                onPressed:
-                    onSearchTap ??
-                    () => Navigator.pushNamed(context, '/search'),
-                tooltip: MaterialLocalizations.of(context).searchFieldLabel,
+                onPressed: onRightIconTap,
+                tooltip: toolTip,
               ),
             ),
           ],

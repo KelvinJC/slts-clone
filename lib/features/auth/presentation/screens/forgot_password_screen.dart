@@ -97,24 +97,24 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                           : null,
                       child: state.loading
                           ? SizedBox(
-                              width: wp(6),
-                              height: wp(6),
-                              child: const CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                        width: wp(6),
+                        height: wp(6),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
                           : Text(
-                              'Send Link',
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(
-                                    color: state.emailValid
-                                        ? AppColors.onPrimary
-                                        : AppColors.onBackgroundSurface2,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: wp(4.5),
-                                  ),
-                            ),
+                        'Send Link',
+                        style: Theme.of(context).textTheme.labelLarge
+                            ?.copyWith(
+                          color: state.emailValid
+                              ? AppColors.onPrimary
+                              : AppColors.onBackgroundSurface2,
+                          fontWeight: FontWeight.bold,
+                          fontSize: wp(4.5),
+                        ),
+                      ),
                     ),
                   ),
 
@@ -190,8 +190,8 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                         padding: EdgeInsets.symmetric(horizontal: wp(3)),
                         child: Text(
                           'A reset link has been sent to\n'
-                          '${state.email.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}. '
-                          'Click the link to reset your password.',
+                              '${state.email.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}. '
+                              'Click the link to reset your password.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: AppColors.onSurface),
