@@ -70,70 +70,71 @@ class ShareLinkScreen extends StatelessWidget {
                           color: AppColors.grayOverlay,
                         ),
 
-                        Padding(
-                          padding: EdgeInsets.only(top: hp(60)),
-                          child: Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(vertical: wp(4), horizontal: wp(5)),
-
-                            decoration: BoxDecoration(
-                                color: AppColors.onPrimary,
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(wp(5)),
-                                ),
-                                border: Border.all(
-                                  color: AppColors.onBackgroundSurface2,
-                                  width: 0.5,
-                                )
-                            ),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Share',
-                                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                          color: AppColors.onBackgroundSurface,
-                                          fontSize: 16,
-                                          // fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                            size: 25.0,
-                                            Icons.cancel,
-                                            color: AppColors.onBackgroundSurface
-                                        ),
-                                        onPressed: () => Navigator.pop(context),
-                                      ),
-                                    ],
-                                  ),
-                                  Divider(
-                                    color: Colors.grey[200],
-                                    thickness: 2,
-                                  ),
-                                  SizedBox(height: hp(2)),
-                                  Wrap(
-                                    spacing: wp(13.5),
-                                    runSpacing: hp(6),
-                                    children: icons.map((assetPath) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          // Replace with your actual action
-                                          print('Tapped on $assetPath');
-                                        },
-                                        child: Image.asset(
-                                          assetPath,
-                                          width: 50,
-                                          height: 50,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      );
-                                    }).toList(),
+                        Align(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                            child: Container(
+                              height: hp(40),
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: wp(4), horizontal: wp(5)),
+                          
+                              decoration: BoxDecoration(
+                                  color: AppColors.onPrimary,
+                                  borderRadius: BorderRadius.circular(wp(5)),
+                                  border: Border.all(
+                                    color: AppColors.onBackgroundSurface2,
+                                    width: 0.5,
                                   )
-                                ]
+                              ),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Share',
+                                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                            color: AppColors.onBackgroundSurface,
+                                            fontSize: 16,
+                                            // fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                              size: 25.0,
+                                              Icons.cancel,
+                                              color: AppColors.onBackgroundSurface
+                                          ),
+                                          onPressed: () => Navigator.pop(context),
+                                        ),
+                                      ],
+                                    ),
+                                    Divider(
+                                      color: Colors.grey[200],
+                                      thickness: 2,
+                                    ),
+                                    SizedBox(height: hp(2)),
+                                    Wrap(
+                                      spacing: wp(10),
+                                      runSpacing: hp(6),
+                                      children: icons.map((assetPath) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            // Replace with your actual action
+                                            print('Tapped on $assetPath');
+                                          },
+                                          child: Image.asset(
+                                            assetPath,
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        );
+                                      }).toList(),
+                                    )
+                                  ]
+                              ),
                             ),
                           ),
                         )

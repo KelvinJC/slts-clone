@@ -95,7 +95,7 @@ class VehicleImpoundedScreen extends StatelessWidget {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Vehicle Impoundment Reason',
+                                            'Comment',
                                             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                               color: AppColors.onBackgroundSurface,
                                               fontSize: 16,
@@ -159,7 +159,7 @@ class VehicleImpoundedScreen extends StatelessWidget {
                                               SizedBox(
                                                 width: wp(35),
                                                 child: GradientButton(
-                                                  onPressed: () => Navigator.popAndPushNamed(context, '/vehicleImpoundedNotification'),
+                                                  onPressed: () => Navigator.popAndPushNamed(context, '/enforcementNotification'),
                                                   child: Text(
                                                     'Proceed',
                                                     style: Theme.of(context).textTheme.labelLarge?.copyWith(

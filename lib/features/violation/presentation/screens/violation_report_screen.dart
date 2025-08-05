@@ -114,8 +114,8 @@ final Map<String, String> locationOfOffence = {
 
 // image scrolls with cards
 class ViolationReportScreen extends ConsumerWidget {
-  final Violation violation;
-  const ViolationReportScreen({super.key, required this.violation});
+  final Violation? violation;
+  const ViolationReportScreen({super.key, this.violation});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,87 +125,87 @@ class ViolationReportScreen extends ConsumerWidget {
 
 
     return Scaffold(
-      body: Stack(
-        children: [
-          BlurryGradientBackground(colors: AppColors.homeGradient),
-          SafeArea(
-              top: false,
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
+        body: Stack(
+            children: [
+              BlurryGradientBackground(colors: AppColors.homeGradient),
+              SafeArea(
+                  top: false,
+                  child: Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(wp(3)),
-                          ),
-                          child: imagePath.startsWith('http')
-                              ? Image.network(
-                            imagePath,
-                            width: double.infinity,
-                            height: hp(30),
-                            fit: BoxFit.cover,
-                          )
-                              : Image.asset(
-                            imagePath,
-                            width: double.infinity,
-                            height: hp(30),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        SizedBox(height: hp(2)),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                        SingleChildScrollView(
                           child: Column(
                             children: [
-                              DetailsCard(
-                                  hp: hp,
-                                  wp: wp,
-                                  header: 'Offender Details',
-                                  detailsInfo: offenderDetails
+                              ClipRRect(
+                                borderRadius: BorderRadius.vertical(
+                                  bottom: Radius.circular(wp(3)),
+                                ),
+                                child: imagePath.startsWith('http')
+                                    ? Image.network(
+                                  imagePath,
+                                  width: double.infinity,
+                                  height: hp(30),
+                                  fit: BoxFit.cover,
+                                )
+                                    : Image.asset(
+                                  imagePath,
+                                  width: double.infinity,
+                                  height: hp(30),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               SizedBox(height: hp(2)),
-                              DetailsCard(
-                                  hp: hp,
-                                  wp: wp,
-                                  header: 'Vehicle Info',
-                                  detailsInfo: vehicleInfo
-                              ),
-                              SizedBox(height: hp(2)),
-                              DetailsCard(
-                                  hp: hp,
-                                  wp: wp,
-                                  header: 'Location of Offence',
-                                  detailsInfo: locationOfOffence
-                              ),
-                              SizedBox(height: hp(2)),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: wp(5)),
+                                child: Column(
+                                  children: [
+                                    DetailsCard(
+                                        hp: hp,
+                                        wp: wp,
+                                        header: 'Offender Details',
+                                        detailsInfo: offenderDetails
+                                    ),
+                                    SizedBox(height: hp(2)),
+                                    DetailsCard(
+                                        hp: hp,
+                                        wp: wp,
+                                        header: 'Vehicle Info',
+                                        detailsInfo: vehicleInfo
+                                    ),
+                                    SizedBox(height: hp(2)),
+                                    DetailsCard(
+                                        hp: hp,
+                                        wp: wp,
+                                        header: 'Location of Offence',
+                                        detailsInfo: locationOfOffence
+                                    ),
+                                    SizedBox(height: hp(2)),
+                                  ],
+                                ),
+                              )
                             ],
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  OverlayHeader(
-                    title: 'Violation Report',
-                    onBack: () => Navigator.of(context).pop(),
-                    rightIcon: AppAssets.menu,
-                    onRightIconTap: () => {
-                      ref.read(menuStateProvider.notifier).toggleDropDown()
-                    },
-                    toolTip: 'More options',
-                  ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: wp(5), top: hp(12)),
-                      child: DropDownMenu(),
-                    )
-                  ),
-                ]
+                        ),
+                        OverlayHeader(
+                          title: 'Violation Report',
+                          onBack: () => Navigator.of(context).pop(),
+                          rightIcon: AppAssets.menu,
+                          onRightIconTap: () => {
+                            ref.read(menuStateProvider.notifier).toggleDropDown()
+                          },
+                          toolTip: 'More options',
+                        ),
+                        Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding: EdgeInsets.only(right: wp(5), top: hp(12)),
+                              child: DropDownMenu(),
+                            )
+                        ),
+                      ]
+                  )
               )
-          )
-        ]
-      )
+            ]
+        )
     );
   }
 }
@@ -226,31 +226,171 @@ class DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Violation Details')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Text(
-            //   'Offence: ${violation.offence}',
-            //   style: TextStyle(fontSize: 18),
-            // ),
-            // Text('Zone: ${violation.zone}', style: TextStyle(fontSize: 18)),
-            // Text(
-            //   'Date: ${violation.date.toLocal()}'.split(' ')[0],
-            //   style: TextStyle(fontSize: 18),
-            // ),
-            Text(
-              'First Name: ${violation.firstName}',
-              style: TextStyle(fontSize: 18),
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: wp(5)) ,
+      // height: hp(50),
+      width: wp(100),
+      decoration: BoxDecoration(
+          color: AppColors.onPrimary,
+          borderRadius: BorderRadius.circular(wp(5)),
+          border: Border.all(
+            color: AppColors.onBackgroundSurface2,
+            width: 0.5,
+          )
+      ),
+      child: Column(
+        children: [
+          SizedBox(height: hp(2)),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+                header,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.onBackground,
+                    fontSize: 15
+                )
             ),
-            Text(
-              'Surname: ${violation.surname}',
-              style: TextStyle(fontSize: 18),
+          ),
+          SizedBox(height: hp(5)),
+          // Generate rows from the provided detailsInfo map
+          for (final entry in detailsInfo.entries)
+            KeyValueTextRow(
+              label: entry.key,
+              value: entry.value,
+              wp: context.wp,
+              hp: context.hp,
             ),
-          ],
+          SizedBox(height: hp(2)),
+        ],
+      ),
+    );
+  }
+}
+
+class KeyValueTextRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final double Function(double) wp;
+  final double Function(double) hp;
+
+  const KeyValueTextRow({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.wp,
+    required this.hp,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: hp(1.5)),
+      child: Row(
+        children: [
+          SizedBox(
+            width: wp(40),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: AppColors.onBackgroundSurface,
+                // fontWeight: FontWeight.bold,
+                fontSize: wp(3.5),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: wp(3.5),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DropDownMenu extends ConsumerWidget {
+  const DropDownMenu({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hp = context.hp;
+    final wp = context.wp;
+    final menuState = ref.watch(menuStateProvider);
+
+    final menuItems = [
+      {
+        'title': 'ID Collected',
+        'onClick': () {
+          Navigator.pushNamed(context, '/idCollected');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Vehicle Impounded',
+        'onClick': () {
+          Navigator.pushNamed(context, '/vehicleImpounded');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Resend Link',
+        'onClick': () {
+          Navigator.pushNamed(context, '/resendViolationLink');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+      {
+        'title': 'Share',
+        'onClick': () {
+          Navigator.pushNamed(context, '/shareViolationLink');
+          ref.read(menuStateProvider.notifier).clear();
+        }
+      },
+    ];
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      width: wp(50),
+      height: menuState ? hp(25) : 0.0,
+      decoration: BoxDecoration(
+        color: AppColors.onPrimary,
+        borderRadius: BorderRadius.circular(wp(5)),
+        border: Border.all(
+          color: menuState ? AppColors.onBackgroundSurface2 : Colors.transparent,
+          width: menuState ? 0.5 : 0.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grayOverlay, // subtle shadow
+            blurRadius: menuState ? 2 : 0,
+            spreadRadius: menuState ? 1 : 0,
+            offset: const Offset(0, 2), // downward shadow
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias, // ensure content doesn't overflow
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: wp(5)),
+        child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: menuItems.length,
+          separatorBuilder: (_, __) => SizedBox(height: hp(2.5)),
+          itemBuilder: (context, index) {
+            final item = menuItems[index];
+            return MenuLink(
+              title: item['title'] as String,
+              onClick: item['onClick'] as VoidCallback,
+            );
+          },
         ),
       ),
     );
@@ -276,15 +416,15 @@ class MenuLink extends StatelessWidget {
     final wp = context.wp;
 
     return GestureDetector(
-      onTap: onClick,
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+        onTap: onClick,
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
             color: AppColors.onBackgroundSurface,
             // fontWeight: FontWeight.bold,
             fontSize: wp(3.5),
-        ),
-      )
+          ),
+        )
     );
   }
 }

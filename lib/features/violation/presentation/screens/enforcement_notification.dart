@@ -99,23 +99,11 @@ class EnforcementNotificationScreen extends StatelessWidget {
                                       Column(
                                           children: [
                                             Text(
-                                              'Vehicle ${vehicleInfo['License plate']} has been impounded',
-                                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                                  color: AppColors.onBackgroundSurface,
-                                                  fontSize: 12
-                                              ),
-                                            ),Text(
-                                              'due to multiple unpaid violations.',
-                                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                                  color: AppColors.onBackgroundSurface,
-                                                  fontSize: 12
-                                              ),
-                                            ),
-                                            Text(
+                                              textAlign: TextAlign.center,
                                               'Enforcement action has been recorded successfully.',
                                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                                   color: AppColors.onBackgroundSurface,
-                                                  fontSize: 12
+                                                  fontSize: 16
                                               ),
                                             ),
                                           ]

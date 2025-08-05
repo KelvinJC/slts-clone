@@ -36,7 +36,11 @@ class IdCollectedScreen extends StatelessWidget {
                             Column(
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(left: wp(5), right: wp(5), top: hp(15)),
+                                  padding: EdgeInsets.only(
+                                      left: wp(5),
+                                      right: wp(5),
+                                      top: hp(15)
+                                  ),
                                   child: Column(
                                     children: [
                                       DetailsCard(
@@ -63,17 +67,17 @@ class IdCollectedScreen extends StatelessWidget {
                               rightIcon: AppAssets.menu,
                               onRightIconTap: () => {},
                             ),
-                            Container(
-                              width: wp(100),
-                              height: hp(100),
-                              color: AppColors.grayOverlay,
+                            Positioned.fill(
+                              child: Container(
+                                color: AppColors.grayOverlay,
+                              ),
                             ),
                             Align(
                               alignment: Alignment.center,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: wp(5), vertical: hp(28)),
                                 child: Container(
-                                  height: hp(45),
+                                  height: hp(65),
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: AppColors.onPrimary,
@@ -100,7 +104,63 @@ class IdCollectedScreen extends StatelessWidget {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Reason for ID collection',
+                                                'Select ID Type',
+                                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                                  color: AppColors.onBackgroundSurface,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              CheckboxListTile(
+                                                contentPadding: EdgeInsets.zero,
+                                                visualDensity: VisualDensity(vertical: -4), // Reduce vertical spacing
+                                                title: Text(
+                                                  'Driver\'s License',
+                                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                                    color: AppColors.onBackgroundSurface,
+                                                    // fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                value: false,
+                                                onChanged: (bool? newValue) {},
+                                                controlAffinity:
+                                                ListTileControlAffinity.leading,
+                                                checkboxShape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(wp(1)),
+                                                ),
+                                                side: BorderSide(
+                                                  color: AppColors.onBackgroundSurface2,
+                                                  width: context.wp(0.2),
+                                                ),
+                                                checkboxScaleFactor: 1.0,
+                                              ),
+                                              CheckboxListTile(
+                                                contentPadding: EdgeInsets.zero,
+                                                visualDensity: VisualDensity(vertical: -4), // Reduce vertical spacing
+                                                title: Text(
+                                                  'Vehicle Particulars',
+                                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                                    color: AppColors.onBackgroundSurface,
+                                                    // fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                value: true,
+                                                onChanged: (bool? newValue) {},
+                                                controlAffinity:
+                                                ListTileControlAffinity.leading,
+                                                checkboxShape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(wp(1)),
+                                                ),
+                                                side: BorderSide(
+                                                  color: AppColors.onBackgroundSurface2,
+                                                  width: context.wp(0.4),
+                                                ),
+                                                checkboxScaleFactor: 1.0,
+                                              ),
+                                              SizedBox(height: hp(2)),
+                                              Text(
+                                                'Comment',
                                                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                                   color: AppColors.onBackgroundSurface,
                                                   fontSize: 16,
@@ -109,17 +169,7 @@ class IdCollectedScreen extends StatelessWidget {
                                               SizedBox(height: wp(2)),
                                               TextFormField(
                                                 maxLines: 4,
-                                                onChanged: (String val) {
-                                                  // if (val.trim() != '') {
-                                                  //   ref
-                                                  //       .read(loginFormProvider.notifier)
-                                                  //       .setFieldToFilled('password', emailValue: '');
-                                                  // } else {
-                                                  //   ref
-                                                  //       .read(loginFormProvider.notifier)
-                                                  //       .setFieldToUnfilled('password');
-                                                  // }
-                                                },
+                                                onChanged: (String val) {},
                                                 decoration: InputDecoration(
                                                   hintText: 'Write here...',
                                                   hintStyle: TextStyle(
@@ -164,7 +214,7 @@ class IdCollectedScreen extends StatelessWidget {
                                                   SizedBox(
                                                     width: wp(35),
                                                     child: GradientButton(
-                                                      onPressed: () => Navigator.popAndPushNamed(context, '/idCollectionNotification'),
+                                                      onPressed: () => Navigator.popAndPushNamed(context, '/enforcementNotification'),
                                                       child: Text(
                                                         'Proceed',
                                                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
