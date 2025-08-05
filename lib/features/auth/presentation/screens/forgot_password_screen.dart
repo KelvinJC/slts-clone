@@ -7,11 +7,6 @@ import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
-import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
-import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
-import '../widgets/app_logo_avatar.dart';
-import 'package:slts_enforcer_app/ui/widgets/blank_button_widget.dart';
-// import '../providers/auth_notifier.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -37,19 +32,6 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
           BlurryGradientBackground(colors: AppColors.homeGradient),
           SafeArea(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: hp(5)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AppLogoAvatar(),
-                    SizedBox(height: wp(3)),
-                    Text(
-                      'Forgot password',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 23
-                      ),
               padding: EdgeInsets.symmetric(vertical: hp(5)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -115,24 +97,24 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                           : null,
                       child: state.loading
                           ? SizedBox(
-                              width: wp(6),
-                              height: wp(6),
-                              child: const CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                        width: wp(6),
+                        height: wp(6),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
                           : Text(
-                              'Send Link',
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(
-                                    color: state.emailValid
-                                        ? AppColors.onPrimary
-                                        : AppColors.onBackgroundSurface2,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: wp(4.5),
-                                  ),
-                            ),
+                        'Send Link',
+                        style: Theme.of(context).textTheme.labelLarge
+                            ?.copyWith(
+                          color: state.emailValid
+                              ? AppColors.onPrimary
+                              : AppColors.onBackgroundSurface2,
+                          fontWeight: FontWeight.bold,
+                          fontSize: wp(4.5),
+                        ),
+                      ),
                     ),
                   ),
 
@@ -208,8 +190,8 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                         padding: EdgeInsets.symmetric(horizontal: wp(3)),
                         child: Text(
                           'A reset link has been sent to\n'
-                          '${state.email.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}. '
-                          'Click the link to reset your password.',
+                              '${state.email.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}. '
+                              'Click the link to reset your password.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: AppColors.onSurface),
