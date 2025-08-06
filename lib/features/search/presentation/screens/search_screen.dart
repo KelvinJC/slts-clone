@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
-// import 'package:slts_enforcer_app/features/search/presentation/screens/search_result_screen.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/id_capture_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/resend_link_notifier.dart';
@@ -10,12 +9,10 @@ import 'package:slts_enforcer_app/features/violation/presentation/providers/run_
 import 'package:slts_enforcer_app/features/violation/presentation/providers/vehicle_impounded_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/create_violation_screen.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
-// import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
-// import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/popup_container.dart';
@@ -61,31 +58,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller = TextEditingController(text: widget.initialQuery ?? '');
-  //   _focusNode = FocusNode();
-  //   // addPostFrameCallback if initialQuery is not null
-  //   if (widget.initialQuery != null) {
-  //     WidgetsBinding.instance.addPostFrameCallback(
-  //       (_) => _focusNode.requestFocus(),
-  //     );
-  //   }
-  // }
-
-  // void clear() {
-  //   // Clear any previous results when leaving
-  //   ref.read(runPlateProvider.notifier).clear();
-  // }
-
-  // @override
-  // void dispose() {
-  //   _focusNode.dispose();
-  //   _controller.dispose();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     // ID Collected
@@ -126,25 +98,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   onBack: () => Navigator.of(context).pop(),
                   // opacity: 0,
                 ),
-                // Padding(
-                //   padding: EdgeInsets.symmetric(
-                //     horizontal: wp(4),
-                //     vertical: hp(2),
-                //   ),
-                //   child: AppTextField(
-                //     controller: _controller,
-                //     focusNode: _focusNode,
-                //     hintText: 'Run plate number…',
-                //     showSearchIcon: true,
-                //     onSubmitted: (val) {
-                //       FocusScope.of(context).unfocus();
-                //       // schedule the search after build is over:
-                //       Future.microtask(() {
-                //         if (val.trim().isNotEmpty) runCtrl.search(val.trim());
-                //       });
-                //     },
-                //   ),
-                // ),
+
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: wp(4)),
@@ -208,7 +162,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         _buildPopUpRow('Vehicle Inpounded', () {
                           toggleCard(vehicleImpounded: true);
                         }),
-                        _buildPopUpRow('Reset Link', () {
+                        _buildPopUpRow('Resend Link', () {
                           toggleCard(resendLink: true);
                         }),
                         _buildPopUpRow('Share', () {
@@ -226,25 +180,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
 
-            // iDCollected
-            //     ? (iDCollectedState.error != null
-            //           ? ErrorPopupWidget(
-            //               onClose: () {
-            //                 iDCollectedCtrl.resetError();
-            //               },
-            //               errorMessage: iDCollectedState.error,
-            //             )
-            //           : iDCollectedCtrl.isSubmitted
-            //           ? SuccessPopupWidget(
-            //               onClose: () {
-            //                 iDCollectedCtrl.reset(fromSuccess: true);
-            //                 toggleCard();
-            //               },
-            //               message:
-            //                   'Enforcement action has been recorded successfully.',
-            //             )
-            //           : SizedBox.shrink())
-            //     : SizedBox.shrink(),
             iDCollected
                 ? (iDCollectedState.error != null
                       ? ErrorPopupWidget(
@@ -863,16 +798,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           // expanded details
           if (isExpanded) ...[
             SizedBox(height: hp(2)),
-            // _detailRow('Plate Number', v.plateNumber, context, wp),
-            // _detailRow('Owner Full Name', v.offenderName, context, wp),
-            // _detailRow('Vehicle Type', v.vehicleTypeName, context, wp),
-            // _detailRow('Offence Type', v.offenceName, context, wp),
+
             _detailRow('PCN Number', v.pcnNumber, context, wp),
             _detailRow('Offence Name', v.offenceName, context, wp),
             _detailRow(
               'Violation Date',
-              // v.violationDate.toLocal().toString().split(' ').first,
-              //25-04-2-24
               formatDateShort(v.violationDate, pattern: 'dd-MM-yyyy'),
               context,
               wp,
@@ -884,27 +814,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               context,
               wp,
             ),
-            // _detailRow('Status:', v.status, context, wp),
-            // _detailRow('Payment Status:', v.paymentStatus, context, wp),
-            // SizedBox(height: hp(2)),
-            // TextButton(
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (_) => SearchResultScreen(violation: v),
-            //       ),
-            //     );
-            //   },
-            //   child: Text(
-            //     'More Details',
-            //     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            //       fontWeight: FontWeight.bold,
-            //       color: AppColors.primary,
-            //     ),
-            //   ),
-            // ),
-            // SizedBox(height: hp(2)),
           ],
         ],
       ),

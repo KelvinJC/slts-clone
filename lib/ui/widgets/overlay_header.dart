@@ -1,5 +1,3 @@
-// lib/ui/widgets/overlay_header.dart
-
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
@@ -8,7 +6,7 @@ import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 /// A flexible, semi‑transparent header bar with:
 ///  • a circular back button
 ///  • a title
-///  • optionally, an extra clickable icon on the right
+///  • optionally, a search icon on the right
 ///
 /// All sizing & padding is responsive via [SizeConfig] extensions.
 class OverlayHeader extends StatelessWidget {
@@ -18,14 +16,11 @@ class OverlayHeader extends StatelessWidget {
   /// Called when the back button is tapped.
   final VoidCallback onBack;
 
-  /// If provided, shows the icon on the right.
-  final String? rightIcon;
+  /// If true, shows a search icon on the right.
+  final bool showIcon;
 
-  /// Called when the right placed icon is tapped.
-  final VoidCallback? onRightIconTap;
-
-  /// If provided, configures tooltip for the icon on the right.
-  final String? toolTip;
+  /// Called when the icon is tapped.
+  final VoidCallback? onIconTap;
 
   /// The background color of the bar (default white).
   final Color backgroundColor;
@@ -45,19 +40,22 @@ class OverlayHeader extends StatelessWidget {
   /// Horizontal inset before back & after search as % of screen width.
   final double horizontalInset;
 
+  /// The icon to show on the right (default search icon).
+  final String icon;
+
   const OverlayHeader({
     Key? key,
     required this.title,
     required this.onBack,
-    this.rightIcon,
-    this.onRightIconTap,
+    this.showIcon = false,
+    this.onIconTap,
     this.backgroundColor = Colors.white,
     this.backIconBackgroundColor = Colors.white,
     this.opacity = 0.5,
     this.topPadding = 6,
     this.height = 12.5,
     this.horizontalInset = 4,
-    this.toolTip,
+    this.icon = AppAssets.search,
   }) : super(key: key);
 
   @override
@@ -90,13 +88,15 @@ class OverlayHeader extends StatelessWidget {
               icon: Icon(
                 Icons.chevron_left,
                 size: wp(7),
-                color: AppColors.onSurface,
+                color: AppColors.onBackground,
               ),
               onPressed: onBack,
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             ),
           ),
+
           SizedBox(width: wp(3)),
+
           // Title
           Text(
             title,
@@ -106,8 +106,9 @@ class OverlayHeader extends StatelessWidget {
               color: AppColors.onSurface,
             ),
           ),
-          // Optional right placed icon
-          if (rightIcon != null) ...[
+
+          // Optional icon
+          if (showIcon) ...[
             Spacer(),
             Container(
               height: wp(11),
@@ -118,13 +119,17 @@ class OverlayHeader extends StatelessWidget {
               ),
               child: IconButton(
                 icon: ImageIcon(
-                  AssetImage(rightIcon!),
-                  // Icons.,
+                  AssetImage(icon),
                   size: wp(4.5),
                   color: AppColors.onBackground,
                 ),
-                onPressed: onRightIconTap,
-                tooltip: toolTip,
+                onPressed:
+                    onIconTap ??
+                    () => Navigator.popUntil(
+                      context,
+                      ModalRoute.withName('/home'),
+                    ),
+                tooltip: MaterialLocalizations.of(context).searchFieldLabel,
               ),
             ),
           ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
-import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
@@ -84,9 +83,56 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                         title: 'Recent Capture',
                         onBack: () => Navigator.of(context).pop(),
                         opacity: 0,
-                        rightIcon: AppAssets.search,
-                        onRightIconTap: () => Navigator.pushNamed(context, '/search'),
-                        toolTip: MaterialLocalizations.of(context).searchFieldLabel,
+                        showIcon: true,
+                        onIconTap: () {
+                          final v = Violation(
+                            id: 1,
+                            zoneId: 1,
+                            commandId: 1,
+                            offenceId: 1,
+                            offenderId: 1,
+                            plateColorId: 1,
+                            plateTypeId: 1,
+                            eventTypeId: 1,
+                            vehicleBrandId: 1,
+                            vehicleColorId: 1,
+                            vehicleTypeId: 1,
+                            pcnNumber: 'PCN-002452',
+                            plateNumber: 'ABC-1234XL',
+                            violationDate: DateTime.now(),
+                            status: 'Paid',
+                            paymentAmount: 5000,
+                            sltsAmount: 2000,
+                            clientAmount: 3000,
+                            paymentStatus: 'Paid',
+                            insertedBy: 1,
+                            insertedDate: DateTime.now(),
+                            insertedByName: 'John Doe',
+                            zoneName: 'Zone A',
+                            commandName: 'Command 1',
+                            offenceName: 'Speeding',
+                            offenceCode: 'SPEEDING',
+                            offenceShort: 'Speeding',
+                            amount: 5000,
+                            firstName: 'Johm',
+                            surname: 'Doe',
+                            offenderName: 'John Doe',
+                            phoneNumber: '1234567890',
+                            emailAddress: 'gW3bS@example.com',
+                            plateColorName: 'Red',
+                            plateTypeName: 'Motorcycle',
+                            eventTypeName: 'Violation',
+                            vehicleBrandName: 'Honda',
+                            vehicleColorName: 'Red',
+                            vehicleTypeName: 'Motorcycle',
+                          );
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ViolationReportScreen(violation: v),
+                            ),
+                          );
+                        },
                       ),
 
                       SizedBox(height: hp(2)),

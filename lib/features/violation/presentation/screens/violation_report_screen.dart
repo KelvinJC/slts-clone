@@ -1,301 +1,804 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/providers/dropdown_menu_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/id_capture_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/resend_link_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/vehicle_impounded_notifier.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
+import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
-
-
-final Map<String, String> offenderDetails = {
-  'Full Name': 'Oyewumi Olukunle',
-  'ID Number (Driver\'s Licence)': 'DL-123456789',
-  'Phone Number': '+234 8102475422',
-  'Address': '40, Ajah Str, Abuja',
-  'Gender': 'Male',
-  'Plate Number': 'KSF-622AE',
-  'Date of Birth': '17-08-2024',
-  'License plate': 'KSF-622AE',
-};
-
-final Map<String, String> vehicleInfo = {
-  'License plate': 'KSF-622AE',
-  'Vehicle Type': 'Toyota',
-  'Make & Model': 'DL-123456789',
-  'Color': 'Black',
-  'Registration Expiry Date': '17-08-2024',
-};
-
-final Map<String, String> locationOfOffence = {
-  'Street Name': '40, Idiroko St',
-  'State': 'Lagos'
-};
-
-// image is fixed, only cards scroll
-// class ViolationReportScreen extends StatelessWidget {
-//   final Violation violation;
-//   const ViolationReportScreen({super.key, required this.violation});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final hp = context.hp;
-//     final wp = context.wp;
-//     final imagePath = AppAssets.plateNumberPlaceHolder;
-//
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           BlurryGradientBackground(colors: AppColors.homeGradient),
-//
-//           SafeArea(
-//             top: false,
-//             child: Column(
-//               children: [
-//                 ClipRRect(
-//                   borderRadius: BorderRadius.vertical(
-//                     bottom: Radius.circular(wp(3)),
-//                   ),
-//                   child: imagePath.startsWith('http')
-//                       ? Image.network(
-//                     imagePath,
-//                     width: double.infinity,
-//                     height: hp(30),
-//                     fit: BoxFit.cover,
-//                   )
-//                       : Image.asset(
-//                     imagePath,
-//                     width: double.infinity,
-//                     height: hp(30),
-//                     fit: BoxFit.cover,
-//                   ),
-//                 ),
-//
-//                 /// Scrollable List of DetailCards
-//                 Expanded(
-//                   child: ListView.separated(
-//                     padding: EdgeInsets.symmetric(horizontal: wp(5), vertical: hp(2)),
-//                     itemCount: 3,
-//                     separatorBuilder: (_, __) => SizedBox(height: hp(2)),
-//                     itemBuilder: (context, index) {
-//                       final headers = [
-//                         'Offender Details',
-//                         'Vehicle Info',
-//                         'Location of Offence',
-//                       ];
-//                       final details = [
-//                         offenderDetails,
-//                         vehicleInfo,
-//                         locationOfOffence,
-//                       ];
-//                       return DetailsCard(
-//                         hp: hp,
-//                         wp: wp,
-//                         header: headers[index],
-//                         detailsInfo: details[index],
-//                       );
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           OverlayHeader(
-//             title: 'Violation Report',
-//             onBack: () => Navigator.of(context).pop(),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
+import 'package:slts_enforcer_app/ui/widgets/popup_container.dart';
+import 'package:slts_enforcer_app/ui/widgets/success_popup_widget.dart';
 
 // image scrolls with cards
-class ViolationReportScreen extends ConsumerWidget {
-  final Violation? violation;
-  const ViolationReportScreen({super.key, this.violation});
+class ViolationReportScreen extends ConsumerStatefulWidget {
+  /// The single violation we’re inspecting.
+  final Violation violation;
+  const ViolationReportScreen({super.key, required this.violation});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hp = context.hp;
-    final wp = context.wp;
-    final imagePath = AppAssets.plateNumberPlaceHolder;
-
-
-    return Scaffold(
-        body: Stack(
-            children: [
-              BlurryGradientBackground(colors: AppColors.homeGradient),
-              SafeArea(
-                  top: false,
-                  child: Stack(
-                      children: [
-                        SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.vertical(
-                                  bottom: Radius.circular(wp(3)),
-                                ),
-                                child: imagePath.startsWith('http')
-                                    ? Image.network(
-                                  imagePath,
-                                  width: double.infinity,
-                                  height: hp(30),
-                                  fit: BoxFit.cover,
-                                )
-                                    : Image.asset(
-                                  imagePath,
-                                  width: double.infinity,
-                                  height: hp(30),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(height: hp(2)),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: wp(5)),
-                                child: Column(
-                                  children: [
-                                    DetailsCard(
-                                        hp: hp,
-                                        wp: wp,
-                                        header: 'Offender Details',
-                                        detailsInfo: offenderDetails
-                                    ),
-                                    SizedBox(height: hp(2)),
-                                    DetailsCard(
-                                        hp: hp,
-                                        wp: wp,
-                                        header: 'Vehicle Info',
-                                        detailsInfo: vehicleInfo
-                                    ),
-                                    SizedBox(height: hp(2)),
-                                    DetailsCard(
-                                        hp: hp,
-                                        wp: wp,
-                                        header: 'Location of Offence',
-                                        detailsInfo: locationOfOffence
-                                    ),
-                                    SizedBox(height: hp(2)),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        OverlayHeader(
-                          title: 'Violation Report',
-                          onBack: () => Navigator.of(context).pop(),
-                          rightIcon: AppAssets.menu,
-                          onRightIconTap: () => {
-                            ref.read(menuStateProvider.notifier).toggleDropDown()
-                          },
-                          toolTip: 'More options',
-                        ),
-                        Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: EdgeInsets.only(right: wp(5), top: hp(12)),
-                              child: DropDownMenu(),
-                            )
-                        ),
-                      ]
-                  )
-              )
-            ]
-        )
-    );
-  }
+  ConsumerState<ViolationReportScreen> createState() =>
+      _ViolationReportScreenState();
 }
 
-class DetailsCard extends StatelessWidget {
-  final double Function(double) hp;
-  final double Function(double) wp;
-  final String header;
-  final Map detailsInfo;
+class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
+  bool showPopUp = false;
 
-  const DetailsCard({
-    super.key,
-    required this.hp,
-    required this.wp,
-    required this.header,
-    required this.detailsInfo,
-  });
+  bool iDCollected = false,
+      vehicleImpounded = false,
+      resendLink = false,
+      share = false;
+
+  void toggleCard({
+    bool iDCollected = false,
+    bool vehicleImpounded = false,
+    bool resendLink = false,
+    bool share = false,
+  }) {
+    setState(() {
+      this.iDCollected = iDCollected;
+      this.vehicleImpounded = vehicleImpounded;
+      this.resendLink = resendLink;
+      this.share = share;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final wp = context.wp;
+    final hp = context.hp;
+    final imagePath = AppAssets.plateNumberPlaceHolder;
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: wp(5)) ,
-      // height: hp(50),
-      width: wp(100),
-      decoration: BoxDecoration(
-          color: AppColors.onPrimary,
-          borderRadius: BorderRadius.circular(wp(5)),
-          border: Border.all(
-            color: AppColors.onBackgroundSurface2,
-            width: 0.5,
-          )
-      ),
-      child: Column(
+    // ID Collected
+    final iDCollectedState = ref.watch(idCaptureProvider);
+    final iDCollectedCtrl = ref.read(idCaptureProvider.notifier);
+
+    // Vehicle Impounded
+    final vehicleImpoundedState = ref.watch(vehicleImpoundedProvider);
+    final vehicleImpoundedCtrl = ref.read(vehicleImpoundedProvider.notifier);
+
+    // Resend Link Impounded
+    final resendLinkState = ref.watch(resendLinkProvider);
+    final resendLinkCtrl = ref.read(resendLinkProvider.notifier);
+
+    return Scaffold(
+      body: Stack(
         children: [
-          SizedBox(height: hp(2)),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Text(
-                header,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onBackground,
-                    fontSize: 15
-                )
+          BlurryGradientBackground(colors: AppColors.homeGradient),
+          SafeArea(
+            top: false,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // HEAD IMAGE (plate photo placeholder)
+                      SizedBox(
+                        height: hp(35),
+                        width: double.infinity,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(wp(3)),
+                          ),
+                          child: Container(
+                            height: double.infinity,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(AppAssets.platePlaceholder),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            // //imagePath from Violation here...
+                            child: imagePath.startsWith('http')
+                                ? Image.network(
+                                    imagePath,
+                                    width: double.infinity,
+                                    height: hp(30),
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    imagePath,
+                                    width: double.infinity,
+                                    height: hp(30),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: hp(2)),
+
+                      // DETAILS CARD (Offender Details)
+                      Container(
+                        margin: EdgeInsets.only(bottom: hp(2)),
+                        padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                        child: Material(
+                          elevation: 1,
+                          borderRadius: BorderRadius.circular(wp(2.5)),
+                          child: Container(
+                            padding: EdgeInsets.all(wp(4)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(wp(2.5)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Offender Details',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: hp(2)),
+                                _row(
+                                  'Full Name',
+                                  widget.violation.offenderName,
+                                  wp,
+                                ),
+                                // _row(
+                                //   'ID Number (Drivers Lic.)',
+                                //   widget.violation.pcnNumber,
+                                //   wp,
+                                // ),
+                                _row(
+                                  'Phone Number',
+                                  widget.violation.phoneNumber,
+                                  wp,
+                                ),
+                                _row('Address', '-', wp),
+                                _row('Gender', '-', wp),
+                                _row('Date of Birth', '-', wp),
+                                _row(
+                                  'License Plate',
+                                  widget.violation.plateNumber,
+                                  wp,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // DETAILS CARD (Viehicle Info)
+                      Container(
+                        margin: EdgeInsets.only(bottom: hp(2)),
+                        padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                        child: Material(
+                          elevation: 1,
+                          borderRadius: BorderRadius.circular(wp(2.5)),
+                          child: Container(
+                            padding: EdgeInsets.all(wp(4)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(wp(2.5)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Viehicle Info',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: hp(2)),
+
+                                _row(
+                                  'License Plate Number',
+                                  widget.violation.plateNumber,
+                                  wp,
+                                ),
+                                _row(
+                                  'Vehicle Type',
+                                  widget.violation.vehicleTypeName,
+                                  wp,
+                                ),
+                                _row(
+                                  'Make & Model',
+                                  widget.violation.vehicleBrandName,
+                                  wp,
+                                ),
+                                _row(
+                                  'Color',
+                                  widget.violation.vehicleColorName,
+                                  wp,
+                                ),
+                                // _row('Registration Exp. Date', '-', wp),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // DETAILS CARD (Location of Offence)
+                      Container(
+                        margin: EdgeInsets.only(bottom: hp(2)),
+                        padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                        child: Material(
+                          elevation: 1,
+                          borderRadius: BorderRadius.circular(wp(2.5)),
+                          child: Container(
+                            padding: EdgeInsets.all(wp(4)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(wp(2.5)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Location of Offence',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: hp(2)),
+                                _row('Street Name', '-', wp),
+                                _row('State', '-', wp),
+                                _row('City', '-', wp),
+                                _row('Color', '-', wp),
+                                _row(
+                                  'Date & Time',
+                                  formatDateShort(
+                                    widget.violation.violationDate,
+                                    pattern: 'dd-MM-yyyy',
+                                  ),
+                                  wp,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // DETAILS CARD (Offence Type, Amount and Description)
+                      Container(
+                        margin: EdgeInsets.only(bottom: hp(2)),
+                        padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                        child: Material(
+                          elevation: 1,
+                          borderRadius: BorderRadius.circular(wp(2.5)),
+                          child: Container(
+                            padding: EdgeInsets.all(wp(4)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(wp(2.5)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Offence Type, Amount and Description',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: hp(2)),
+                                _row(
+                                  'Offence Type',
+                                  widget.violation.eventTypeName,
+                                  wp,
+                                ),
+                                _row(
+                                  'Offence Code',
+                                  widget.violation.offenceCode,
+                                  wp,
+                                ),
+                                _row('Severity Level', '-', wp),
+                                _row(
+                                  'Amount',
+                                  '₦${formatNumberWithCommas(widget.violation.amount, 0)}',
+                                  wp,
+                                ),
+                                _row('Notes', '-', wp),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // DETAILS CARD (Media Capture)
+                      Container(
+                        margin: EdgeInsets.only(bottom: hp(2)),
+                        padding: EdgeInsets.symmetric(horizontal: wp(4)),
+                        child: Material(
+                          elevation: 1,
+                          borderRadius: BorderRadius.circular(wp(2.5)),
+                          child: Container(
+                            padding: EdgeInsets.all(wp(4)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(wp(2.5)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Media Capture',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: hp(2)),
+                                _row('Notes', '-', wp),
+                                SizedBox(height: hp(10)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                OverlayHeader(
+                  title: 'Violation Report',
+                  onBack: () => Navigator.of(context).pop(),
+                  showIcon: true,
+                  icon: AppAssets.menu,
+                  onIconTap: () => setState(() {
+                    showPopUp = !showPopUp;
+                  }),
+                ),
+                if (showPopUp)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: wp(5), top: hp(12)),
+                      child: Material(
+                        borderRadius: BorderRadius.circular(wp(3)),
+                        elevation: 1,
+                        child: Container(
+                          width: wp(50),
+                          padding: EdgeInsets.all(wp(2)),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(wp(3)),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildPopUpRow('ID Collected', () {
+                                toggleCard(iDCollected: true);
+                              }),
+                              _buildPopUpRow('Vehicle Inpounded', () {
+                                toggleCard(vehicleImpounded: true);
+                              }),
+                              _buildPopUpRow('Resend Link', () {
+                                toggleCard(resendLink: true);
+                              }),
+                              _buildPopUpRow('Share', () {
+                                // toggleCard(share: true);
+                                SharePlus.instance.share(
+                                  ShareParams(
+                                    text:
+                                        'check out my website https://example.com',
+                                  ),
+                                );
+                              }),
+                              SizedBox(height: hp(2)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                /// ID Collected
+                iDCollected
+                    ? (iDCollectedState.error != null
+                          ? ErrorPopupWidget(
+                              onClose: () {
+                                iDCollectedCtrl.resetError();
+                              },
+                              errorMessage: iDCollectedState.error,
+                            )
+                          : iDCollectedCtrl.isSubmitted
+                          ? SuccessPopupWidget(
+                              onClose: () {
+                                iDCollectedCtrl.reset(fromSuccess: true);
+                                toggleCard();
+                              },
+                              message:
+                                  'Enforcement action has been recorded successfully.',
+                            )
+                          : PopupContainer(
+                              onClose: () {
+                                iDCollectedCtrl.reset();
+                                toggleCard();
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // — Title
+                                  Text(
+                                    'Select ID Type',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+
+                                  // — Driver’s License
+                                  SizedBox(
+                                    height: hp(5),
+                                    child: CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text('Driver’s License'),
+                                      value: iDCollectedState.hasDriversLicense,
+                                      onChanged:
+                                          iDCollectedCtrl.toggleDriversLicense,
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                      checkboxShape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          wp(1),
+                                        ),
+                                      ),
+                                      side: BorderSide(
+                                        color: AppColors.onBackgroundSurface2,
+                                        width: wp(0.4),
+                                      ),
+                                      checkboxScaleFactor: 1.2,
+                                    ),
+                                  ),
+
+                                  // — Vehicle Particulars
+                                  SizedBox(
+                                    height: hp(5),
+                                    child: CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text('Vehicle Particulars'),
+                                      value: iDCollectedState
+                                          .hasVehicleParticulars,
+                                      onChanged: iDCollectedCtrl
+                                          .toggleVehicleParticulars,
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                      checkboxShape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          wp(1),
+                                        ),
+                                      ),
+                                      side: BorderSide(
+                                        color: AppColors.onBackgroundSurface2,
+                                        width: context.wp(0.4),
+                                      ),
+                                      checkboxScaleFactor: 1.2,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: context.hp(4)),
+
+                                  // — Comment label
+                                  Text(
+                                    'Comment',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+
+                                  // — Comment field
+                                  AppTextField(
+                                    hintText: 'Write here…',
+                                    maxLines: 5,
+                                    controller: iDCollectedCtrl.controller,
+                                    validateBorder:
+                                        iDCollectedState.commentTouched,
+                                    isValid: iDCollectedCtrl.commentIsValid(),
+                                    onChanged: iDCollectedCtrl.updateComment,
+                                  ),
+                                  SizedBox(height: context.hp(0.5)),
+
+                                  // — Hint
+                                  Text(
+                                    'Not more than 50 words',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: AppColors.onBackgroundSurface2,
+                                        ),
+                                  ),
+
+                                  SizedBox(height: context.hp(3)),
+
+                                  // — Buttons
+                                  _buildActionRowForCard(
+                                    wp,
+                                    hp,
+                                    allowProceed: iDCollectedCtrl.canSubmit(),
+                                    onTapBtnOne: () {
+                                      iDCollectedCtrl.reset();
+                                      toggleCard();
+                                    },
+                                    onTapBtnTwo: () => iDCollectedCtrl.submit(),
+                                    isLoading: iDCollectedState.loading,
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+                                ],
+                              ),
+                            ))
+                    : SizedBox.shrink(),
+
+                /// Vehicle Impounded Card
+                vehicleImpounded
+                    ? (vehicleImpoundedState.error != null
+                          ? ErrorPopupWidget(
+                              onClose: () {
+                                vehicleImpoundedCtrl.resetError();
+                              },
+                              errorMessage: vehicleImpoundedState.error,
+                            )
+                          : vehicleImpoundedCtrl.isSubmitted
+                          ? SuccessPopupWidget(
+                              onClose: () {
+                                vehicleImpoundedCtrl.reset(fromSuccess: true);
+                                toggleCard();
+                              },
+                              message:
+                                  'Enforcement action has been recorded successfully.',
+                            )
+                          : PopupContainer(
+                              onClose: () {
+                                vehicleImpoundedCtrl.reset();
+                                toggleCard();
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // — Comment label
+                                  Text(
+                                    'Comment',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+
+                                  // — Comment field
+                                  AppTextField(
+                                    hintText: 'Write here…',
+                                    maxLines: 5,
+                                    controller: vehicleImpoundedCtrl.controller,
+                                    validateBorder:
+                                        vehicleImpoundedState.commentTouched,
+                                    isValid: vehicleImpoundedCtrl
+                                        .commentIsValid(),
+                                    onChanged:
+                                        vehicleImpoundedCtrl.updateComment,
+                                  ),
+                                  SizedBox(height: context.hp(0.5)),
+
+                                  // — Hint
+                                  Text(
+                                    'Not more than 50 words',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: AppColors.onBackgroundSurface2,
+                                        ),
+                                  ),
+
+                                  SizedBox(height: context.hp(3)),
+
+                                  // — Buttons
+                                  _buildActionRowForCard(
+                                    wp,
+                                    hp,
+                                    allowProceed: vehicleImpoundedCtrl
+                                        .canSubmit(),
+                                    onTapBtnOne: () {
+                                      vehicleImpoundedCtrl.reset();
+                                      toggleCard();
+                                    },
+                                    onTapBtnTwo: () =>
+                                        vehicleImpoundedCtrl.submit(),
+                                    isLoading: vehicleImpoundedState.loading,
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+                                ],
+                              ),
+                            ))
+                    : SizedBox.shrink(),
+
+                /// Resend Link Card
+                resendLink
+                    ? (resendLinkState.error != null
+                          ? ErrorPopupWidget(
+                              onClose: () {
+                                resendLinkCtrl.resetError();
+                              },
+                              errorMessage: resendLinkState.error,
+                            )
+                          : resendLinkCtrl.isSubmitted
+                          ? SuccessPopupWidget(
+                              onClose: () {
+                                resendLinkCtrl.reset(fromSuccess: true);
+                                toggleCard();
+                              },
+                              message:
+                                  'Enforcement action has been recorded successfully.',
+                            )
+                          : PopupContainer(
+                              onClose: () {
+                                resendLinkCtrl.reset();
+                                toggleCard();
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // — Hint
+                                  Text(
+                                    'Enter your email address so we could send the link to you.',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodyLarge
+                                        ?.copyWith(
+                                          // color: AppColors.onBackgroundSurface2,
+                                        ),
+                                  ),
+                                  SizedBox(height: context.hp(3)),
+
+                                  // — Email label
+                                  Text(
+                                    'Email',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+
+                                  // — Comment field
+                                  AppTextField(
+                                    hintText: 'Email address…',
+                                    controller: resendLinkCtrl.controller,
+                                    validateBorder:
+                                        resendLinkState.emailTouched,
+                                    isValid: resendLinkCtrl.emailIsValid(),
+                                    onChanged: resendLinkCtrl.updateEmail,
+                                    verticalPadding: 2,
+                                  ),
+
+                                  SizedBox(height: context.hp(4)),
+
+                                  // — Buttons
+                                  _buildActionRowForCard(
+                                    wp,
+                                    hp,
+                                    allowProceed: resendLinkCtrl.canSubmit(),
+                                    onTapBtnOne: () {
+                                      resendLinkCtrl.reset();
+                                      toggleCard();
+                                    },
+                                    onTapBtnTwo: () => resendLinkCtrl.submit(),
+                                    isLoading: resendLinkState.loading,
+                                    title2: 'Send',
+                                  ),
+                                  SizedBox(height: context.hp(2)),
+                                ],
+                              ),
+                            ))
+                    : SizedBox.shrink(),
+              ],
             ),
           ),
-          SizedBox(height: hp(5)),
-          // Generate rows from the provided detailsInfo map
-          for (final entry in detailsInfo.entries)
-            KeyValueTextRow(
-              label: entry.key,
-              value: entry.value,
-              wp: context.wp,
-              hp: context.hp,
-            ),
-          SizedBox(height: hp(2)),
         ],
       ),
     );
   }
-}
 
-class KeyValueTextRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final double Function(double) wp;
-  final double Function(double) hp;
+  Widget _buildActionRowForCard(
+    double Function(double) wp,
+    double Function(double) hp, {
+    String title1 = 'Cancel',
+    String title2 = 'Proceed',
+    bool allowProceed = false,
+    void Function()? onTapBtnOne,
+    void Function()? onTapBtnTwo,
+    bool isLoading = false,
+  }) {
+    Widget childWidget(String text, bool allow, {bool loading = false}) {
+      return loading
+          ? SizedBox(
+              width: wp(6),
+              height: wp(6),
+              child: const CircularProgressIndicator(
+                color: AppColors.onPrimary,
+                strokeWidth: 2.5,
+              ),
+            )
+          : Text(
+              text,
+              // maxLines: 1,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: allow
+                    ? AppColors.onPrimary
+                    : AppColors.onBackgroundSurface2,
+                fontSize: wp(4.5),
+                fontWeight: FontWeight.bold,
+              ),
+            );
+    }
 
-  const KeyValueTextRow({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.wp,
-    required this.hp,
-  });
+    return Container(
+      color: AppColors.surface,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: GradientButton(
+              height: 6.5,
+              isGradient: !allowProceed,
+              child: childWidget(title1, !allowProceed),
+              onPressed: () =>
+                  !allowProceed && onTapBtnOne != null ? onTapBtnOne() : null,
+            ),
+          ),
+          SizedBox(width: wp(4)),
+          Expanded(
+            child: GradientButton(
+              height: 6.5,
+              isLoading: isLoading,
+              isGradient: allowProceed,
+              child: childWidget(title2, allowProceed, loading: isLoading),
+              onPressed: () =>
+                  allowProceed && onTapBtnTwo != null ? onTapBtnTwo() : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPopUpRow(String text, void Function()? onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        ),
+        child: Text(
+          text,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.onSurface),
+        ),
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, double Function(double) wp) {
     return Padding(
-      padding: EdgeInsets.only(bottom: hp(1.5)),
+      padding: EdgeInsets.only(bottom: wp(2)),
       child: Row(
         children: [
           SizedBox(
             width: wp(40),
             child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              '$label:',
+              style: TextStyle(
                 color: AppColors.onBackgroundSurface,
-                // fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold,
                 fontSize: wp(3.5),
               ),
             ),
@@ -304,8 +807,8 @@ class KeyValueTextRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontWeight: FontWeight.bold,
+              style: TextStyle(
+                color: AppColors.onBackground,
                 fontSize: wp(3.5),
               ),
             ),
@@ -315,117 +818,3 @@ class KeyValueTextRow extends StatelessWidget {
     );
   }
 }
-
-class DropDownMenu extends ConsumerWidget {
-  const DropDownMenu({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hp = context.hp;
-    final wp = context.wp;
-    final menuState = ref.watch(menuStateProvider);
-
-    final menuItems = [
-      {
-        'title': 'ID Collected',
-        'onClick': () {
-          Navigator.pushNamed(context, '/idCollected');
-          ref.read(menuStateProvider.notifier).clear();
-        }
-      },
-      {
-        'title': 'Vehicle Impounded',
-        'onClick': () {
-          Navigator.pushNamed(context, '/vehicleImpounded');
-          ref.read(menuStateProvider.notifier).clear();
-        }
-      },
-      {
-        'title': 'Resend Link',
-        'onClick': () {
-          Navigator.pushNamed(context, '/resendViolationLink');
-          ref.read(menuStateProvider.notifier).clear();
-        }
-      },
-      {
-        'title': 'Share',
-        'onClick': () {
-          Navigator.pushNamed(context, '/shareViolationLink');
-          ref.read(menuStateProvider.notifier).clear();
-        }
-      },
-    ];
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      width: wp(50),
-      height: menuState ? hp(25) : 0.0,
-      decoration: BoxDecoration(
-        color: AppColors.onPrimary,
-        borderRadius: BorderRadius.circular(wp(5)),
-        border: Border.all(
-          color: menuState ? AppColors.onBackgroundSurface2 : Colors.transparent,
-          width: menuState ? 0.5 : 0.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grayOverlay, // subtle shadow
-            blurRadius: menuState ? 2 : 0,
-            spreadRadius: menuState ? 1 : 0,
-            offset: const Offset(0, 2), // downward shadow
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias, // ensure content doesn't overflow
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: wp(5)),
-        child: ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: menuItems.length,
-          separatorBuilder: (_, __) => SizedBox(height: hp(2.5)),
-          itemBuilder: (context, index) {
-            final item = menuItems[index];
-            return MenuLink(
-              title: item['title'] as String,
-              onClick: item['onClick'] as VoidCallback,
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-
-class MenuLink extends StatelessWidget {
-  /// Text display of the link.
-  final String title;
-
-  /// Called when the link is clicked.
-  final VoidCallback? onClick;
-
-  const MenuLink({
-    super.key,
-    required this.title,
-    required this.onClick,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final wp = context.wp;
-
-    return GestureDetector(
-        onTap: onClick,
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.bodySmall!.copyWith(
-            color: AppColors.onBackgroundSurface,
-            // fontWeight: FontWeight.bold,
-            fontSize: wp(3.5),
-          ),
-        )
-    );
-  }
-}
-
