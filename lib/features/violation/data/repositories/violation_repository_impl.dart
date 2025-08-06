@@ -8,6 +8,7 @@ import 'package:slts_enforcer_app/features/violation/data/models/list_item_model
 import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/vehicle_impounded_request.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/pagination.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 // import 'package:slts_enforcer_app/core/errors/failures.dart';
@@ -35,6 +36,70 @@ class ViolationRepositoryImpl implements ViolationRepository {
   }
 
   @override
+  Future<(List<Violation>, Pagination?)> getRecentCaptures(
+    int userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    await ensureConnected();
+
+    return await retry<(List<Violation>, Pagination?)>(() async {
+      final resp = await _api.getRecentCaptures(userId, page, limit);
+
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
+
+      final files = resp.files ?? [];
+      final violations = (resp.data?.isEmpty ?? true)
+          ? <Violation>[]
+          : resp.data!.map((m) {
+              return m.toEntity(
+                files: files
+                    .where((f1) => f1.violationId == m.id)
+                    .map((f2) => f2.toEntity())
+                    .toList(),
+              );
+            }).toList();
+
+      return (violations, resp.pagination?.toEntity());
+    }, attempts: 2);
+  }
+
+  @override
+  Future<(List<Violation>, Pagination?)> getPatrolMode(
+    int userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    await ensureConnected();
+
+    return await retry<(List<Violation>, Pagination?)>(() async {
+      final resp = await _api.getPatrolMode(userId, page, limit);
+
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
+
+      final files = resp.files ?? [];
+      final violations = (resp.data?.isEmpty ?? true)
+          ? <Violation>[]
+          : resp.data!.map((m) {
+              return m.toEntity(
+                files: files
+                    .where((f1) => f1.violationId == m.id)
+                    .map((f2) => f2.toEntity())
+                    .toList(),
+              );
+            }).toList();
+
+      return (violations, resp.pagination?.toEntity());
+    }, attempts: 2);
+  }
+
+  @override
   Future<List<Violation>> runPlateNumber(String plate) async {
     await ensureConnected();
     final request = RunPlateRequest(search: plate);
@@ -49,7 +114,17 @@ class ViolationRepositoryImpl implements ViolationRepository {
         throw UnexpectedFailure(rawMessage: 'No record found for $plate');
       }
 
-      return response.data!.map((m) => m.toEntity()).toList();
+      final files = response.files ?? [];
+      return response.data!
+          .map(
+            (m) => m.toEntity(
+              files: files
+                  .where((f1) => f1.violationId == m.id)
+                  .map((f2) => f2.toEntity())
+                  .toList(),
+            ),
+          )
+          .toList();
     }, attempts: 2);
   }
 

@@ -2,15 +2,21 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
 // import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/utils/texts_extension.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 import 'package:slts_enforcer_app/ui/widgets/no_record_found.dart';
 // import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 
@@ -250,138 +256,79 @@ class _State extends ConsumerState<HomeTab> {
     double Function(double) hp,
     double Function(double) wp,
   ) {
-    bool hasData = true;
+    final state = ref.watch(recentCapturesProvider);
+
+    final violations = state.violations ?? [];
+
     // Sample data
-    final headers = [
-      Text('PCN Number'),
-      Text('Plate Number'),
-      Text('Offence'),
-      Text('Zone'),
-      Text('Date'),
-      Text('First Name'),
-      Text('Surname'),
-    ];
-    // final List<Violation> violations = [
-    //   Violation(
-    //     pcnNumber: 'PCN-002452',
-    //     plateNumber: 'ABC-1234XL',
-    //     offence: 'Speeding',
-    //     zone: 'Zone A',
-    //     date: DateTime.now(),
-    //     firstName: 'John',
-    //     surname: 'Doe',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   // …more sample data…
-    // ];
+    final headers = [Text('Plate Number'), Text('Offence'), Text('Status')];
 
     return Stack(
       children: [
-        !hasData
-            ? SizedBox()
-            // HtmlTable<Violation>(
-            //     headers: headers,
-            //     rowData: violations,
-            //     rowBuilder: (list) => list.map((v) {
-            //       return [
-            //         Text(v.pcnNumber),
-            //         Text(v.plateNumber),
-            //         Text(v.offence),
-            //         Text(v.zone),
-            //         Text(v.date.toLocal().toString().split(' ')[0]),
-            //         Text(v.firstName),
-            //         Text(v.surname),
-            //       ];
-            //     }).toList(),
-            //     onRowTap: (v, index) {},
-            //     // Example styling props:
-            //     columnWidths: [
-            //       FixedColumnWidth(wp(27)),
-            //       FixedColumnWidth(wp(27)),
-            //       FixedColumnWidth(wp(30)),
-            //       FixedColumnWidth(wp(18)),
-            //       FixedColumnWidth(wp(26)),
-            //       FixedColumnWidth(wp(25)),
-            //       FixedColumnWidth(wp(25)),
-            //     ],
-            //     // columnWidths: List.generate(
-            //     //   headers.length,
-            //     //   (_) => IntrinsicColumnWidth(),
-            //     // ),
-            //     borderRadius: BorderRadius.circular(12),
-            //     outerBorderColor: AppColors.onBackgroundSurface2,
-            //     innerBorderColor: AppColors.onBackgroundSurface2,
-            //     rowHeight: hp(3.5),
-            //     cellPadding: const EdgeInsets.symmetric(
-            //       vertical: 10,
-            //       horizontal: 10,
-            //     ),
-            //     maxVisibleRows: 3,
-            //   )
-            : NoRecordFound(
-                title: 'No Media capture yet',
-                sepearatorHeight: 1,
-                subtitle: 'Once there is capture, we would\nupdate it here...',
-              ),
-        // Positioned(
-        //   right: 0,
-        //   bottom: 15,
-        //   child: Container(
-        //     padding: EdgeInsets.all(ctx.wp(1)),
-        //     decoration: BoxDecoration(
-        //       color: AppColors.surface,
-        //       shape: BoxShape.circle,
-        //       border: Border.all(color: AppColors.homeGradient[1]),
-        //     ),
-        //     child: ShaderMask(
-        //       shaderCallback: (bounds) => const LinearGradient(
-        //         colors: AppColors.buttonGradient,
-        //         begin: Alignment.centerLeft,
-        //         end: Alignment.centerRight,
-        //       ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-        //       blendMode: BlendMode.srcIn,
-        //       child: IconButton(
-        //         icon: ImageIcon(AssetImage(AppAssets.camera), size: ctx.wp(8)),
-        //         onPressed: () {},
-        //       ),
-        //     ),
-        //   ),
-        // ),
+        state.loading
+            ? Positioned.fill(child: Center(child: CircularProgressIndicator()))
+            : (state.error != null
+                  ? NoRecordFound(
+                      title: 'Error occurred!',
+                      sepearatorHeight: 1,
+                      subtitle: 'Something went wrong.\n ${state.error}',
+                    )
+                  : (violations.isEmpty
+                        ? NoRecordFound(
+                            title: 'No Activity',
+                            sepearatorHeight: 1,
+                            subtitle:
+                                'Once there is capture, we would\nupdate it here...',
+                          )
+                        : HtmlTable<Violation>(
+                            headers: headers,
+                            rowData: violations,
+                            rowBuilder: (list) => list.map((v) {
+                              var testStyle = TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                color: v.paymentStatus == "pending"
+                                    ? AppColors.error
+                                    : v.paymentStatus == "paid"
+                                    ? AppColors.success
+                                    : null,
+                              );
+                              return [
+                                Text(v.plateNumber, style: testStyle),
+                                Text(v.offenceName, style: testStyle),
+                                Text(
+                                  v.paymentStatus.capitalizeFirst(),
+                                  style: testStyle,
+                                ),
+                              ];
+                            }).toList(),
+                            onRowTap: (v, idx) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ViolationReportScreen(violation: v),
+                                ),
+                              );
+                            },
+                            // Example styling props:
+                            columnWidths: [
+                              FixedColumnWidth(wp(28)),
+                              FixedColumnWidth(wp(38)),
+                              FixedColumnWidth(wp(25)),
+                            ],
+                            // columnWidths: List.generate(
+                            //   headers.length,
+                            //   (_) => IntrinsicColumnWidth(),
+                            // ),
+                            borderRadius: BorderRadius.circular(12),
+                            outerBorderColor: AppColors.onBackgroundSurface2,
+                            innerBorderColor: AppColors.onBackgroundSurface2,
+                            rowHeight: hp(3.5),
+                            cellPadding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10,
+                            ),
+                            maxVisibleRows: 3,
+                          ))),
       ],
     );
   }

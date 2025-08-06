@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation_file.dart';
 
 /// The domain‑level representation of a violation event.
 class Violation extends Equatable {
@@ -48,6 +49,8 @@ class Violation extends Equatable {
   final String vehicleColorName;
   final String vehicleTypeName;
 
+  final List<ViolationFile> files;
+
   const Violation({
     required this.id,
     required this.zoneId,
@@ -92,6 +95,7 @@ class Violation extends Equatable {
     required this.vehicleBrandName,
     required this.vehicleColorName,
     required this.vehicleTypeName,
+    required this.files,
   });
 
   @override
@@ -139,5 +143,6 @@ class Violation extends Equatable {
     vehicleBrandName,
     vehicleColorName,
     vehicleTypeName,
+    files,
   ];
 }

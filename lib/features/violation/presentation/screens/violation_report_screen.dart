@@ -21,7 +21,12 @@ import 'package:slts_enforcer_app/ui/widgets/success_popup_widget.dart';
 class ViolationReportScreen extends ConsumerStatefulWidget {
   /// The single violation we’re inspecting.
   final Violation violation;
-  const ViolationReportScreen({super.key, required this.violation});
+  final String title;
+  const ViolationReportScreen({
+    super.key,
+    required this.violation,
+    this.title = 'Violation Report',
+  });
 
   @override
   ConsumerState<ViolationReportScreen> createState() =>
@@ -289,7 +294,7 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                                 SizedBox(height: hp(2)),
                                 _row(
                                   'Offence Type',
-                                  widget.violation.eventTypeName,
+                                  widget.violation.offenceName,
                                   wp,
                                 ),
                                 _row(
@@ -318,6 +323,7 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                           elevation: 1,
                           borderRadius: BorderRadius.circular(wp(2.5)),
                           child: Container(
+                            width: double.infinity,
                             padding: EdgeInsets.all(wp(4)),
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,
@@ -334,7 +340,30 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                                       .copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(height: hp(2)),
-                                _row('Notes', '-', wp),
+                                // widget.violation.files.isEmpty
+                                //     ? const Text('None')
+                                //     : Wrap(
+                                //         spacing: 8,
+                                //         runSpacing: 8,
+                                //         children: widget.violation.files.map((
+                                //           f,
+                                //         ) {
+                                //           return SizedBox(
+                                //             width: context.wp(26),
+                                //             height: context.wp(26),
+                                //             child: ClipRRect(
+                                //               borderRadius:
+                                //                   BorderRadius.circular(4),
+                                //               child: Image.network(
+                                //                 f.filePath,
+                                //                 width: double.infinity,
+                                //                 height: hp(30),
+                                //                 fit: BoxFit.cover,
+                                //               ),
+                                //             ),
+                                //           );
+                                //         }).toList(),
+                                //       ),
                                 SizedBox(height: hp(10)),
                               ],
                             ),
@@ -345,7 +374,7 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                   ),
                 ),
                 OverlayHeader(
-                  title: 'Violation Report',
+                  title: widget.title,
                   onBack: () => Navigator.of(context).pop(),
                   showIcon: true,
                   icon: AppAssets.menu,

@@ -133,8 +133,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final useBio = await _storage.getUseBiometrics();
       final token = await _storage.getAuthToken();
       if (useBio && token != null) {
-        final ok = await BiometricService().authenticate();
-        if (!ok) return;
+        // final ok = await BiometricService().authenticate();
+        // if (!ok) return;
 
         state = state.copyWith(loading: true, error: null);
         try {

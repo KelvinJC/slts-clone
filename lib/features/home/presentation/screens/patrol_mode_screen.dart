@@ -1,160 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:slts_enforcer_app/features/home/presentation/screens/patrol_mode_view_details_screen.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/patrol_mode_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
+import 'package:slts_enforcer_app/ui/utils/texts_extension.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
 import 'package:slts_enforcer_app/ui/widgets/no_record_found.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
+import 'package:slts_enforcer_app/ui/widgets/pagination_controls.dart';
 
-class PatrolModeScreen extends ConsumerWidget {
+class PatrolModeScreen extends ConsumerStatefulWidget {
   const PatrolModeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PatrolModeScreen> createState() => PatrolModeScreenState();
+}
+
+class PatrolModeScreenState extends ConsumerState<PatrolModeScreen> {
+  int _currentPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    //if not authenticated, navigate to login screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(patrolModeProvider.notifier).fetchPatrolMode();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
+    final headers = [Text('Plate Number'), Text('Status'), Text('View')];
+    final state = ref.watch(patrolModeProvider);
+    final ctrl = ref.read(patrolModeProvider.notifier);
+
+    final violations = state.violations ?? [];
+
     final imagePath = AppAssets.patrolModePlaceholder;
-    // final List<Violation> violations = [
-    //   Violation(
-    //     pcnNumber: 'PCN-002452',
-    //     plateNumber: 'ABC-1234XL',
-    //     offence: 'Speeding',
-    //     zone: 'Zone A',
-    //     date: DateTime.now(),
-    //     firstName: 'John',
-    //     surname: 'Doe',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   Violation(
-    //     pcnNumber: 'PCN-006752',
-    //     plateNumber: 'ABC-9034XJ',
-    //     offence: 'Illegal Parking',
-    //     zone: 'Zone B',
-    //     date: DateTime.now().subtract(Duration(days: 1)),
-    //     firstName: 'Jane',
-    //     surname: 'Smith',
-    //   ),
-    //   // …more sample data…
-    // ];
-
-    final Map<String, String> details = {
-      'Owner Full Name': 'Oyewumi Olukunle',
-      'Gender': 'Male',
-      'Owner Phone Number': '+234 8102475422',
-      'Owner Address': '40, Ajah Str, Abuja',
-      'Plate Number': 'KSF-622AE',
-      'Vehicle Type': 'Toyota',
-      'Year of Manufacture': '2013/2014',
-      'Vehicle Color': 'Black',
-      'VIN': 'KSF-622AE',
-      'Engine': '622AE',
-      'Insurance Status': 'Valid',
-      'Road Worthiness': 'Valid',
-      'Reg Date': '24-04-2022',
-      'Expiry Date': '24-04-2022',
-      'Outstanding Violation': 'None',
-      'Unpaid Fine': 'None',
-    };
-
-    final headers = [
-      const Text('Plate Number'),
-      const Text('Status'),
-      const Text('View'),
-    ];
-    bool hasData = false; // Replace with actual data check
 
     return Scaffold(
       body: Stack(
@@ -202,8 +90,7 @@ class PatrolModeScreen extends ConsumerWidget {
                             horizontal: wp(4),
                             vertical: hp(2),
                           ),
-                          child: hasData
-                              ? SizedBox()
+                          child:
                               // HtmlTable<Violation>(
                               //   headers: headers,
                               //   rowData: violations,
@@ -249,7 +136,111 @@ class PatrolModeScreen extends ConsumerWidget {
                               //     horizontal: 10,
                               //   ),
                               // ),
-                              : NoRecordFound(),
+                              Column(
+                                children: [
+                                  Expanded(
+                                    child: state.loading
+                                        ? Center(
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : (state.error != null
+                                              ? NoRecordFound(
+                                                  title: 'Error occurred!',
+                                                  subtitle:
+                                                      'Something went wrong.\n ${state.error}',
+                                                )
+                                              : (violations.isEmpty
+                                                    ? NoRecordFound()
+                                                    : HtmlTable<Violation>(
+                                                        headers: headers,
+                                                        rowData: violations,
+                                                        rowBuilder: (list) => list.map((
+                                                          v,
+                                                        ) {
+                                                          var testStyle = TextStyle(
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            color:
+                                                                v.paymentStatus ==
+                                                                    "pending"
+                                                                ? AppColors
+                                                                      .error
+                                                                : v.paymentStatus ==
+                                                                      "paid"
+                                                                ? AppColors
+                                                                      .success
+                                                                : null,
+                                                          );
+                                                          return [
+                                                            Text(v.plateNumber),
+                                                            Text(
+                                                              v.paymentStatus
+                                                                  .capitalizeFirst(),
+                                                              style: testStyle,
+                                                            ),
+                                                            Icon(
+                                                              Icons.visibility,
+                                                              color: AppColors
+                                                                  .onBackgroundSurface,
+                                                            ),
+                                                          ];
+                                                        }).toList(),
+                                                        onRowTap: (v, index) {
+                                                          Navigator.of(
+                                                            context,
+                                                          ).push(
+                                                            MaterialPageRoute(
+                                                              builder: (_) =>
+                                                                  ViolationReportScreen(
+                                                                    violation:
+                                                                        v,
+                                                                    title:
+                                                                        'Patrol Mode',
+                                                                  ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        columnWidths: [
+                                                          FixedColumnWidth(
+                                                            wp(40),
+                                                          ),
+                                                          FixedColumnWidth(
+                                                            wp(30),
+                                                          ),
+                                                          FixedColumnWidth(
+                                                            wp(20),
+                                                          ),
+                                                        ],
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        outerBorderColor: AppColors
+                                                            .onBackgroundSurface2,
+                                                        innerBorderColor: AppColors
+                                                            .onBackgroundSurface2,
+                                                        rowHeight: hp(2.5),
+                                                        cellPadding:
+                                                            const EdgeInsets.symmetric(
+                                                              vertical: 10,
+                                                              horizontal: 10,
+                                                            ),
+                                                        // maxVisibleRows: 3,
+                                                      ))),
+                                  ),
+
+                                  PaginationControls(
+                                    currentPage: _currentPage,
+                                    totalPages:
+                                        state.pagination?.totalPages ?? 1,
+                                    onPageChanged: (page) async {
+                                      setState(() => _currentPage = page);
+                                      await ctrl.fetchPatrolMode(page: page);
+                                    },
+                                  ),
+                                ],
+                              ),
                         ),
                       ),
                     ],
