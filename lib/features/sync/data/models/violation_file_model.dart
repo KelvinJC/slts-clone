@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:slts_enforcer_app/core/api/env.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation_file.dart';
 
 part 'violation_file_model.g.dart';
@@ -59,7 +60,7 @@ class ViolationFileModel {
     fileName: fileName,
     fileSize: fileSize,
     fileType: fileType,
-    filePath: filePath,
+    filePath: '${Env.violationFileUrl}/$filePath',
     isVideo: isVideo,
     fileLength: fileLength,
     insertedBy: insertedBy,

@@ -9,4 +9,8 @@ class Env {
     }
     return value;
   }
+
+  static String get violationFileUrl {
+    return '${Env.apiBase}/public/upload';
+  }
 }

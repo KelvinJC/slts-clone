@@ -11,7 +11,9 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
+import 'package:slts_enforcer_app/ui/widgets/cached_image.dart';
 import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
+import 'package:slts_enforcer_app/ui/widgets/gallery_thumbnail.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/widgets/popup_container.dart';
@@ -59,7 +61,6 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
-    final imagePath = AppAssets.plateNumberPlaceHolder;
 
     // ID Collected
     final iDCollectedState = ref.watch(idCaptureProvider);
@@ -97,21 +98,21 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                             height: double.infinity,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(AppAssets.platePlaceholder),
-                                fit: BoxFit.cover,
-                              ),
+                              // image: DecorationImage(
+                              //   image: AssetImage(AppAssets.platePlaceholder),
+                              //   fit: BoxFit.cover,
+                              // ),
+                              color: Theme.of(context).colorScheme.surface,
                             ),
-                            // //imagePath from Violation here...
-                            child: imagePath.startsWith('http')
-                                ? Image.network(
-                                    imagePath,
-                                    width: double.infinity,
+                            //imagePath from Violation here...
+                            child: widget.violation.files.isNotEmpty
+                                ? CachedImage(
                                     height: hp(30),
-                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    url: widget.violation.files.first.filePath,
                                   )
                                 : Image.asset(
-                                    imagePath,
+                                    AppAssets.plateNumberPlaceHolder,
                                     width: double.infinity,
                                     height: hp(30),
                                     fit: BoxFit.cover,
@@ -340,30 +341,41 @@ class _ViolationReportScreenState extends ConsumerState<ViolationReportScreen> {
                                       .copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(height: hp(2)),
-                                // widget.violation.files.isEmpty
-                                //     ? const Text('None')
-                                //     : Wrap(
-                                //         spacing: 8,
-                                //         runSpacing: 8,
-                                //         children: widget.violation.files.map((
-                                //           f,
-                                //         ) {
-                                //           return SizedBox(
-                                //             width: context.wp(26),
-                                //             height: context.wp(26),
-                                //             child: ClipRRect(
-                                //               borderRadius:
-                                //                   BorderRadius.circular(4),
-                                //               child: Image.network(
-                                //                 f.filePath,
-                                //                 width: double.infinity,
-                                //                 height: hp(30),
-                                //                 fit: BoxFit.cover,
-                                //               ),
-                                //             ),
-                                //           );
-                                //         }).toList(),
-                                //       ),
+                                widget.violation.files.isEmpty
+                                    ? const Text('None')
+                                    : Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: widget.violation.files
+                                            .asMap()
+                                            .entries
+                                            .map((entry) {
+                                              return SizedBox(
+                                                width: context.wp(26),
+                                                height: context.wp(26),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  child: GalleryThumbnail(
+                                                    imageUrls: widget
+                                                        .violation
+                                                        .files
+                                                        .map((t) => t.filePath)
+                                                        .toList(),
+                                                    index: entry.key,
+                                                    height: double.infinity,
+                                                    width: double.infinity,
+                                                    progressColor:
+                                                        AppColors.primary,
+                                                    progressBgColor:
+                                                        AppColors.primary30,
+                                                    errorIconSize: wp(5),
+                                                  ),
+                                                ),
+                                              );
+                                            })
+                                            .toList(),
+                                      ),
                                 SizedBox(height: hp(10)),
                               ],
                             ),
