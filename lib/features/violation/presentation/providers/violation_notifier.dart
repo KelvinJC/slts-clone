@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/domain/repositories/violation_repository.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/patrol_mode_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 import 'package:slts_enforcer_app/injection.dart';
 import '../../../../core/errors/failures.dart';
@@ -34,13 +37,31 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
     // _loadAllSettings();
   }
 
-  Future<void> search({bool isNext = false}) async {
+  Future<void> refreshPatrolMode() async {
+    try {
+      await _read(patrolModeProvider.notifier).fetchPatrolMode();
+    } catch (e) {
+      // ignore
+      print("Failed to fetch recent captures: $e");
+    }
+  }
+
+  Future<void> refreshRecentCaptures() async {
+    try {
+      await _read(recentCapturesProvider.notifier).fetchRecentCaptures();
+    } catch (e) {
+      // ignore
+      print("Failed to fetch recent captures: $e");
+    }
+  }
+
+  Future<List<Violation>?> search({bool isNext = false}) async {
     final plate = plateNoController.text.trim();
-    if (plate.isEmpty) return;
+    if (plate.isEmpty) return null;
 
     if (plate == state.plate) {
       // No change, skip search
-      return;
+      return null;
     }
 
     if (!isNext) {
@@ -54,6 +75,8 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       if (list.isNotEmpty) {
         await loadSettings(v: list.first, skipLoading: true);
         state = state.copyWith(plateNoLoading: false);
+
+        return list;
       } else {
         // clear state
         resetFormFields();
@@ -69,6 +92,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       }
       state = state.copyWith(plateNoLoading: false, error: f);
     }
+    return null;
   }
 
   @override
@@ -312,12 +336,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
     final form = state;
     state = state.copyWith(isSubmitting: true, error: null);
     // 1️⃣ Convert each local file path into a Base64‐encoded string
-    final files = await Future.wait(
-      state.mediaPaths.map((path) async {
-        final bytes = await File(path).readAsBytes();
-        return base64Encode(bytes);
-      }),
-    );
+    final files = await encodeFilesToDataUris(state.mediaPaths);
 
     final req = CreateViolationRequest(
       zoneId: form.zone!.id.toString(),
@@ -380,12 +399,14 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   /// Clears *only* the user‐entered fields and media, but preserves all the
   /// pre‐loaded settings lists (offenceOptions, zoneOptions, etc).
   void resetFormFields({bool clearController = false}) {
-    if (clearController) {
-      plateNoController.clear();
-    }
+    // if (clearController) {
+    //   plateNoController.clear();
+    // }
 
     list.clear();
     state = state.copyWith(
+      plate: '',
+      //
       plateType: DropdownOption.empty(),
       plateColor: DropdownOption.empty(),
       brand: DropdownOption.empty(),
@@ -456,6 +477,27 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
     await _loadAllSettings();
     // }
     state = state.copyWith(loading: false, error: null);
+  }
+
+  /// Encodes a list of file paths to "data:{mime};base64,{base64}" strings.
+  /// Throws if any file path doesn't exist.
+  Future<List<String>> encodeFilesToDataUris(List<String> paths) async {
+    return await Future.wait(
+      paths.map((path) async {
+        final file = File(path);
+        if (!await file.exists()) {
+          throw Exception('File not found: $path');
+        }
+
+        final bytes = await file.readAsBytes();
+        final mimeType =
+            lookupMimeType(path, headerBytes: bytes) ??
+            'application/octet-stream';
+
+        // Uri.dataFromBytes will produce: "data:<mimeType>;base64,<base64...>"
+        return Uri.dataFromBytes(bytes, mimeType: mimeType).toString();
+      }),
+    );
   }
 }
 

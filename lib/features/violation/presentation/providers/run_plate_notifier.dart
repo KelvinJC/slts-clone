@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/patrol_mode_notifier.dart';
 import 'package:slts_enforcer_app/injection.dart';
 import '../../domain/entities/violation.dart';
 import '../../domain/repositories/violation_repository.dart';
@@ -51,7 +51,7 @@ class RunPlateNotifier extends StateNotifier<RunPlateState> {
     try {
       final list = await _repo.runPlateNumber(plate);
       state = state.copyWith(loading: false, results: list);
-      await refreshRecentCaptures();
+      // await refreshPatrolMode();
       return list;
     } on Failure catch (f) {
       state = state.copyWith(loading: false, error: f.displayMessage);
@@ -78,9 +78,9 @@ class RunPlateNotifier extends StateNotifier<RunPlateState> {
     state = state.copyWith(error: null);
   }
 
-  Future<void> refreshRecentCaptures() async {
+  Future<void> refreshPatrolMode() async {
     try {
-      await _read(recentCapturesProvider.notifier).fetchRecentCaptures();
+      await _read(patrolModeProvider.notifier).fetchPatrolMode();
     } catch (e) {
       // ignore
       print("Failed to fetch recent captures: $e");

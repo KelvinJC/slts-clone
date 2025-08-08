@@ -15,6 +15,7 @@ import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
+import 'package:slts_enforcer_app/ui/widgets/success_popup_widget.dart';
 import '../providers/violation_notifier.dart';
 
 enum ViolationStep { vehicleOffender, violationDetails, media, review }
@@ -45,6 +46,7 @@ class _State extends ConsumerState<CreateViolationScreen> {
   // validateVehicleBrandBorder = false,
   // validateVehicleVehicleTypeBorder = false,
   // validateVehicleColorBorder = false;
+  String? isSubmittedMsg;
 
   @override
   void initState() {
@@ -158,9 +160,24 @@ class _State extends ConsumerState<CreateViolationScreen> {
         : submitted == null
         ? 'Failed to submit'
         : 'Violation saved offline';
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    if (submitted != null) {
+      setState(() {
+        isSubmittedMsg = message;
+        //
+        validateOffenderOffenceBorder = false;
+        validateOffenderEventTypeBorder = false;
+        validateOffenderViolationDateBorder = false;
+        validateOffenderZoneBorder = false;
+        validateOffenderCommandBorder = false;
+        validateVehiclePlateBorder = false;
+      });
+      _back(step: ViolationStep.vehicleOffender);
+      notifier.refreshRecentCaptures();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
@@ -228,95 +245,20 @@ class _State extends ConsumerState<CreateViolationScreen> {
                           isLoading:
                               formValue.loading || formValue.isSubmitting,
                         ),
-                    // Row(
-                    //   children: [
-                    //     Expanded(
-                    //       child: GestureDetector(
-                    //         onTap: _step == ViolationStep.vehicleOffender
-                    //             ? null
-                    //             : _back,
-                    //         child: Container(
-                    //           height: hp(5.5),
-                    //           // padding: EdgeInsets.symmetric(vertical: hp(1.5)),
-                    //           decoration: BoxDecoration(
-                    //             color: AppColors.surface,
-                    //             borderRadius: BorderRadius.circular(wp(2)),
-                    //             border: Border.all(
-                    //               color: AppColors.onBackgroundSurface2,
-                    //             ),
-                    //           ),
-                    //           child: Center(
-                    //             child: Text(
-                    //               'Back',
-                    //               style: Theme.of(context).textTheme.bodyLarge!
-                    //                   .copyWith(
-                    //                     fontSize: 18,
-                    //                     color: AppColors.onBackgroundSurface2,
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     SizedBox(width: wp(4)),
-                    //     Expanded(
-                    //       child: GestureDetector(
-                    //         onTap: formValue.loading || formValue.isSubmitting
-                    //             ? null
-                    //             : (_step == ViolationStep.review
-                    //                   ? _save
-                    //                   : _next),
-                    //         child: Container(
-                    //           height: hp(5.5),
-                    //           // padding: EdgeInsets.symmetric(vertical: hp(2)),
-                    //           decoration: BoxDecoration(
-                    //             gradient: LinearGradient(
-                    //               colors: AppColors.buttonGradient,
-                    //               begin: Alignment.centerLeft,
-                    //               end: Alignment.centerRight,
-                    //             ),
-                    //             borderRadius: BorderRadius.circular(wp(2)),
-                    //           ),
-                    //           child: Center(
-                    //             child:
-                    //                 formValue.loading || formValue.isSubmitting
-                    //                 ? SizedBox(
-                    //                     height: wp(5),
-                    //                     width: wp(5),
-                    //                     child: CircularProgressIndicator(
-                    //                       strokeWidth: 2,
-                    //                       color: Colors.white,
-                    //                     ),
-                    //                   )
-                    //                 : Text(
-                    //                     _step == ViolationStep.review
-                    //                         ? 'Save'
-                    //                         : 'Next',
-                    //                     style: const TextStyle(
-                    //                       fontSize: 18,
-                    //                       color: AppColors.surface,
-                    //                       fontWeight: FontWeight.bold,
-                    //                     ),
-                    //                   ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                   ),
                 ),
               ),
             ],
           ),
 
-          if (formValue.loading)
-            Container(
-              height: hp(100),
-              width: wp(100),
-              decoration: BoxDecoration(color: AppColors.grayOverlay),
-              child: Center(child: CircularProgressIndicator()),
+          if (isSubmittedMsg != null)
+            SuccessPopupWidget(
+              onClose: () {
+                setState(() {
+                  isSubmittedMsg = null;
+                });
+              },
+              message: isSubmittedMsg ?? '',
             ),
 
           if (formValue.isSubmitting) LoadingPopupWidget(),
@@ -506,11 +448,13 @@ class _State extends ConsumerState<CreateViolationScreen> {
             // schedule the search after build is over:
             Future.microtask(() {
               if (val.trim().isNotEmpty) {
-                notifier.search().then((_) {
-                  if (notifier.list.isEmpty) {
+                notifier.search().then((v) {
+                  if (v == null || v.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('No results found for "$val"')),
                     );
+                  } else {
+                    notifier.refreshPatrolMode();
                   }
                 });
               }

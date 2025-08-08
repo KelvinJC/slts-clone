@@ -75,6 +75,7 @@ class _State extends ConsumerState<HomeTab> {
                               ),
                             );
                           } else {
+                            runCtrl.refreshPatrolMode();
                             Navigator.pushNamed(context, '/search');
                           }
                         });
