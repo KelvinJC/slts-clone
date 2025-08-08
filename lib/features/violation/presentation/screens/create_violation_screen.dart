@@ -9,6 +9,7 @@ import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_dropdown_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/error_popup_widget.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
+import 'package:slts_enforcer_app/ui/widgets/loading_popup_widget.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
@@ -318,71 +319,13 @@ class _State extends ConsumerState<CreateViolationScreen> {
               child: Center(child: CircularProgressIndicator()),
             ),
 
+          if (formValue.isSubmitting) LoadingPopupWidget(),
+
           if (formValue.error != null)
             ErrorPopupWidget(
               errorMessage: formValue.error?.displayMessage,
               onClose: () => notifier.resetErrors(),
             ),
-          // Container(
-          //   color: AppColors.grayOverlay,
-          //   child: Center(
-          //     child: Container(
-          //       margin: EdgeInsets.symmetric(
-          //         horizontal: wp(5),
-          //         vertical: hp(20),
-          //       ),
-          //       padding: EdgeInsets.all(wp(5)),
-          //       decoration: BoxDecoration(
-          //         color: Colors.white,
-          //         borderRadius: BorderRadius.circular(wp(3)),
-          //       ),
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         children: [
-          //           // close
-          //           Align(
-          //             alignment: Alignment.topRight,
-          //             child: GestureDetector(
-          //               onTap: () => notifier.resetErrors(),
-          //               child: Icon(Icons.close, size: wp(6)),
-          //             ),
-          //           ),
-
-          //           Padding(
-          //             padding: EdgeInsets.symmetric(vertical: hp(3)),
-          //             child: Image.asset(
-          //               AppAssets.error,
-          //               width: wp(20),
-          //               // height: hp(12),
-          //               fit: BoxFit.cover,
-          //             ),
-          //           ),
-
-          //           // SizedBox(height: hp(2)),
-          //           // Text(
-          //           //   'Error!',
-          //           //   style: Theme.of(context).textTheme.titleMedium
-          //           //       ?.copyWith(fontWeight: FontWeight.bold),
-          //           // ),
-          //           Container(
-          //             margin: EdgeInsets.only(top: hp(3)),
-          //             padding: EdgeInsets.only(bottom: hp(2)),
-          //             child: Text(
-          //               formValue.error?.displayMessage ??
-          //                   'An unexpected error occurred.',
-          //               textAlign: TextAlign.center,
-          //               style: Theme.of(context).textTheme.labelLarge
-          //                   ?.copyWith(
-          //                     color: AppColors.onBackground,
-          //                     // fontSize: 12,
-          //                   ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

@@ -14,6 +14,9 @@ import 'package:slts_enforcer_app/features/violation/presentation/providers/viol
 import 'package:slts_enforcer_app/injection.dart';
 import '../../../../core/errors/failures.dart';
 
+/// A shortcut to read other providers from inside this notifier.
+typedef Reader = T Function<T>(ProviderListenable<T> provider);
+
 /// Manages form state + all dropdown loading + media + submission.
 class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final ViolationRepository _repo;
@@ -22,9 +25,9 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final FocusNode plateNoFocusNode;
   List<Violation> list = [];
   final LocalStorage _storage;
-  final AuthState _authState;
+  final Reader _read;
 
-  ViolationNotifier(this._repo, this._syncRepo, this._storage, this._authState)
+  ViolationNotifier(this._repo, this._syncRepo, this._storage, this._read)
     : plateNoController = TextEditingController(),
       plateNoFocusNode = FocusNode(),
       super(ViolationFormState.initial()) {
@@ -339,7 +342,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       // clientAmount: list.isNotEmpty
       //     ? list.first.clientAmount.toString()
       //     : '0.0',
-      insertedBy: _authState.user?.id.toString() ?? '0',
+      insertedBy: _read(authNotifierProvider).user?.id.toString() ?? '0',
       files: files,
     );
 
@@ -463,6 +466,6 @@ final violationNotifierProvider =
         ref.read(violationRepositoryProvider),
         ref.read(syncRepositoryProvider),
         ref.read(localStorageProvider),
-        ref.read(authNotifierProvider),
+        ref.read,
       ),
     );
