@@ -31,6 +31,7 @@ class HomeTab extends ConsumerStatefulWidget {
 
 class _State extends ConsumerState<HomeTab> {
   var validateEmailBorder = false, validatePasswordBorder = false;
+  bool showPatrolModeError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,14 @@ class _State extends ConsumerState<HomeTab> {
                       child: ActionCard(
                         asset: AppAssets.patrol,
                         label: 'Patrol Mode',
-                        onTap: () => Navigator.pushNamed(context, '/patrol'),
+                        onTap: () {
+                          // Navigator.pushNamed(context, '/patrol');
+
+                          // show error pop up
+                          setState(() {
+                            showPatrolModeError = true;
+                          });
+                        },
                       ),
                     ),
                     SizedBox(width: wp(5)),
@@ -120,6 +128,15 @@ class _State extends ConsumerState<HomeTab> {
               runCtrl.resetError();
             },
             errorMessage: runState.error,
+          ),
+        if (showPatrolModeError)
+          ErrorPopupWidget(
+            onClose: () {
+              setState(() {
+                showPatrolModeError = false;
+              });
+            },
+            errorMessage: 'No cameras detected for patrol mode.',
           ),
       ],
     );

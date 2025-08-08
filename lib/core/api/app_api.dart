@@ -6,12 +6,11 @@ import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.d
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_response.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:slts_enforcer_app/features/violation/data/models/id_capture_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/action_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/list_item_model.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/violation_response.dart';
-import 'package:slts_enforcer_app/features/violation/data/models/vehicle_impounded_request.dart';
 import '../../features/auth/data/models/login_request.dart';
 import '../../features/auth/data/models/user_model.dart';
 
@@ -87,9 +86,6 @@ abstract class AppApi {
   @POST('/violation/resend-link')
   Future<GenericResponse> resendLink(@Body() ResendLinkRequest req);
 
-  @POST('/violation/id-capture')
-  Future<GenericResponse> idCapture(@Body() IdCaptureRequest req);
-
-  @POST('/violation/vehicle-impounded')
-  Future<GenericResponse> vehicleImpounded(@Body() VehicleImpoundedRequest req);
+  @PATCH('/violation/mobile-action')
+  Future<GenericResponse> submitAction(@Body() ActionRequest req);
 }

@@ -106,19 +106,27 @@ class _State extends ConsumerState<SettingsScreen> {
                               },
                               isSwitchOn: isSwitchOn,
                               onSwitchChanged: (value) {
-                                setState(() {
-                                  isSwitchOn = !isSwitchOn;
-                                });
+                                // setState(() {
+                                //   isSwitchOn = !isSwitchOn;
+                                // });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      '2FA must be left enabled for security reasons',
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                             SettingItemData(
                               icon: AppAssets.logout,
                               label: 'Log Out',
                               onTap: () {
-                                // e.g. ref.read(authNotifierProvider.notifier).reset();
-                                Navigator.pushReplacementNamed(
+                                ref.read(authNotifierProvider.notifier).reset();
+                                Navigator.pushNamedAndRemoveUntil(
                                   context,
                                   '/login',
+                                  (route) => false,
                                 );
                               },
                             ),

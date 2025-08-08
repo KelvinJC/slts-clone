@@ -21,7 +21,7 @@ class CustomToggleSwitch extends StatelessWidget {
         height: 35,
         padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value ? AppColors.primary : AppColors.onBackgroundSurface3,
+          color: value ? AppColors.secondary : AppColors.onBackgroundSurface3,
           borderRadius: BorderRadius.circular(30),
         ),
         child: AnimatedAlign(
@@ -31,7 +31,7 @@ class CustomToggleSwitch extends StatelessWidget {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.grey[400],
+              color: Colors.white,
               shape: BoxShape.circle,
             ),
           ),

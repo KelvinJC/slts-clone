@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:slts_enforcer_app/core/api/env.dart';
 import 'package:slts_enforcer_app/core/utils/formatter_utils.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/action_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/providers/id_capture_notifier.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/providers/resend_link_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/action_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
-import 'package:slts_enforcer_app/features/violation/presentation/providers/vehicle_impounded_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/create_violation_screen.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
@@ -60,17 +60,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ID Collected
-    final iDCollectedState = ref.watch(idCaptureProvider);
-    final iDCollectedCtrl = ref.read(idCaptureProvider.notifier);
-
-    // Vehicle Impounded
-    final vehicleImpoundedState = ref.watch(vehicleImpoundedProvider);
-    final vehicleImpoundedCtrl = ref.read(vehicleImpoundedProvider.notifier);
-
-    // Resend Link Impounded
-    final resendLinkState = ref.watch(resendLinkProvider);
-    final resendLinkCtrl = ref.read(resendLinkProvider.notifier);
+    // Action
+    final actionState = ref.watch(idCaptureProvider);
+    final actionCtrl = ref.read(idCaptureProvider.notifier);
     //
     final runState = ref.watch(runPlateProvider);
     // final runCtrl = ref.read(runPlateProvider.notifier);
@@ -157,20 +149,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                         SizedBox(height: hp(2)),
                         _buildPopUpRow('ID Collected', () {
-                          toggleCard(iDCollected: true);
+                          var vList = popUpSetup(actionCtrl, runState);
+                          if (vList != null) {
+                            toggleCard(iDCollected: true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No PCN selected')),
+                            );
+                          }
                         }),
-                        _buildPopUpRow('Vehicle Inpounded', () {
-                          toggleCard(vehicleImpounded: true);
+                        _buildPopUpRow('Vehicle Impounded', () {
+                          var vList = popUpSetup(actionCtrl, runState);
+                          if (vList != null) {
+                            actionCtrl.toggleVehicleImpounded(true);
+                            toggleCard(vehicleImpounded: true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No PCN selected')),
+                            );
+                          }
                         }),
                         _buildPopUpRow('Resend Link', () {
-                          toggleCard(resendLink: true);
+                          var vList = popUpSetup(actionCtrl, runState);
+                          if (vList != null) {
+                            toggleCard(resendLink: true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No PCN selected')),
+                            );
+                          }
                         }),
                         _buildPopUpRow('Share', () {
                           // toggleCard(share: true);
                           SharePlus.instance.share(
-                            ShareParams(
-                              text: 'check out my website https://example.com',
-                            ),
+                            ShareParams(text: Env.resendLinkUrl),
                           );
                         }),
                         SizedBox(height: hp(2)),
@@ -180,284 +192,295 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
 
-            iDCollected
-                ? (iDCollectedState.error != null
+            /// Action Card
+            iDCollected || vehicleImpounded || resendLink
+                ? (actionState.error != null
                       ? ErrorPopupWidget(
                           onClose: () {
-                            iDCollectedCtrl.resetError();
+                            actionCtrl.resetError();
                           },
-                          errorMessage: iDCollectedState.error,
+                          errorMessage: actionState.error,
                         )
-                      : iDCollectedCtrl.isSubmitted
+                      : actionCtrl.isSubmitted
                       ? SuccessPopupWidget(
                           onClose: () {
-                            iDCollectedCtrl.reset(fromSuccess: true);
+                            actionCtrl.reset(fromSuccess: true);
                             toggleCard();
                           },
-                          message:
-                              'Enforcement action has been recorded successfully.',
+                          message: resendLink
+                              ? 'Link has been sent to\n'
+                                    '${actionCtrl.emailController.text.replaceAllMapped(RegExp(r'(^.{3})(.*?)(.{2})@'), (m) => '${m[1]}***${m[3]}@')}, please \ncheck your mail.'
+                              : 'Enforcement action has been recorded successfully.',
                         )
-                      : PopupContainer(
-                          onClose: () {
-                            iDCollectedCtrl.reset();
-                            toggleCard();
-                          },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // — Title
-                              Text(
-                                'Select ID Type',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
+                      : (iDCollected
+                            ? PopupContainer(
+                                onClose: () {
+                                  actionCtrl.reset();
+                                  toggleCard();
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // — Title
+                                    Text(
+                                      'Select ID Type',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
 
-                              // — Driver’s License
-                              SizedBox(
-                                height: hp(5),
-                                child: CheckboxListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: Text('Driver’s License'),
-                                  value: iDCollectedState.hasDriversLicense,
-                                  onChanged:
-                                      iDCollectedCtrl.toggleDriversLicense,
-                                  controlAffinity:
-                                      ListTileControlAffinity.leading,
-                                  checkboxShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(wp(1)),
-                                  ),
-                                  side: BorderSide(
-                                    color: AppColors.onBackgroundSurface2,
-                                    width: wp(0.4),
-                                  ),
-                                  checkboxScaleFactor: 1.2,
+                                    // — Driver’s License
+                                    SizedBox(
+                                      height: hp(5),
+                                      child: CheckboxListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text('Driver’s License'),
+                                        value:
+                                            actionState.type ==
+                                            ActionType.driversLicense,
+                                        onChanged:
+                                            actionCtrl.toggleDriversLicense,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        checkboxShape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            wp(1),
+                                          ),
+                                        ),
+                                        side: BorderSide(
+                                          color: AppColors.onBackgroundSurface2,
+                                          width: wp(0.4),
+                                        ),
+                                        checkboxScaleFactor: 1.2,
+                                      ),
+                                    ),
+
+                                    // — Vehicle Particulars
+                                    SizedBox(
+                                      height: hp(5),
+                                      child: CheckboxListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text('Vehicle Particulars'),
+                                        value:
+                                            actionState.type ==
+                                            ActionType.vehicleParticulars,
+                                        onChanged:
+                                            actionCtrl.toggleVehicleParticulars,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        checkboxShape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            wp(1),
+                                          ),
+                                        ),
+                                        side: BorderSide(
+                                          color: AppColors.onBackgroundSurface2,
+                                          width: context.wp(0.4),
+                                        ),
+                                        checkboxScaleFactor: 1.2,
+                                      ),
+                                    ),
+
+                                    SizedBox(height: context.hp(4)),
+
+                                    // — Comment label
+                                    Text(
+                                      'Comment',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    SizedBox(height: context.hp(2)),
+
+                                    // — Comment field
+                                    AppTextField(
+                                      hintText: 'Write here…',
+                                      maxLines: 5,
+                                      controller: actionCtrl.commentController,
+                                      validateBorder:
+                                          actionState.commentTouched,
+                                      isValid: actionState.commentIsValid,
+                                      onChanged: actionCtrl.updateComment,
+                                    ),
+                                    SizedBox(height: context.hp(0.5)),
+
+                                    // — Hint
+                                    Text(
+                                      'Not more than 50 words',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color:
+                                                AppColors.onBackgroundSurface2,
+                                          ),
+                                    ),
+
+                                    SizedBox(height: context.hp(3)),
+
+                                    // — Buttons
+                                    _buildActionRowForCard(
+                                      wp,
+                                      hp,
+                                      allowProceed: actionState.canSubmitAction,
+                                      onTapBtnOne: () {
+                                        actionCtrl.reset();
+                                        toggleCard();
+                                      },
+                                      onTapBtnTwo: () =>
+                                          actionCtrl.submitAction(),
+                                      isLoading: actionState.loading,
+                                    ),
+                                    SizedBox(height: context.hp(2)),
+                                  ],
                                 ),
-                              ),
+                              )
+                            : vehicleImpounded
+                            ? PopupContainer(
+                                onClose: () {
+                                  actionCtrl.reset();
+                                  toggleCard();
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // — Comment label
+                                    Text(
+                                      'Comment',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    SizedBox(height: context.hp(2)),
 
-                              // — Vehicle Particulars
-                              SizedBox(
-                                height: hp(5),
-                                child: CheckboxListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: Text('Vehicle Particulars'),
-                                  value: iDCollectedState.hasVehicleParticulars,
-                                  onChanged:
-                                      iDCollectedCtrl.toggleVehicleParticulars,
-                                  controlAffinity:
-                                      ListTileControlAffinity.leading,
-                                  checkboxShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(wp(1)),
-                                  ),
-                                  side: BorderSide(
-                                    color: AppColors.onBackgroundSurface2,
-                                    width: context.wp(0.4),
-                                  ),
-                                  checkboxScaleFactor: 1.2,
+                                    // — Comment field
+                                    AppTextField(
+                                      hintText: 'Write here…',
+                                      maxLines: 5,
+                                      controller: actionCtrl.commentController,
+                                      validateBorder:
+                                          actionState.commentTouched,
+                                      isValid: actionState.commentIsValid,
+                                      onChanged: actionCtrl.updateComment,
+                                    ),
+                                    SizedBox(height: context.hp(0.5)),
+
+                                    // — Hint
+                                    Text(
+                                      'Not more than 50 words',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color:
+                                                AppColors.onBackgroundSurface2,
+                                          ),
+                                    ),
+
+                                    SizedBox(height: context.hp(3)),
+
+                                    // — Buttons
+                                    _buildActionRowForCard(
+                                      wp,
+                                      hp,
+                                      allowProceed: true,
+                                      onTapBtnOne: () {
+                                        actionCtrl.reset();
+                                        toggleCard();
+                                      },
+                                      onTapBtnTwo: () =>
+                                          actionCtrl.submitAction(),
+                                      isLoading: actionState.loading,
+                                    ),
+                                    SizedBox(height: context.hp(2)),
+                                  ],
                                 ),
-                              ),
-
-                              SizedBox(height: context.hp(4)),
-
-                              // — Comment label
-                              Text(
-                                'Comment',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              SizedBox(height: context.hp(2)),
-
-                              // — Comment field
-                              AppTextField(
-                                hintText: 'Write here…',
-                                maxLines: 5,
-                                controller: iDCollectedCtrl.controller,
-                                validateBorder: iDCollectedState.commentTouched,
-                                isValid: iDCollectedCtrl.commentIsValid(),
-                                onChanged: iDCollectedCtrl.updateComment,
-                              ),
-                              SizedBox(height: context.hp(0.5)),
-
-                              // — Hint
-                              Text(
-                                'Not more than 50 words',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: AppColors.onBackgroundSurface2,
-                                    ),
-                              ),
-
-                              SizedBox(height: context.hp(3)),
-
-                              // — Buttons
-                              _buildActionRowForCard(
-                                wp,
-                                hp,
-                                allowProceed: iDCollectedCtrl.canSubmit(),
-                                onTapBtnOne: () {
-                                  iDCollectedCtrl.reset();
+                              )
+                            : PopupContainer(
+                                onClose: () {
+                                  actionCtrl.reset();
                                   toggleCard();
                                 },
-                                onTapBtnTwo: () => iDCollectedCtrl.submit(),
-                                isLoading: iDCollectedState.loading,
-                              ),
-                              SizedBox(height: context.hp(2)),
-                            ],
-                          ),
-                        ))
-                : SizedBox.shrink(),
-
-            vehicleImpounded
-                ? (vehicleImpoundedState.error != null
-                      ? ErrorPopupWidget(
-                          onClose: () {
-                            vehicleImpoundedCtrl.resetError();
-                          },
-                          errorMessage: vehicleImpoundedState.error,
-                        )
-                      : vehicleImpoundedCtrl.isSubmitted
-                      ? SuccessPopupWidget(
-                          onClose: () {
-                            vehicleImpoundedCtrl.reset(fromSuccess: true);
-                            toggleCard();
-                          },
-                          message:
-                              'Enforcement action has been recorded successfully.',
-                        )
-                      : PopupContainer(
-                          onClose: () {
-                            vehicleImpoundedCtrl.reset();
-                            toggleCard();
-                          },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // — Comment label
-                              Text(
-                                'Comment',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              SizedBox(height: context.hp(2)),
-
-                              // — Comment field
-                              AppTextField(
-                                hintText: 'Write here…',
-                                maxLines: 5,
-                                controller: vehicleImpoundedCtrl.controller,
-                                validateBorder:
-                                    vehicleImpoundedState.commentTouched,
-                                isValid: vehicleImpoundedCtrl.commentIsValid(),
-                                onChanged: vehicleImpoundedCtrl.updateComment,
-                              ),
-                              SizedBox(height: context.hp(0.5)),
-
-                              // — Hint
-                              Text(
-                                'Not more than 50 words',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: AppColors.onBackgroundSurface2,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // — Hint
+                                    Text(
+                                      'Enter your email address so we could send the link to you.',
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            // color: AppColors.onBackgroundSurface2,
+                                          ),
                                     ),
-                              ),
+                                    SizedBox(height: context.hp(3)),
 
-                              SizedBox(height: context.hp(3)),
-
-                              // — Buttons
-                              _buildActionRowForCard(
-                                wp,
-                                hp,
-                                allowProceed: vehicleImpoundedCtrl.canSubmit(),
-                                onTapBtnOne: () {
-                                  vehicleImpoundedCtrl.reset();
-                                  toggleCard();
-                                },
-                                onTapBtnTwo: () =>
-                                    vehicleImpoundedCtrl.submit(),
-                                isLoading: vehicleImpoundedState.loading,
-                              ),
-                              SizedBox(height: context.hp(2)),
-                            ],
-                          ),
-                        ))
-                : SizedBox.shrink(),
-
-            resendLink
-                ? (resendLinkState.error != null
-                      ? ErrorPopupWidget(
-                          onClose: () {
-                            resendLinkCtrl.resetError();
-                          },
-                          errorMessage: resendLinkState.error,
-                        )
-                      : resendLinkCtrl.isSubmitted
-                      ? SuccessPopupWidget(
-                          onClose: () {
-                            resendLinkCtrl.reset(fromSuccess: true);
-                            toggleCard();
-                          },
-                          message:
-                              'Enforcement action has been recorded successfully.',
-                        )
-                      : PopupContainer(
-                          onClose: () {
-                            resendLinkCtrl.reset();
-                            toggleCard();
-                          },
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // — Hint
-                              Text(
-                                'Enter your email address so we could send the link to you.',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(
-                                      // color: AppColors.onBackgroundSurface2,
+                                    // — Email label
+                                    Text(
+                                      'Email',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
                                     ),
-                              ),
-                              SizedBox(height: context.hp(3)),
+                                    SizedBox(height: context.hp(2)),
 
-                              // — Email label
-                              Text(
-                                'Email',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              SizedBox(height: context.hp(2)),
+                                    // — Comment field
+                                    AppTextField(
+                                      hintText: 'Email address…',
+                                      controller: actionCtrl.emailController,
+                                      validateBorder: actionState.emailTouched,
+                                      isValid: actionState.emailIsValid,
+                                      onChanged: actionCtrl.updateEmail,
+                                      verticalPadding: 2,
+                                    ),
 
-                              // — Comment field
-                              AppTextField(
-                                hintText: 'Email address…',
-                                controller: resendLinkCtrl.controller,
-                                validateBorder: resendLinkState.emailTouched,
-                                isValid: resendLinkCtrl.emailIsValid(),
-                                onChanged: resendLinkCtrl.updateEmail,
-                                verticalPadding: 2,
-                              ),
+                                    SizedBox(height: context.hp(4)),
 
-                              SizedBox(height: context.hp(4)),
-
-                              // — Buttons
-                              _buildActionRowForCard(
-                                wp,
-                                hp,
-                                allowProceed: resendLinkCtrl.canSubmit(),
-                                onTapBtnOne: () {
-                                  resendLinkCtrl.reset();
-                                  toggleCard();
-                                },
-                                onTapBtnTwo: () => resendLinkCtrl.submit(),
-                                isLoading: resendLinkState.loading,
-                                title2: 'Send',
-                              ),
-                              SizedBox(height: context.hp(2)),
-                            ],
-                          ),
-                        ))
+                                    // — Buttons
+                                    _buildActionRowForCard(
+                                      wp,
+                                      hp,
+                                      allowProceed:
+                                          actionState.canSubmitResendLink,
+                                      onTapBtnOne: () {
+                                        actionCtrl.reset();
+                                        toggleCard();
+                                      },
+                                      onTapBtnTwo: () =>
+                                          actionCtrl.submitResendLink(),
+                                      isLoading: actionState.loading,
+                                      title2: 'Send',
+                                    ),
+                                    SizedBox(height: context.hp(2)),
+                                  ],
+                                ),
+                              )))
                 : SizedBox.shrink(),
           ],
         ),
       ),
     );
+  }
+
+  List<Violation>? popUpSetup(
+    ActionNotifier actionCtrl,
+    RunPlateState runState,
+  ) {
+    // get pcn from selected _selectedIds
+    var sv = runState.results
+        ?.where((v) => _selectedIds.contains(v.id))
+        .toList();
+    if (sv != null && sv.isNotEmpty) {
+      actionCtrl.updatePCNs(sv.map((v) => v.pcnNumber).toList() ?? []);
+      actionCtrl.updateEmail(sv.first.emailAddress);
+      return sv;
+    }
+    return null;
   }
 
   Widget _buildPopUpRow(String text, void Function()? onPressed) {
@@ -874,6 +897,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     double Function(double) hp,
     RunPlateState runState,
   ) {
+    final actionCtrl = ref.read(idCaptureProvider.notifier);
     final anySelected = _selectedIds.isNotEmpty;
 
     final activeDecoration = BoxDecoration(
@@ -905,9 +929,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: GestureDetector(
               onTap: anySelected
                   ? () {
+                      // // get pcn from selected _selectedIds
+                      // var sv = runState.results
+                      //     ?.where((v) => _selectedIds.contains(v.id))
+                      //     .toList();
+                      // if (sv != null && sv.isNotEmpty) {
+                      //   actionCtrl.updatePCNs(
+                      //     sv.map((v) => v.pcnNumber).toList() ?? [],
+                      //   );
+                      //   actionCtrl.updateEmail(sv.first.emailAddress);
                       setState(() {
                         showPopUp = true;
                       });
+                      // } else {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(content: Text('No PCN selected')),
+                      //   );
+                      // }
                     }
                   : null,
               child: Container(

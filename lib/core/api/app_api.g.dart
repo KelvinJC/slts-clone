@@ -637,54 +637,20 @@ class _AppApi implements AppApi {
   }
 
   @override
-  Future<GenericResponse> idCapture(IdCaptureRequest req) async {
+  Future<GenericResponse> submitAction(ActionRequest req) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(req.toJson());
     final _options = _setStreamType<GenericResponse>(Options(
-      method: 'POST',
+      method: 'PATCH',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
-          '/violation/id-capture',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late GenericResponse _value;
-    try {
-      _value = GenericResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<GenericResponse> vehicleImpounded(VehicleImpoundedRequest req) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(req.toJson());
-    final _options = _setStreamType<GenericResponse>(Options(
-      method: 'POST',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/violation/vehicle-impounded',
+          '/violation/mobile-action',
           queryParameters: queryParameters,
           data: _data,
         )

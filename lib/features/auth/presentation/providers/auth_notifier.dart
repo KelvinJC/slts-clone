@@ -165,6 +165,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(biometricsLoading: false, error: error);
     }
   }
+
+  Future<void> reset() async {
+    await _storage.clearAuthToken();
+    state = const AuthState();
+  }
 }
 
 /// Provider for [AuthNotifier] — UI can call its methods and watch [AuthState].
