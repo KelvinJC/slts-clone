@@ -18,7 +18,7 @@ enum ActionType {
 @JsonSerializable()
 class ActionRequest {
   @JsonKey(name: 'pcn')
-  final String pcn;
+  final List<String> pcn;
 
   @JsonKey(name: 'type')
   final String type;
@@ -39,7 +39,7 @@ class ActionRequest {
   // Factory to build from a state object (optional, add your type as needed)
   factory ActionRequest.fromState(ActionState state) {
     return ActionRequest(
-      pcn: state.pcn,
+      pcn: state.pcns,
       type: state.type.value,
       comment: state.comment.trim(),
     );

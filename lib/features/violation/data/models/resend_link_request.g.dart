@@ -8,7 +8,7 @@ part of 'resend_link_request.dart';
 
 ResendLinkRequest _$ResendLinkRequestFromJson(Map<String, dynamic> json) =>
     ResendLinkRequest(
-      pcn: json['pcn'] as String,
+      pcn: (json['pcn'] as List<dynamic>).map((e) => e as String).toList(),
       email: json['email'] as String,
     );
 

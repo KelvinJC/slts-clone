@@ -148,7 +148,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
           state = state.copyWith(biometricsLoading: false, error: f);
         }
       } else {
-        final error = UnexpectedFailure(rawMessage: 'Biometrics not enabled');
+        final error = UnexpectedFailure(
+          rawMessage: 'Biometrics not enabled, login to enable biometrics',
+        );
         state = state.copyWith(biometricsLoading: false, error: error);
       }
     } catch (f) {

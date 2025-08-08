@@ -49,7 +49,11 @@ class SuccessPopupWidget extends StatelessWidget {
                     alignment: Alignment.topRight,
                     child: GestureDetector(
                       onTap: onClose,
-                      child: Icon(Icons.close, size: wp(6)),
+                      child: Icon(
+                        Icons.close,
+                        size: wp(6),
+                        color: AppColors.onBackground,
+                      ),
                     ),
                   ),
                   SizedBox(height: hp(2)),

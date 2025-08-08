@@ -58,6 +58,7 @@ dependencies:
   cached_network_image: ^3.4.1
   photo_view: ^0.15.0
   mime: ^2.0.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +75,12 @@ dev_dependencies:
   retrofit_generator: ^9.2.0
   json_serializable: ^6.9.0
   freezed: ^3.0.0-0.0.dev
+
+flutter_icons:
+  image_path: "assets/images/slts-logo.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

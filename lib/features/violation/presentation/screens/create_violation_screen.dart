@@ -1347,67 +1347,6 @@ class _State extends ConsumerState<CreateViolationScreen> {
               ),
             ),
 
-      // selected media previews
-      // if (form.mediaPaths.isNotEmpty) ...[
-      //   SizedBox(height: context.hp(2)),
-      //   Column(
-      //     children: form.mediaPaths.map((path) {
-      //       final fileName = path.split('/').last;
-      //       return Padding(
-      //         padding: EdgeInsets.only(bottom: context.hp(1)),
-      //         child: Material(
-      //           elevation: 1,
-      //           borderRadius: BorderRadius.circular(context.wp(2)),
-      //           child: Container(
-      //             padding: EdgeInsets.all(context.wp(3)),
-      //             decoration: BoxDecoration(
-      //               color: AppColors.surface,
-      //               borderRadius: BorderRadius.circular(context.wp(2)),
-      //             ),
-      //             child: Row(
-      //               children: [
-      //                 // thumbnail
-      //                 ClipRRect(
-      //                   borderRadius: BorderRadius.circular(8),
-      //                   child: Image.file(
-      //                     File(path),
-      //                     width: context.wp(12),
-      //                     height: context.wp(12),
-      //                     fit: BoxFit.cover,
-      //                   ),
-      //                 ),
-      //                 SizedBox(width: context.wp(3)),
-      //                 // filename
-      //                 Expanded(
-      //                   child: Text(
-      //                     fileName,
-      //                     style: Theme.of(context).textTheme.bodyMedium,
-      //                   ),
-      //                 ),
-      //                 // remove button
-      //                 IconButton(
-      //                   icon: Icon(Icons.close, color: AppColors.error),
-      //                   onPressed: () {
-      //                     // remove this path
-      //                     final updated = List<String>.from(
-      //                       form.mediaPaths,
-      //                     )..remove(path);
-      //                     // ref
-      //                     //     .read(violationNotifierProvider.notifier)
-      //                     //     .state = form.copyWith(
-      //                     //   mediaPaths: updated,
-      //                     // );
-      //                     notifier.updateMediaPaths(updated);
-      //                   },
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //       );
-      //     }).toList(),
-      //   ),
-      // ],// selected media previews
       if (form.mediaPaths.isNotEmpty && !isPreviewMode) ...[
         SizedBox(height: context.hp(2)),
         Column(

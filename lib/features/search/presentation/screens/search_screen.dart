@@ -144,7 +144,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             onTap: () => setState(() {
                               showPopUp = false;
                             }),
-                            child: Icon(Icons.close, size: wp(6)),
+                            child: Icon(
+                              Icons.close,
+                              size: wp(6),
+                              color: AppColors.onBackground,
+                            ),
                           ),
                         ),
                         SizedBox(height: hp(2)),

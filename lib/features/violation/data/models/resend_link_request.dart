@@ -6,7 +6,7 @@ part 'resend_link_request.g.dart';
 @JsonSerializable()
 class ResendLinkRequest {
   @JsonKey(name: 'pcn')
-  final String pcn;
+  final List<String> pcn;
 
   @JsonKey(name: 'email')
   final String email;
@@ -15,7 +15,7 @@ class ResendLinkRequest {
 
   // Factory to build from a state object (optional, add your type as needed)
   factory ResendLinkRequest.fromState(ActionState state) {
-    return ResendLinkRequest(pcn: state.pcn.trim(), email: state.email.trim());
+    return ResendLinkRequest(pcn: state.pcns, email: state.email.trim());
   }
 
   factory ResendLinkRequest.fromJson(Map<String, dynamic> json) =>

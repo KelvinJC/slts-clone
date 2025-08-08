@@ -6,7 +6,7 @@ import 'package:slts_enforcer_app/injection.dart';
 import '../../domain/repositories/violation_repository.dart';
 
 class ActionState {
-  final String pcn;
+  final List<String> pcns;
   final String email;
   final bool emailTouched;
   final ActionType type;
@@ -20,7 +20,7 @@ class ActionState {
   const ActionState({
     this.email = '',
     this.emailTouched = false,
-    this.pcn = '',
+    this.pcns = const [],
     this.type = ActionType.vehicleImpounded,
     this.comment = '',
     this.commentTouched = false,
@@ -31,7 +31,7 @@ class ActionState {
   ActionState copyWith({
     String? email,
     bool? emailTouched,
-    String? pcn,
+    List<String>? pcns,
     ActionType? type,
     String? comment,
     bool? commentTouched,
@@ -41,7 +41,7 @@ class ActionState {
     return ActionState(
       email: email ?? this.email,
       emailTouched: emailTouched ?? this.emailTouched,
-      pcn: pcn ?? this.pcn,
+      pcns: pcns ?? this.pcns,
       type: type ?? this.type,
       comment: comment ?? this.comment,
       commentTouched: commentTouched ?? this.commentTouched,
@@ -50,7 +50,7 @@ class ActionState {
     );
   }
 
-  bool get canSubmitResendLink => emailIsValid && pcn.isNotEmpty;
+  bool get canSubmitResendLink => emailIsValid && pcns.isNotEmpty;
 
   bool get emailIsValid =>
       RegExp(r'^[\w-.]+@([\w-]+\.)+\w{2,4}$').hasMatch(email) &&
@@ -59,7 +59,7 @@ class ActionState {
   bool get commentIsValid => comment.trim().split(RegExp(r'\s+')).length <= 50;
 
   bool get canSubmitAction =>
-      pcn.isNotEmpty &&
+      pcns.isNotEmpty &&
       (type == ActionType.driversLicense ||
           type == ActionType.vehicleParticulars) &&
       commentIsValid;
@@ -102,7 +102,7 @@ class ActionNotifier extends StateNotifier<ActionState> {
     state = state.copyWith(comment: text, commentTouched: touched);
   }
 
-  void updatePCNs(List<String> pcns) => state = state.copyWith(pcn: pcns.first);
+  void updatePCNs(List<String> pcns) => state = state.copyWith(pcns: pcns);
 
   /// Submit selections to backend (or local sync)
   Future<void> submitAction() async {

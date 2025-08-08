@@ -76,7 +76,7 @@ class AppDropdownField<T> extends StatelessWidget {
       value: value,
       items: items,
       selectedItemBuilder: selectedItemBuilder,
-      onChanged: (enabled && !isPreviewMode) ? onChanged : null, //(v) => {},
+      onChanged: (enabled && !isPreviewMode) ? onChanged : (v) => {},
       padding: EdgeInsets.zero,
       decoration: InputDecoration(
         hintText: isPreviewMode ? '' : hintText,
