@@ -1,278 +1,288 @@
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/violation_file.dart';
 
 part 'violation_model.g.dart';
 
-@HiveType(typeId: 1) // ← pick a unique typeId per model
+@HiveType(typeId: 1)
 @JsonSerializable()
 class ViolationModel {
   @HiveField(0)
-  @JsonKey(name: 'violation_id')
-  final int id;
+  @JsonKey(name: 'violation_id', defaultValue: 0)
+  final int? id;
 
   @HiveField(1)
-  @JsonKey(name: 'zone_id')
-  final int zoneId;
+  @JsonKey(name: 'zone_id', defaultValue: 0)
+  final int? zoneId;
 
   @HiveField(2)
-  @JsonKey(name: 'command_id')
-  final int commandId;
+  @JsonKey(name: 'command_id', defaultValue: 0)
+  final int? commandId;
 
   @HiveField(3)
-  @JsonKey(name: 'offence_id')
-  final int offenceId;
+  @JsonKey(name: 'offence_id', defaultValue: 0)
+  final int? offenceId;
 
   @HiveField(4)
-  @JsonKey(name: 'offender_id')
-  final int offenderId;
+  @JsonKey(name: 'offender_id', defaultValue: 0)
+  final int? offenderId;
 
   @HiveField(5)
-  @JsonKey(name: 'plate_color_id')
-  final int plateColorId;
+  @JsonKey(name: 'plate_color_id', defaultValue: 0)
+  final int? plateColorId;
 
   @HiveField(6)
-  @JsonKey(name: 'plate_type_id')
-  final int plateTypeId;
+  @JsonKey(name: 'plate_type_id', defaultValue: 0)
+  final int? plateTypeId;
 
   @HiveField(7)
-  @JsonKey(name: 'event_type_id')
-  final int eventTypeId;
+  @JsonKey(name: 'event_type_id', defaultValue: 0)
+  final int? eventTypeId;
 
   @HiveField(8)
-  @JsonKey(name: 'vehicle_brand_id')
-  final int vehicleBrandId;
+  @JsonKey(name: 'vehicle_brand_id', defaultValue: 0)
+  final int? vehicleBrandId;
 
   @HiveField(9)
-  @JsonKey(name: 'vehicle_color_id')
-  final int vehicleColorId;
+  @JsonKey(name: 'vehicle_color_id', defaultValue: 0)
+  final int? vehicleColorId;
 
   @HiveField(10)
-  @JsonKey(name: 'vehicle_type_id')
-  final int vehicleTypeId;
+  @JsonKey(name: 'vehicle_type_id', defaultValue: 0)
+  final int? vehicleTypeId;
 
   @HiveField(11)
-  @JsonKey(name: 'pcn')
-  final String pcnNumber;
+  @JsonKey(name: 'pcn', defaultValue: '')
+  final String? pcnNumber;
 
   @HiveField(12)
-  @JsonKey(name: 'plate_no')
-  final String plateNumber;
+  @JsonKey(name: 'plate_no', defaultValue: '')
+  final String? plateNumber;
 
   @HiveField(13)
-  @JsonKey(name: 'violation_date')
-  final String violationDateIso;
+  @JsonKey(name: 'violation_date', defaultValue: '')
+  final String? violationDateIso;
 
   @HiveField(14)
-  final String status;
+  @JsonKey(name: 'status', defaultValue: '')
+  final String? status;
 
   @HiveField(15)
-  @JsonKey(name: 'payment_method')
+  @JsonKey(name: 'payment_method', defaultValue: '')
   final String? paymentMethod;
 
   @HiveField(16)
-  @JsonKey(name: 'payment_platform')
+  @JsonKey(name: 'payment_platform', defaultValue: '')
   final String? paymentPlatform;
 
   @HiveField(17)
-  @JsonKey(name: 'payment_amount')
-  final int paymentAmount;
+  @JsonKey(name: 'payment_amount', defaultValue: 0)
+  final int? paymentAmount;
 
   @HiveField(18)
-  @JsonKey(name: 'payment_date')
+  @JsonKey(name: 'payment_date', defaultValue: '')
   final String? paymentDateIso;
 
   @HiveField(19)
-  @JsonKey(name: 'slts_amount')
-  final int sltsAmount;
+  @JsonKey(name: 'slts_amount', defaultValue: 0)
+  final int? sltsAmount;
 
   @HiveField(20)
-  @JsonKey(name: 'client_amount')
-  final int clientAmount;
+  @JsonKey(name: 'client_amount', defaultValue: 0)
+  final int? clientAmount;
 
   @HiveField(21)
-  @JsonKey(name: 'payment_status')
-  final String paymentStatus;
+  @JsonKey(name: 'payment_status', defaultValue: '')
+  final String? paymentStatus;
 
   @HiveField(22)
-  @JsonKey(name: 'payment_reference')
+  @JsonKey(name: 'payment_reference', defaultValue: '')
   final String? paymentReference;
 
   @HiveField(23)
-  @JsonKey(name: 'inserted_by')
-  final int insertedBy;
+  @JsonKey(name: 'inserted_by', defaultValue: 0)
+  final int? insertedBy;
 
   @HiveField(24)
-  @JsonKey(name: 'inserted_date')
-  final String insertedDateIso;
+  @JsonKey(name: 'inserted_date', defaultValue: '')
+  final String? insertedDateIso;
 
   @HiveField(25)
-  @JsonKey(name: 'inserted_by_name')
-  final String insertedByName;
+  @JsonKey(name: 'inserted_by_name', defaultValue: '')
+  final String? insertedByName;
 
   @HiveField(26)
-  @JsonKey(name: 'zone_name')
-  final String zoneName;
+  @JsonKey(name: 'zone_name', defaultValue: '')
+  final String? zoneName;
 
   @HiveField(27)
-  @JsonKey(name: 'command_name')
-  final String commandName;
+  @JsonKey(name: 'command_name', defaultValue: '')
+  final String? commandName;
 
   @HiveField(28)
-  @JsonKey(name: 'offence_name')
-  final String offenceName;
+  @JsonKey(name: 'offence_name', defaultValue: '')
+  final String? offenceName;
 
   @HiveField(29)
-  @JsonKey(name: 'offence_code')
-  final String offenceCode;
+  @JsonKey(name: 'offence_code', defaultValue: '')
+  final String? offenceCode;
 
   @HiveField(30)
-  @JsonKey(name: 'offence_short')
-  final String offenceShort;
+  @JsonKey(name: 'offence_short', defaultValue: '')
+  final String? offenceShort;
 
   @HiveField(31)
-  final int amount;
+  @JsonKey(name: 'amount', defaultValue: 0)
+  final int? amount;
 
   @HiveField(32)
-  @JsonKey(name: 'first_name')
-  final String firstName;
+  @JsonKey(name: 'first_name', defaultValue: '')
+  final String? firstName;
 
   @HiveField(33)
-  final String surname;
+  @JsonKey(name: 'surname', defaultValue: '')
+  final String? surname;
 
   @HiveField(34)
-  @JsonKey(name: 'offender_name')
-  final String offenderName;
+  @JsonKey(name: 'offender_name', defaultValue: '')
+  final String? offenderName;
 
   @HiveField(35)
-  @JsonKey(name: 'phone_number')
-  final String phoneNumber;
+  @JsonKey(name: 'phone_number', defaultValue: '')
+  final String? phoneNumber;
 
   @HiveField(36)
-  @JsonKey(name: 'email_address')
-  final String emailAddress;
+  @JsonKey(name: 'email_address', defaultValue: '')
+  final String? emailAddress;
 
   @HiveField(37)
-  @JsonKey(name: 'plate_color_name')
-  final String plateColorName;
+  @JsonKey(name: 'plate_color_name', defaultValue: '')
+  final String? plateColorName;
 
   @HiveField(38)
-  @JsonKey(name: 'plate_type_name')
-  final String plateTypeName;
+  @JsonKey(name: 'plate_type_name', defaultValue: '')
+  final String? plateTypeName;
 
   @HiveField(39)
-  @JsonKey(name: 'event_type_name')
-  final String eventTypeName;
+  @JsonKey(name: 'event_type_name', defaultValue: '')
+  final String? eventTypeName;
 
   @HiveField(40)
-  @JsonKey(name: 'vehicle_brand_name')
-  final String vehicleBrandName;
+  @JsonKey(name: 'vehicle_brand_name', defaultValue: '')
+  final String? vehicleBrandName;
 
   @HiveField(41)
-  @JsonKey(name: 'vehicle_color_name')
-  final String vehicleColorName;
+  @JsonKey(name: 'vehicle_color_name', defaultValue: '')
+  final String? vehicleColorName;
 
   @HiveField(42)
-  @JsonKey(name: 'vehicle_type_name')
-  final String vehicleTypeName;
+  @JsonKey(name: 'vehicle_type_name', defaultValue: '')
+  final String? vehicleTypeName;
 
   ViolationModel({
-    required this.id,
-    required this.zoneId,
-    required this.commandId,
-    required this.offenceId,
-    required this.offenderId,
-    required this.plateColorId,
-    required this.plateTypeId,
-    required this.eventTypeId,
-    required this.vehicleBrandId,
-    required this.vehicleColorId,
-    required this.vehicleTypeId,
-    required this.pcnNumber,
-    required this.plateNumber,
-    required this.violationDateIso,
-    required this.status,
+    this.id,
+    this.zoneId,
+    this.commandId,
+    this.offenceId,
+    this.offenderId,
+    this.plateColorId,
+    this.plateTypeId,
+    this.eventTypeId,
+    this.vehicleBrandId,
+    this.vehicleColorId,
+    this.vehicleTypeId,
+    this.pcnNumber,
+    this.plateNumber,
+    this.violationDateIso,
+    this.status,
     this.paymentMethod,
     this.paymentPlatform,
-    required this.paymentAmount,
+    this.paymentAmount,
     this.paymentDateIso,
-    required this.sltsAmount,
-    required this.clientAmount,
-    required this.paymentStatus,
+    this.sltsAmount,
+    this.clientAmount,
+    this.paymentStatus,
     this.paymentReference,
-    required this.insertedBy,
-    required this.insertedDateIso,
-    required this.insertedByName,
-    required this.zoneName,
-    required this.commandName,
-    required this.offenceName,
-    required this.offenceCode,
-    required this.offenceShort,
-    required this.amount,
-    required this.firstName,
-    required this.surname,
-    required this.offenderName,
-    required this.phoneNumber,
-    required this.emailAddress,
-    required this.plateColorName,
-    required this.plateTypeName,
-    required this.eventTypeName,
-    required this.vehicleBrandName,
-    required this.vehicleColorName,
-    required this.vehicleTypeName,
+    this.insertedBy,
+    this.insertedDateIso,
+    this.insertedByName,
+    this.zoneName,
+    this.commandName,
+    this.offenceName,
+    this.offenceCode,
+    this.offenceShort,
+    this.amount,
+    this.firstName,
+    this.surname,
+    this.offenderName,
+    this.phoneNumber,
+    this.emailAddress,
+    this.plateColorName,
+    this.plateTypeName,
+    this.eventTypeName,
+    this.vehicleBrandName,
+    this.vehicleColorName,
+    this.vehicleTypeName,
   });
 
-  /// JSON
   factory ViolationModel.fromJson(Map<String, dynamic> json) =>
       _$ViolationModelFromJson(json);
+
   Map<String, dynamic> toJson() => _$ViolationModelToJson(this);
 
-  /// toEntity
-  Violation toEntity() => Violation(
-    id: id,
-    zoneId: zoneId,
-    commandId: commandId,
-    offenceId: offenceId,
-    offenderId: offenderId,
-    plateColorId: plateColorId,
-    plateTypeId: plateTypeId,
-    eventTypeId: eventTypeId,
-    vehicleBrandId: vehicleBrandId,
-    vehicleColorId: vehicleColorId,
-    vehicleTypeId: vehicleTypeId,
-    pcnNumber: pcnNumber,
-    plateNumber: plateNumber,
-    violationDate: DateTime.parse(violationDateIso),
-    status: status,
+  /// Convert to your domain entity, with fallbacks if you like:
+  Violation toEntity({List<ViolationFile>? files}) => Violation(
+    id: id ?? 0,
+    zoneId: zoneId ?? 0,
+    commandId: commandId ?? 0,
+    offenceId: offenceId ?? 0,
+    offenderId: offenderId ?? 0,
+    plateColorId: plateColorId ?? 0,
+    plateTypeId: plateTypeId ?? 0,
+    eventTypeId: eventTypeId ?? 0,
+    vehicleBrandId: vehicleBrandId ?? 0,
+    vehicleColorId: vehicleColorId ?? 0,
+    vehicleTypeId: vehicleTypeId ?? 0,
+    pcnNumber: pcnNumber ?? '',
+    plateNumber: plateNumber ?? '',
+    violationDate:
+        violationDateIso != null && violationDateIso?.isNotEmpty == true
+        ? DateTime.parse(violationDateIso!)
+        : DateTime.fromMillisecondsSinceEpoch(0),
+    status: status ?? '',
     paymentMethod: paymentMethod,
     paymentPlatform: paymentPlatform,
-    paymentAmount: paymentAmount,
-    paymentDate: paymentDateIso != null
+    paymentAmount: paymentAmount ?? 0,
+    paymentDate: (paymentDateIso != null && paymentDateIso!.isNotEmpty)
         ? DateTime.parse(paymentDateIso!)
         : null,
-    sltsAmount: sltsAmount,
-    clientAmount: clientAmount,
-    paymentStatus: paymentStatus,
+    sltsAmount: sltsAmount ?? 0,
+    clientAmount: clientAmount ?? 0,
+    paymentStatus: paymentStatus ?? '',
     paymentReference: paymentReference,
-    insertedBy: insertedBy,
-    insertedDate: DateTime.parse(insertedDateIso),
-    insertedByName: insertedByName,
-    zoneName: zoneName,
-    commandName: commandName,
-    offenceName: offenceName,
-    offenceCode: offenceCode,
-    offenceShort: offenceShort,
-    amount: amount,
-    firstName: firstName,
-    surname: surname,
-    offenderName: offenderName,
-    phoneNumber: phoneNumber,
-    emailAddress: emailAddress,
-    plateColorName: plateColorName,
-    plateTypeName: plateTypeName,
-    eventTypeName: eventTypeName,
-    vehicleBrandName: vehicleBrandName,
-    vehicleColorName: vehicleColorName,
-    vehicleTypeName: vehicleTypeName,
+    insertedBy: insertedBy ?? 0,
+    insertedDate: insertedDateIso != null && insertedDateIso?.isNotEmpty == true
+        ? DateTime.parse(insertedDateIso!)
+        : DateTime.fromMillisecondsSinceEpoch(0),
+    insertedByName: insertedByName ?? '',
+    zoneName: zoneName ?? '',
+    commandName: commandName ?? '',
+    offenceName: offenceName ?? '',
+    offenceCode: offenceCode ?? '',
+    offenceShort: offenceShort ?? '',
+    amount: amount ?? 0,
+    firstName: firstName ?? '',
+    surname: surname ?? '',
+    offenderName: offenderName ?? '',
+    phoneNumber: phoneNumber ?? '',
+    emailAddress: emailAddress ?? '',
+    plateColorName: plateColorName ?? '',
+    plateTypeName: plateTypeName ?? '',
+    eventTypeName: eventTypeName ?? '',
+    vehicleBrandName: vehicleBrandName ?? '',
+    vehicleColorName: vehicleColorName ?? '',
+    vehicleTypeName: vehicleTypeName ?? '',
+    files: files ?? [],
   );
 }

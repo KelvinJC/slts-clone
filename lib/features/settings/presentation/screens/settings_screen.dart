@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
@@ -7,11 +8,24 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import '../widgets/setting_item.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _State();
+}
+
+class _State extends ConsumerState<SettingsScreen> {
+  bool isSwitchOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isSwitchOn = ref.read(authNotifierProvider).user?.is2faEnabled ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
 
@@ -85,13 +99,34 @@ class SettingsScreen extends ConsumerWidget {
                               },
                             ),
                             SettingItemData(
+                              icon: AppAssets.shield,
+                              label: '2FA',
+                              onTap: () {
+                                // Navigator.pushNamed(context, '/privacyPolicy');
+                              },
+                              isSwitchOn: isSwitchOn,
+                              onSwitchChanged: (value) {
+                                // setState(() {
+                                //   isSwitchOn = !isSwitchOn;
+                                // });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      '2FA must be left enabled for security reasons',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            SettingItemData(
                               icon: AppAssets.logout,
                               label: 'Log Out',
                               onTap: () {
-                                // e.g. ref.read(authNotifierProvider.notifier).reset();
-                                Navigator.pushReplacementNamed(
+                                ref.read(authNotifierProvider.notifier).reset();
+                                Navigator.pushNamedAndRemoveUntil(
                                   context,
                                   '/login',
+                                  (route) => false,
                                 );
                               },
                             ),

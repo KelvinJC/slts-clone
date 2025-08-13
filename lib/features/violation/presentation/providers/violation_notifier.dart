@@ -1,17 +1,23 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:slts_enforcer_app/core/local_storage/local_storage.dart';
+import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/sync/domain/repositories/sync_repository.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/domain/repositories/violation_repository.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/patrol_mode_notifier.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 import 'package:slts_enforcer_app/injection.dart';
 import '../../../../core/errors/failures.dart';
+
+/// A shortcut to read other providers from inside this notifier.
+typedef Reader = T Function<T>(ProviderListenable<T> provider);
 
 /// Manages form state + all dropdown loading + media + submission.
 class ViolationNotifier extends StateNotifier<ViolationFormState> {
@@ -21,21 +27,40 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   final FocusNode plateNoFocusNode;
   List<Violation> list = [];
   final LocalStorage _storage;
+  final Reader _read;
 
-  ViolationNotifier(this._repo, this._syncRepo, this._storage)
+  ViolationNotifier(this._repo, this._syncRepo, this._storage, this._read)
     : plateNoController = TextEditingController(),
       plateNoFocusNode = FocusNode(),
       super(ViolationFormState.initial()) {
     // _loadAllSettings();
   }
 
-  Future<void> search({bool isNext = false}) async {
+  Future<void> refreshPatrolMode() async {
+    try {
+      await _read(patrolModeProvider.notifier).fetchPatrolMode();
+    } catch (e) {
+      // ignore
+      print("Failed to fetch recent captures: $e");
+    }
+  }
+
+  Future<void> refreshRecentCaptures() async {
+    try {
+      await _read(recentCapturesProvider.notifier).fetchRecentCaptures();
+    } catch (e) {
+      // ignore
+      print("Failed to fetch recent captures: $e");
+    }
+  }
+
+  Future<List<Violation>?> search({bool isNext = false}) async {
     final plate = plateNoController.text.trim();
-    if (plate.isEmpty) return;
+    if (plate.isEmpty) return null;
 
     if (plate == state.plate) {
       // No change, skip search
-      return;
+      return null;
     }
 
     if (!isNext) {
@@ -49,14 +74,14 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       if (list.isNotEmpty) {
         await loadSettings(v: list.first, skipLoading: true);
         state = state.copyWith(plateNoLoading: false);
+
+        return list;
       } else {
         // clear state
         resetFormFields();
         state = state.copyWith(
           plateNoLoading: false,
-          error: UnexpectedFailure(
-            rawMessage: 'No violations found for $plate',
-          ),
+          error: UnexpectedFailure(rawMessage: 'No record found for $plate'),
         );
       }
     } on Failure catch (f) {
@@ -66,6 +91,7 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       }
       state = state.copyWith(plateNoLoading: false, error: f);
     }
+    return null;
   }
 
   @override
@@ -307,19 +333,15 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   /// Submit the full violation.
   Future<bool?> submit() async {
     final form = state;
-    state = state.copyWith(loading: true, error: null);
+    state = state.copyWith(isSubmitting: true, error: null);
     // 1️⃣ Convert each local file path into a Base64‐encoded string
-    final violationFiles = await Future.wait(
-      state.mediaPaths.map((path) async {
-        final bytes = await File(path).readAsBytes();
-        return base64Encode(bytes);
-      }),
-    );
+    final files = await encodeFilesToDataUris(state.mediaPaths);
 
     final req = CreateViolationRequest(
       zoneId: form.zone!.id.toString(),
       commandId: form.command!.id.toString(),
       offenceId: form.offence!.id.toString(),
+      offenderId: form.offenderId ?? '',
       firstName: form.firstName,
       surname: form.surname,
       phoneNumber: form.phone,
@@ -333,19 +355,19 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       pcn: list.isNotEmpty ? list.first.pcnNumber : '',
       plateNo: form.plate,
       violationDate: form.date,
-      paymentAmount: list.isNotEmpty ? list.first.amount.toString() : '0.0',
-      sltsAmount: list.isNotEmpty ? list.first.sltsAmount.toString() : '0.0',
-      clientAmount: list.isNotEmpty
-          ? list.first.clientAmount.toString()
-          : '0.0',
-      insertedBy: await _storage.getAuthToken() ?? '',
-      violationFiles: violationFiles,
+      paymentAmount: form.offence?.amount.toString() ?? '0',
+      // sltsAmount: list.isNotEmpty ? list.first.sltsAmount.toString() : '0.0',
+      // clientAmount: list.isNotEmpty
+      //     ? list.first.clientAmount.toString()
+      //     : '0.0',
+      insertedBy: _read(authNotifierProvider).user?.id.toString() ?? '0',
+      files: files,
     );
 
     try {
       await _repo.createViolation(req);
       // state = AsyncValue.data(form);
-      state = state.copyWith(loading: false, error: null);
+      state = state.copyWith(isSubmitting: false, error: null);
       resetFormFields(clearController: true);
 
       return true;
@@ -355,18 +377,18 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
         final vHiveModel = req.toViolationHiveModel();
         await _syncRepo.saveOfflineViolation(vHiveModel);
 
-        state = state.copyWith(loading: false);
+        state = state.copyWith(isSubmitting: false);
         resetFormFields(clearController: true);
 
         return false;
       }
 
-      state = state.copyWith(loading: false, error: f);
+      state = state.copyWith(isSubmitting: false, error: f);
       return null;
     } on Exception catch (e) {
       print('Error submitting violation: $e');
       state = state.copyWith(
-        loading: false,
+        isSubmitting: false,
         error: UnexpectedFailure(rawMessage: e.toString()),
       );
       return null;
@@ -376,12 +398,14 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
   /// Clears *only* the user‐entered fields and media, but preserves all the
   /// pre‐loaded settings lists (offenceOptions, zoneOptions, etc).
   void resetFormFields({bool clearController = false}) {
-    if (clearController) {
-      plateNoController.clear();
-    }
+    // if (clearController) {
+    //   plateNoController.clear();
+    // }
 
     list.clear();
     state = state.copyWith(
+      plate: '',
+      //
       plateType: DropdownOption.empty(),
       plateColor: DropdownOption.empty(),
       brand: DropdownOption.empty(),
@@ -392,7 +416,8 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
       surname: '',
       phone: '',
       email: '',
-      // OBSOLETE
+      //
+      offenderId: '',
       offence: DropdownOption.empty(),
       eventType: DropdownOption.empty(),
       date: '',
@@ -420,27 +445,58 @@ class ViolationNotifier extends StateNotifier<ViolationFormState> {
 
       state = state.copyWith(
         plate: v.plateNumber,
-        plateType: DropdownOption(v.plateTypeId, v.plateTypeName),
-        plateColor: DropdownOption(v.plateColorId, v.plateColorName),
-        brand: DropdownOption(v.vehicleBrandId, v.vehicleBrandName),
-        vehicleType: DropdownOption(v.vehicleTypeId, v.vehicleTypeName),
-        vehicleColor: DropdownOption(v.vehicleColorId, v.vehicleColorName),
+        plateType: DropdownOption(v.plateTypeId, v.plateTypeName, null),
+        plateColor: DropdownOption(v.plateColorId, v.plateColorName, null),
+        brand: DropdownOption(v.vehicleBrandId, v.vehicleBrandName, null),
+        vehicleType: DropdownOption(v.vehicleTypeId, v.vehicleTypeName, null),
+        vehicleColor: DropdownOption(
+          v.vehicleColorId,
+          v.vehicleColorName,
+          null,
+        ),
         //
         firstName: v.firstName,
         surname: v.surname,
         phone: v.phoneNumber,
         email: v.emailAddress,
-        // OBSOLETE
-        offence: DropdownOption(v.offenceId, v.offenceName),
-        eventType: DropdownOption(v.eventTypeId, v.eventTypeName),
-        date: v.violationDate.toIso8601String(),
-        zone: DropdownOption(v.zoneId, v.zoneName),
-        command: DropdownOption(v.commandId, v.commandName),
+        //
+        offenderId: v.offenderId.toString(),
+        // offence: DropdownOption(
+        //   v.offenceId,
+        //   v.offenceName,
+        //   v.amount.toDouble(),
+        // ),
+        // eventType: DropdownOption(v.eventTypeId, v.eventTypeName, null),
+        // date: v.violationDate.toIso8601String(),
+        // zone: DropdownOption(v.zoneId, v.zoneName, null),
+        // command: DropdownOption(v.commandId, v.commandName, null),
       );
-    } else {
-      await _loadAllSettings();
     }
+    //  else {
+    await _loadAllSettings();
+    // }
     state = state.copyWith(loading: false, error: null);
+  }
+
+  /// Encodes a list of file paths to "data:{mime};base64,{base64}" strings.
+  /// Throws if any file path doesn't exist.
+  Future<List<String>> encodeFilesToDataUris(List<String> paths) async {
+    return await Future.wait(
+      paths.map((path) async {
+        final file = File(path);
+        if (!await file.exists()) {
+          throw Exception('File not found: $path');
+        }
+
+        final bytes = await file.readAsBytes();
+        final mimeType =
+            lookupMimeType(path, headerBytes: bytes) ??
+            'application/octet-stream';
+
+        // Uri.dataFromBytes will produce: "data:<mimeType>;base64,<base64...>"
+        return Uri.dataFromBytes(bytes, mimeType: mimeType).toString();
+      }),
+    );
   }
 }
 
@@ -451,5 +507,6 @@ final violationNotifierProvider =
         ref.read(violationRepositoryProvider),
         ref.read(syncRepositoryProvider),
         ref.read(localStorageProvider),
+        ref.read,
       ),
     );

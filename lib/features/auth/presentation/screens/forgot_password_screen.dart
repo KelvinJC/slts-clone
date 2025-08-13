@@ -173,7 +173,11 @@ class _State extends ConsumerState<ForgotPasswordScreen> {
                         alignment: Alignment.topRight,
                         child: GestureDetector(
                           onTap: () => notifier.reset(),
-                          child: Icon(Icons.close, size: wp(6)),
+                          child: Icon(
+                            Icons.close,
+                            size: wp(6),
+                            color: AppColors.onBackground,
+                          ),
                         ),
                       ),
 

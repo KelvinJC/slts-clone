@@ -12,9 +12,9 @@ class AppAssets {
   static const settings = 'assets/icons/settings.png';
   static const patrolModePlaceholder =
       'assets/images/patrol_mode_placeholder.png';
-  static const appLogo = 'assets/images/splash-logo.png';
+  static const appLogo = 'assets/images/slts-logo.png';
   static const trafficScene = 'assets/images/traffic-scene.jpg';
-  static const logoAnimation = 'assets/images/slts-animated-logo.gif';
+  static const logoAnimation = 'assets/images/slts-animated-logo-transparent.gif';
   // static const passwordReset = 'assets/images/password-reset-img.png';
   static const createJob = 'assets/images/oui_ml-create-advanced-job.png';
   static const passwordResetEmail = 'assets/images/password-reset-email.png';
@@ -28,4 +28,18 @@ class AppAssets {
   static const phone = 'assets/icons/phone.png';
   static const globe = 'assets/icons/stash_globe-timezone-light.png';
   static const error = 'assets/icons/error.png';
+  static const successBgGif = 'assets/gifs/success_bg.gif';
+  static const tick = 'assets/icons/teenyicons_tick-circle-solid.png';
+  static const plateNumberPlaceHolder = 'assets/images/plate-number-focus.png';
+  static const menu = 'assets/icons/menu-dots.png';
+  static const whatsApp = 'assets/icons/whatsapp.png';
+  static const linkedIn = 'assets/icons/linkedin.png';
+  static const instaGram = 'assets/icons/instagram.png';
+  static const twitter = 'assets/icons/twitter.png';
+  static const copyLink = 'assets/icons/copy-link.png';
+  static const checkMark = 'assets/images/check-mark.png';
+  static const mastercard = 'assets/images/mastercard-logo.png';
+  static const visa = 'assets/images/visa-card-logo.png';
+  static const radioButton = 'assets/images/radio-button.png';
+
 }

@@ -11,6 +11,8 @@ class CreateViolationRequest {
   final String commandId;
   @JsonKey(name: 'offence_id')
   final String offenceId;
+  @JsonKey(name: 'offender_id')
+  final String offenderId;
   @JsonKey(name: 'first_name')
   final String firstName;
   @JsonKey(name: 'surname')
@@ -39,19 +41,20 @@ class CreateViolationRequest {
   final String violationDate;
   @JsonKey(name: 'payment_amount')
   final String paymentAmount;
-  @JsonKey(name: 'slts_amount')
-  final String sltsAmount;
-  @JsonKey(name: 'client_amount')
-  final String clientAmount;
+  // @JsonKey(name: 'slts_amount')
+  // final String sltsAmount;
+  // @JsonKey(name: 'client_amount')
+  // final String clientAmount;
   @JsonKey(name: 'inserted_by')
   final String insertedBy;
-  @JsonKey(name: 'violation_files')
-  final List<String>? violationFiles;
+  @JsonKey(name: 'files')
+  final List<String>? files;
 
   CreateViolationRequest({
     required this.zoneId,
     required this.commandId,
     required this.offenceId,
+    required this.offenderId,
     required this.firstName,
     required this.surname,
     required this.phoneNumber,
@@ -66,10 +69,10 @@ class CreateViolationRequest {
     required this.plateNo,
     required this.violationDate,
     required this.paymentAmount,
-    required this.sltsAmount,
-    required this.clientAmount,
+    // required this.sltsAmount,
+    // required this.clientAmount,
     required this.insertedBy,
-    required this.violationFiles,
+    required this.files,
   });
 
   /// New: construct from your local ViolationModel
@@ -78,6 +81,7 @@ class CreateViolationRequest {
       zoneId: v.zoneId.toString(),
       commandId: v.commandId.toString(),
       offenceId: v.offenceId.toString(),
+      offenderId: v.offenderId.toString(),
       firstName: v.firstName,
       surname: v.surname,
       phoneNumber: v.phoneNumber,
@@ -92,10 +96,10 @@ class CreateViolationRequest {
       plateNo: v.plateNo,
       violationDate: v.violationDate.toString(),
       paymentAmount: v.paymentAmount.toString(),
-      sltsAmount: v.sltsAmount.toString(),
-      clientAmount: v.clientAmount.toString(),
+      // sltsAmount: v.sltsAmount.toString(),
+      // clientAmount: v.clientAmount.toString(),
       insertedBy: v.insertedBy,
-      violationFiles: v.violationFiles,
+      files: v.files,
       // mediaPaths: List<String>.from(v.mediaPaths),
       // mediaPaths: [],
     );
@@ -106,6 +110,7 @@ class CreateViolationRequest {
       zoneId: int.parse(zoneId),
       commandId: int.parse(commandId),
       offenceId: int.parse(offenceId),
+      offenderId: int.parse(offenderId),
       firstName: firstName,
       surname: surname,
       phoneNumber: phoneNumber,
@@ -120,10 +125,10 @@ class CreateViolationRequest {
       plateNo: plateNo,
       violationDate: violationDate,
       paymentAmount: paymentAmount,
-      sltsAmount: sltsAmount,
-      clientAmount: clientAmount,
+      // sltsAmount: sltsAmount,
+      // clientAmount: clientAmount,
       insertedBy: insertedBy,
-      violationFiles: violationFiles,
+      files: files,
     );
   }
 

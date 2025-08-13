@@ -23,6 +23,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
           .map((e) => PermissionModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       token: TokenModel.fromJson(json['token'] as Map<String, dynamic>),
+      is2faEnabled: json['is2faEnabled'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -40,4 +41,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'login_type': instance.loginType,
       'perm': instance.permissions.map((e) => e.toJson()).toList(),
       'token': instance.token.toJson(),
+      'is2faEnabled': instance.is2faEnabled,
     };

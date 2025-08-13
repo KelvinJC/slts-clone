@@ -6,9 +6,11 @@ import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_request.d
 import 'package:slts_enforcer_app/features/auth/data/models/verify_otp_response.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/action_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/list_item_model.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
-import 'package:slts_enforcer_app/features/violation/data/models/run_plate_response.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/violation_response.dart';
 import '../../features/auth/data/models/login_request.dart';
 import '../../features/auth/data/models/user_model.dart';
 
@@ -31,11 +33,25 @@ abstract class AppApi {
     @Body() ForgotPasswordRequest body,
   );
 
-  @POST('/authenticate-with-token')
+  @POST('/login/authenticate-with-token')
   Future<VerifyOtpResponse> loginWithToken();
 
   @POST('/violation/run-plate-number')
-  Future<RunPlateResponse> runPlateNumber(@Body() RunPlateRequest body);
+  Future<ViolationResponse> runPlateNumber(@Body() RunPlateRequest body);
+
+  @GET('/violation/mobile-user/list/{userId}')
+  Future<ViolationResponse> getRecentCaptures(
+    @Path("userId") int userId,
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @GET('/violation/mobile-user/list/{userId}')
+  Future<ViolationResponse> getPatrolMode(
+    @Path("userId") int userId,
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
 
   @GET('/settings/vehicle/brand/list')
   Future<GenericResponse> getVehicleBrandList();
@@ -64,6 +80,12 @@ abstract class AppApi {
   @GET('/settings/command/list/{zoneId}')
   Future<GenericResponse> getCommandList(@Path() int zoneId);
 
-  @POST('/violation/add')
+  @POST('/violation/add-from-mobile')
   Future<GenericResponse> createViolation(@Body() CreateViolationRequest req);
+
+  @POST('/violation/resend-link')
+  Future<GenericResponse> resendLink(@Body() ResendLinkRequest req);
+
+  @PATCH('/violation/mobile-action')
+  Future<GenericResponse> submitAction(@Body() ActionRequest req);
 }

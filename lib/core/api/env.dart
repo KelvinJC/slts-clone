@@ -9,4 +9,16 @@ class Env {
     }
     return value;
   }
+
+  static String get violationFileUrl {
+    return '${Env.apiBase}/public/upload';
+  }
+
+  static String get resendLinkUrl {
+    final value = dotenv.env['RESEND_LINK_URL'];
+    if (value == null) {
+      throw Exception('RESEND_LINK_URL is not set in .env');
+    }
+    return value;
+  }
 }

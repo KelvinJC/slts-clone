@@ -8,7 +8,7 @@ part of 'verify_otp_response.dart';
 
 VerifyOtpResponse _$VerifyOtpResponseFromJson(Map<String, dynamic> json) =>
     VerifyOtpResponse(
-      message: json['message'] as String,
+      message: json['message'] as String?,
       userData: (json['userData'] as List<dynamic>?)
           ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList(),

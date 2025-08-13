@@ -44,6 +44,9 @@ class User extends Equatable {
   /// JWT or API token string
   final String token;
 
+  /// 2FA status
+  final bool is2faEnabled;
+
   const User({
     required this.id,
     required this.firstName,
@@ -59,6 +62,7 @@ class User extends Equatable {
     required this.loginType,
     required this.permissions,
     required this.token,
+    required this.is2faEnabled,
   });
 
   @override
@@ -77,5 +81,6 @@ class User extends Equatable {
     loginType,
     permissions,
     token,
+    is2faEnabled,
   ];
 }

@@ -20,6 +20,7 @@ class ViolationHiveModelAdapter extends TypeAdapter<ViolationHiveModel> {
       zoneId: fields[0] as int,
       commandId: fields[1] as int,
       offenceId: fields[2] as int,
+      offenderId: fields[19] as int,
       firstName: fields[3] as String,
       surname: fields[4] as String,
       phoneNumber: fields[5] as String,
@@ -34,17 +35,15 @@ class ViolationHiveModelAdapter extends TypeAdapter<ViolationHiveModel> {
       plateNo: fields[14] as String,
       violationDate: fields[15] as String,
       paymentAmount: fields[16] as String,
-      sltsAmount: fields[17] as String,
-      clientAmount: fields[18] as String,
-      insertedBy: fields[19] as String,
-      violationFiles: (fields[20] as List?)?.cast<String>(),
+      insertedBy: fields[17] as String,
+      files: (fields[18] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ViolationHiveModel obj) {
     writer
-      ..writeByte(21)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.zoneId)
       ..writeByte(1)
@@ -80,13 +79,11 @@ class ViolationHiveModelAdapter extends TypeAdapter<ViolationHiveModel> {
       ..writeByte(16)
       ..write(obj.paymentAmount)
       ..writeByte(17)
-      ..write(obj.sltsAmount)
-      ..writeByte(18)
-      ..write(obj.clientAmount)
-      ..writeByte(19)
       ..write(obj.insertedBy)
-      ..writeByte(20)
-      ..write(obj.violationFiles);
+      ..writeByte(18)
+      ..write(obj.files)
+      ..writeByte(19)
+      ..write(obj.offenderId);
   }
 
   @override

@@ -1,5 +1,3 @@
-// lib/ui/widgets/overlay_header.dart
-
 import 'package:flutter/material.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
@@ -19,10 +17,10 @@ class OverlayHeader extends StatelessWidget {
   final VoidCallback onBack;
 
   /// If true, shows a search icon on the right.
-  final bool showSearchIcon;
+  final bool showIcon;
 
-  /// Called when the search icon is tapped.
-  final VoidCallback? onSearchTap;
+  /// Called when the icon is tapped.
+  final VoidCallback? onIconTap;
 
   /// The background color of the bar (default white).
   final Color backgroundColor;
@@ -42,18 +40,22 @@ class OverlayHeader extends StatelessWidget {
   /// Horizontal inset before back & after search as % of screen width.
   final double horizontalInset;
 
+  /// The icon to show on the right (default search icon).
+  final String icon;
+
   const OverlayHeader({
     Key? key,
     required this.title,
     required this.onBack,
-    this.showSearchIcon = false,
-    this.onSearchTap,
+    this.showIcon = false,
+    this.onIconTap,
     this.backgroundColor = Colors.white,
     this.backIconBackgroundColor = Colors.white,
     this.opacity = 0.5,
     this.topPadding = 6,
     this.height = 12.5,
     this.horizontalInset = 4,
+    this.icon = AppAssets.search,
   }) : super(key: key);
 
   @override
@@ -105,8 +107,8 @@ class OverlayHeader extends StatelessWidget {
             ),
           ),
 
-          // Optional search icon
-          if (showSearchIcon) ...[
+          // Optional icon
+          if (showIcon) ...[
             Spacer(),
             Container(
               height: wp(11),
@@ -117,13 +119,16 @@ class OverlayHeader extends StatelessWidget {
               ),
               child: IconButton(
                 icon: ImageIcon(
-                  const AssetImage(AppAssets.search),
+                  AssetImage(icon),
                   size: wp(4.5),
                   color: AppColors.onBackground,
                 ),
                 onPressed:
-                    onSearchTap ??
-                    () => Navigator.pushNamed(context, '/search'),
+                    onIconTap ??
+                    () => Navigator.popUntil(
+                      context,
+                      ModalRoute.withName('/home'),
+                    ),
                 tooltip: MaterialLocalizations.of(context).searchFieldLabel,
               ),
             ),

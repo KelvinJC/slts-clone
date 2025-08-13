@@ -3,8 +3,11 @@ import 'package:slts_enforcer_app/core/errors/failures.dart';
 import 'package:slts_enforcer_app/core/utils/connectivity_helper.dart';
 import 'package:slts_enforcer_app/core/utils/retry.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/create_violation_request.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/action_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/list_item_model.dart';
+import 'package:slts_enforcer_app/features/violation/data/models/resend_link_request.dart';
 import 'package:slts_enforcer_app/features/violation/data/models/run_plate_request.dart';
+import 'package:slts_enforcer_app/features/violation/domain/entities/pagination.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/violation_form_state.dart';
 // import 'package:slts_enforcer_app/core/errors/failures.dart';
@@ -22,12 +25,77 @@ class ViolationRepositoryImpl implements ViolationRepository {
     // 3) retry the whole call on transient errors
     await retry<void>(() async {
       final resp = await _api.createViolation(req);
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
         throw UnexpectedFailure(
           rawMessage: 'Create violation failed: ${resp.message}',
         );
       }
     });
+  }
+
+  @override
+  Future<(List<Violation>, Pagination?)> getRecentCaptures(
+    int userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    await ensureConnected();
+
+    return await retry<(List<Violation>, Pagination?)>(() async {
+      final resp = await _api.getRecentCaptures(userId, page, limit);
+
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
+
+      final files = resp.files ?? [];
+      final violations = (resp.data?.isEmpty ?? true)
+          ? <Violation>[]
+          : resp.data!.map((m) {
+              return m.toEntity(
+                files: files
+                    .where((f1) => f1.violationId == m.id)
+                    .map((f2) => f2.toEntity())
+                    .toList(),
+              );
+            }).toList();
+
+      return (violations, resp.pagination?.toEntity());
+    }, attempts: 2);
+  }
+
+  @override
+  Future<(List<Violation>, Pagination?)> getPatrolMode(
+    int userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    await ensureConnected();
+
+    return await retry<(List<Violation>, Pagination?)>(() async {
+      final resp = await _api.getPatrolMode(userId, page, limit);
+
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(rawMessage: resp.message);
+      }
+
+      final files = resp.files ?? [];
+      final violations = (resp.data?.isEmpty ?? true)
+          ? <Violation>[]
+          : resp.data!.map((m) {
+              return m.toEntity(
+                files: files
+                    .where((f1) => f1.violationId == m.id)
+                    .map((f2) => f2.toEntity())
+                    .toList(),
+              );
+            }).toList();
+
+      return (violations, resp.pagination?.toEntity());
+    }, attempts: 2);
   }
 
   @override
@@ -37,15 +105,25 @@ class ViolationRepositoryImpl implements ViolationRepository {
 
     return await retry<List<Violation>>(() async {
       final response = await _api.runPlateNumber(request);
-      if (response.message.toLowerCase() != 'success') {
+      if (response.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: response.message);
       }
 
-      if (response.data.isEmpty) {
-        throw UnexpectedFailure(rawMessage: 'No violations found');
+      if (response.data?.isEmpty ?? true) {
+        throw UnexpectedFailure(rawMessage: 'No record found for $plate');
       }
 
-      return response.data.map((m) => m.toEntity()).toList();
+      final files = response.files ?? [];
+      return response.data!
+          .map(
+            (m) => m.toEntity(
+              files: files
+                  .where((f1) => f1.violationId == m.id)
+                  .map((f2) => f2.toEntity())
+                  .toList(),
+            ),
+          )
+          .toList();
     }, attempts: 2);
   }
 
@@ -53,8 +131,14 @@ class ViolationRepositoryImpl implements ViolationRepository {
     List<ListItemModel> data, {
     required int Function(ListItemModel) id,
     required String Function(ListItemModel) name,
+    double Function(ListItemModel)? amount,
   }) {
-    return data.map((m) => DropdownOption(id(m), name(m))).toList();
+    return data
+        .map(
+          (m) =>
+              DropdownOption(id(m), name(m), amount == null ? null : amount(m)),
+        )
+        .toList();
   }
 
   @override
@@ -62,7 +146,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getVehicleBrandList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -84,7 +168,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getVehicleColorList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -106,7 +190,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getVehicleTypeList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -128,7 +212,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getPlateTypeList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -150,7 +234,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getPlateColorList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -172,7 +256,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getOffenceList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -185,6 +269,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
         models,
         id: (m) => m.offenceId!,
         name: (m) => m.offenceName!,
+        amount: (m) => m.amount!,
       );
     });
   }
@@ -194,7 +279,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getEventTypeList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -216,7 +301,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getZoneList();
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -234,7 +319,7 @@ class ViolationRepositoryImpl implements ViolationRepository {
     await ensureConnected();
     return await retry<List<DropdownOption>>(() async {
       final resp = await _api.getCommandList(zoneId);
-      if (resp.message.toLowerCase() != 'success') {
+      if (resp.message?.toLowerCase() != 'success') {
         throw UnexpectedFailure(rawMessage: resp.message);
       }
 
@@ -248,6 +333,40 @@ class ViolationRepositoryImpl implements ViolationRepository {
         id: (m) => m.commandId!,
         name: (m) => m.commandName!,
       );
+    });
+  }
+
+  @override
+  Future<void> submitResendLink(ResendLinkRequest req) async {
+    // 1) ensure we have connectivity
+    await ensureConnected();
+
+    // 3) retry the whole call on transient errors
+    await retry<void>(() async {
+      final resp = await _api.resendLink(req);
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(
+          rawMessage: 'Resend link failed: ${resp.message}',
+        );
+      }
+    });
+  }
+
+  @override
+  Future<void> submitAction(ActionRequest req) async {
+    // 1) ensure we have connectivity
+    await ensureConnected();
+
+    // 3) retry the whole call on transient errors
+    await retry<void>(() async {
+      final resp = await _api.submitAction(req);
+      if (resp.message?.toLowerCase() != 'success' &&
+          resp.status?.toLowerCase() != 'success') {
+        throw UnexpectedFailure(
+          rawMessage: 'Action submission failed: ${resp.message}',
+        );
+      }
     });
   }
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/features/violation/domain/entities/violation.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/screens/violation_report_screen.dart';
+import 'package:slts_enforcer_app/ui/utils/texts_extension.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/themes/app_colors.dart';
 import 'package:slts_enforcer_app/ui/widgets/html_table.dart';
+import 'package:slts_enforcer_app/ui/widgets/no_record_found.dart';
 import 'package:slts_enforcer_app/ui/widgets/overlay_header.dart';
 import 'package:slts_enforcer_app/ui/widgets/pagination_controls.dart';
 
@@ -19,6 +22,7 @@ class RecentCapturesScreen extends ConsumerStatefulWidget {
 
 class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
   int _filterIndex = 0; // 0=All,1=Paid,2=Not Paid
+  int _currentPage = 1;
   // final List<Violation> violations = [
   //   Violation(
   //     pcnNumber: 'PCN-002452',
@@ -42,18 +46,34 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
   // ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(recentCapturesProvider.notifier).fetchRecentCaptures();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final wp = context.wp;
     final hp = context.hp;
-    final headers = [
-      Text('PCN Number'),
-      Text('Plate Number'),
-      Text('Offence'),
-      Text('Zone'),
-      Text('Date'),
-      Text('First Name'),
-      Text('Surname'),
-    ];
+    final headers = [Text('Plate Number'), Text('Offence'), Text('Status')];
+    final state = ref.watch(recentCapturesProvider);
+    final ctrl = ref.read(recentCapturesProvider.notifier);
+
+    final violations = state.violations ?? [];
+    final filteredViolations = violations.where((v) {
+      String statusFilter;
+      if (_filterIndex == 0) {
+        statusFilter = v.paymentStatus; // No filter, keep current
+      } else if (_filterIndex == 1) {
+        statusFilter = 'paid';
+      } else {
+        statusFilter = 'pending';
+      }
+
+      return v.paymentStatus == statusFilter;
+    }).toList();
 
     return Scaffold(
       // extendBodyBehindAppBar: true,
@@ -81,7 +101,8 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                         title: 'Recent Capture',
                         onBack: () => Navigator.of(context).pop(),
                         opacity: 0,
-                        showSearchIcon: true,
+                        showIcon: true,
+                        // onIconTap: () {},
                       ),
 
                       SizedBox(height: hp(2)),
@@ -113,61 +134,104 @@ class _RecentCapturesScreenState extends ConsumerState<RecentCapturesScreen> {
                         padding: EdgeInsets.symmetric(horizontal: wp(4)),
                         child: Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(wp(2)),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(wp(2)),
+                                ),
+                                child: state.loading
+                                    ? Center(child: CircularProgressIndicator())
+                                    : (state.error != null
+                                          ? NoRecordFound(
+                                              title: 'Error occurred!',
+                                              subtitle:
+                                                  'Something went wrong.\n ${state.error}',
+                                            )
+                                          : (filteredViolations.isEmpty
+                                                ? NoRecordFound()
+                                                : HtmlTable<Violation>(
+                                                    headers: headers,
+                                                    rowData: filteredViolations,
+                                                    rowBuilder: (list) => list.map((
+                                                      v,
+                                                    ) {
+                                                      var testStyle = TextStyle(
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        color:
+                                                            v.paymentStatus ==
+                                                                "pending"
+                                                            ? AppColors.error
+                                                            : v.paymentStatus ==
+                                                                  "paid"
+                                                            ? AppColors.success
+                                                            : null,
+                                                      );
+                                                      return [
+                                                        Text(
+                                                          v.plateNumber,
+                                                          style: testStyle,
+                                                        ),
+                                                        Text(
+                                                          v.offenceName,
+                                                          style: testStyle,
+                                                        ),
+                                                        Text(
+                                                          v.paymentStatus
+                                                              .capitalizeFirst(),
+                                                          style: testStyle,
+                                                        ),
+                                                      ];
+                                                    }).toList(),
+                                                    onRowTap: (v, idx) {
+                                                      Navigator.of(
+                                                        context,
+                                                      ).push(
+                                                        MaterialPageRoute(
+                                                          builder: (_) =>
+                                                              ViolationReportScreen(
+                                                                violation: v,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    // // Example styling props:
+                                                    // columnWidths: [
+                                                    //   FixedColumnWidth(wp(28)),
+                                                    //   FixedColumnWidth(wp(38)),
+                                                    //   FixedColumnWidth(wp(25)),
+                                                    // ],
+                                                    columnWidths: List.generate(
+                                                      headers.length,
+                                                      (_) =>
+                                                          IntrinsicColumnWidth(),
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    outerBorderColor: AppColors
+                                                        .onBackgroundSurface2,
+                                                    innerBorderColor: AppColors
+                                                        .onBackgroundSurface2,
+                                                    rowHeight: hp(3),
+                                                    cellPadding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 10,
+                                                          horizontal: 10,
+                                                        ),
+                                                    // maxVisibleRows: 3,
+                                                  ))),
                               ),
-                              child: SizedBox(),
-                              // HtmlTable<Violation>(
-                              //   headers: headers,
-                              //   rowData: violations,
-                              //   rowBuilder: (list) => list.map((v) {
-                              //     return [
-                              //       Text(v.pcnNumber),
-                              //       Text(v.plateNumber),
-                              //       Text(v.offence),
-                              //       Text(v.zone),
-                              //       Text(v.date.toLocal().toString().split(' ')[0]),
-                              //       Text(v.firstName),
-                              //       Text(v.surname),
-                              //     ];
-                              //   }).toList(),
-                              //   onRowTap: (v, index) {
-                              //     Navigator.of(context).push(
-                              //       MaterialPageRoute(
-                              //         builder: (_) =>
-                              //             ViolationReportScreen(violation: v),
-                              //       ),
-                              //     );
-                              //   },
-                              //   // Example styling props:
-                              //   columnWidths: List.generate(
-                              //     headers.length,
-                              //     (_) => IntrinsicColumnWidth(),
-                              //   ),
-                              //   borderRadius: BorderRadius.circular(8),
-                              //   outerBorderColor: AppColors.onBackgroundSurface2,
-                              //   innerBorderColor: AppColors.onBackgroundSurface2,
-                              //   rowHeight: hp(3),
-                              //   cellPadding: const EdgeInsets.symmetric(
-                              //     vertical: 10,
-                              //     horizontal: 10,
-                              //   ),
-                              //   maxVisibleRows: _filterIndex == 0
-                              //       ? null
-                              //       : _filterIndex == 1
-                              //       ? (violations.length / 2).ceil()
-                              //       : 5,
-                              // ),
                             ),
                             // SizedBox(height: hp(2)),
                             PaginationControls(
-                              currentPage: 1,
-                              totalPages: 5,
-                              onPageChanged: (page) {
-                                // setState(() => _currentPage = page);
-                                // fetch new page…
+                              currentPage: _currentPage,
+                              totalPages: state.pagination?.totalPages ?? 1,
+                              onPageChanged: (page) async {
+                                setState(() => _currentPage = page);
+                                await ctrl.fetchRecentCaptures(page: page);
                               },
                             ),
                           ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:slts_enforcer_app/core/utils/ocr_utils.dart';
 import 'package:slts_enforcer_app/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:slts_enforcer_app/features/search/presentation/screens/search_screen.dart';
+import 'package:slts_enforcer_app/features/violation/presentation/providers/recent_captures_notifier.dart';
 import 'package:slts_enforcer_app/features/violation/presentation/providers/run_plate_notifier.dart';
 import 'package:slts_enforcer_app/ui/utils/app_assets.dart';
 import 'package:slts_enforcer_app/ui/utils/responsive.dart';
@@ -29,12 +30,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // //if not authenticated, navigate to login screen
-    // if (ref.read(authNotifierProvider).step != AuthStep.authenticated) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-    //   });
-    // }
+    //if not authenticated, navigate to login screen
+    if (ref.read(authNotifierProvider).step != AuthStep.authenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(recentCapturesProvider.notifier).fetchRecentCaptures();
+      });
+    }
   }
 
   @override

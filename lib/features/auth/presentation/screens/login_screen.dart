@@ -8,6 +8,7 @@ import 'package:slts_enforcer_app/ui/utils/responsive.dart';
 import 'package:slts_enforcer_app/ui/widgets/app_text_field.dart';
 import 'package:slts_enforcer_app/ui/widgets/gradient_button.dart';
 import 'package:slts_enforcer_app/ui/widgets/blurry_gradient_background.dart';
+import 'package:slts_enforcer_app/ui/widgets/loading_popup_widget.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -218,27 +219,40 @@ class _State extends ConsumerState<LoginScreen> {
                   FutureBuilder<bool>(
                     future: ref.read(biometricProvider).canCheckBiometrics,
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const SizedBox(); // show nothing or a loader
-                      }
+                      var txtBtn = TextButton(
+                        onPressed: snapshot.hasData && snapshot.data == true
+                            ? () {
+                                if (auth.loading || auth.biometricsLoading) {
+                                  return;
+                                }
+                                ctrl.loginWithBiometrics();
+                              }
+                            : () {},
+                        child: Text('Log in with Biometrics'),
+                      );
 
-                      if (snapshot.hasData && snapshot.data == true) {
-                        return TextButton(
-                          onPressed: () {
-                            ref
-                                .read(authNotifierProvider.notifier)
-                                .loginWithBiometrics();
-                          },
-                          child: Text('Log in with Biometrics'),
-                        );
-                      }
-                      return const SizedBox();
+                      // if (snapshot.connectionState == ConnectionState.waiting) {
+                      //   return const SizedBox(); // show nothing or a loader
+                      // }
+
+                      // if (snapshot.hasData && snapshot.data == true) {
+                      //   return TextButton(
+                      //     onPressed: () {
+                      //       ref
+                      //           .read(authNotifierProvider.notifier)
+                      //           .loginWithBiometrics();
+                      //     },
+                      //     child: Text('Log in with Biometrics'),
+                      //   );
+                      // }
+                      return txtBtn;
                     },
                   ),
                 ],
               ),
             ),
           ),
+          if (auth.biometricsLoading) LoadingPopupWidget(),
         ],
       ),
     );

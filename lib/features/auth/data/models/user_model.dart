@@ -48,6 +48,9 @@ class UserModel {
   /// Token object containing headers map
   final TokenModel token;
 
+  /// is2faEnabled
+  final bool is2faEnabled;
+
   UserModel({
     required this.userId,
     required this.firstName,
@@ -63,6 +66,7 @@ class UserModel {
     required this.loginType,
     required this.permissions,
     required this.token,
+    this.is2faEnabled = true,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -86,5 +90,6 @@ class UserModel {
     loginType: loginType,
     permissions: permissions.map((p) => p.permission).toList(),
     token: token.headers['SLTSTrafficAPIToken']!,
+    is2faEnabled: is2faEnabled,
   );
 }
